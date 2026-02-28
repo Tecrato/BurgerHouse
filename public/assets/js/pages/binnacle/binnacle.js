@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import {myfecth} from "../../Functions2.js";
 import introTooltip from "../../intro-tooltip.js"
 const { sessionInfo, binnacle, fecha, hora } = functionGeneral();
 const { binnacleIntro } = introTooltip()
@@ -8,11 +9,43 @@ let session = await sessionInfo();
 let table = $('.table_binnacle_user').DataTable({
     language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
     "order": [[0, "desc"]],
-    ajax: {
-        url: 'binnacle/get_all/0/10000000/id/asc',
-        dataSrc: '',
-        type: 'POST',
-        data: { id_usuario: session.message.id },
+    processing: true,
+    serverSide: true,
+    pageLength: 10,
+    ajax: function (data, callback, settings) {
+        let page = Math.floor(data.start / data.length);
+        let size = data.length;
+        // obtener total vía la función síncrona myfecth (devuelve string)
+        let totalRaw = myfecth("binnacle/count", {}, { id_usuario: session.message.id }, null, 'POST');
+        console.log(totalRaw);
+        
+        let total = 0;
+        try {
+            total = JSON.parse(totalRaw);
+        } catch (e) {
+            total = parseInt(totalRaw) || 0;
+        }
+        fetch(`binnacle/get_all/${page}/${size}/id/asc`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_usuario: session.message.id }),
+        })
+            .then(res => res.json())
+            .then(resp => {
+                console.log(resp);
+                
+                const out = {
+                    draw: data.draw,
+                    data: resp.data || resp || [],
+                    recordsTotal: total || resp.total || resp.recordsTotal || (Array.isArray(resp) ? resp.length : 0),
+                    recordsFiltered: total || resp.total || resp.recordsFiltered || (Array.isArray(resp) ? resp.length : 0)
+                };
+                callback(out);
+            })
+            .catch(err => {
+                console.error(err);
+                callback({ draw: data.draw, data: [], recordsTotal: total || 0, recordsFiltered: total || 0 });
+            });
     },
     columns: [
         { data: "id" },
@@ -28,10 +61,35 @@ let table = $('.table_binnacle_user').DataTable({
 let table2 = $('.table_binnacle_system').DataTable({
     language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
     "order": [[0, "desc"]],
-    ajax: {
-        url: 'binnacle/get_all/0/10000000/id/asc',
-        dataSrc: '',
-        type: 'POST',
+    processing: true,
+    serverSide: true,
+    pageLength: 10,
+    ajax: function (data, callback, settings) {
+        let page = Math.floor(data.start / data.length);
+        let size = data.length;
+        // obtener total para toda la bitacora (sistema)
+        let totalRaw = myfecth("binnacle/count", {}, {}, null, 'POST');
+        let total = 0;
+        try {
+            total = JSON.parse(totalRaw);
+        } catch (e) {
+            total = parseInt(totalRaw) || 0;
+        }
+        fetch(`binnacle/get_all/${page}/${size}/id/asc`, { method: 'POST' })
+            .then(res => res.json())
+            .then(resp => {
+                const out = {
+                    draw: data.draw,
+                    data: resp.data || resp || [],
+                    recordsTotal: total || resp.total || resp.recordsTotal || (Array.isArray(resp) ? resp.length : 0),
+                    recordsFiltered: total || resp.total || resp.recordsFiltered || (Array.isArray(resp) ? resp.length : 0)
+                };
+                callback(out);
+            })
+            .catch(err => {
+                console.error(err);
+                callback({ draw: data.draw, data: [], recordsTotal: total || 0, recordsFiltered: total || 0 });
+            });
     },
     columns: [
         { data: "id" },
@@ -50,59 +108,6 @@ $('#searchBinnacleUser').on('keyup', function () {
 $('#searchBinnacleSystem').on('keyup', function () {
     table2.search(this.value).draw();
 });
-// switch (key) {
-//     case "additonal": "Adicionales"
-//         break;
-//     case "calendar": "Reservacion"
-//         break;
-//     case "capital": "Capital"
-//         break;
-//     case "category": "Categorias"
-//         break;
-//     case "cash": "Caja"
-//         break;
-//     case "clients": "Clientes"
-//         break;
-//     case "delivery": "Delivery"
-//         break;
-//     case "invoice": "Facturas"
-//         break;
-//     case "kitchen": "Cocina"
-//         break;
-//     case "login": "Inicio de sesion"
-//         break;
-//     case "orders": "Ordenes"
-//         break;
-//     case "paymentMethod": "Metodos de Pago"
-//         break;
-//     case "permission": "Permisos"
-//         break;
-//     case "productPrepared": "Productos Preparados"
-//         break;
-//     case "productProcess": "Productos Procesados"
-//         break;
-//     case "profile": "Perfil"
-//         break;
-//     case "raw-material": "Materia Prima"
-//         break;
-//     case "recipe": "Recetas"
-//         break;
-//     case "recover_password": "Recuperar Contraseña"
-//         break;
-//     case "statistics": "Estadisticas"
-//         break;
-//     case "supplier": "Proveedores"
-//         break;
-//     case "table": "Mesas"
-//         break;
-//     case "trash": "Papelera"
-//         break;
-//     case "unit": "Unidades"
-//         break;
-//     case "user": "Usuarios"
-//         break;
-//     default: none;
-// }
 
 const algo = async () => {
     let pet = await fetch(`binnacle/get_all/0/10000000/id/asc`);

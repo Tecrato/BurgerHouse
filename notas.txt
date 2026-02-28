@@ -1,4 +1,14 @@
-﻿el usuario es: Admin;
+﻿el usuario es: Persona
+apellido: Humana
+yolokratos903@gmail.com
 la contraseña es: (Tocuyo#123).
 
 vendor\bin\phpunit tests
+
+
+## Por hacer:
+
+# Cambios:
+ - modulo permisos
+
+ - Crear las validaciones en Validaciones.js

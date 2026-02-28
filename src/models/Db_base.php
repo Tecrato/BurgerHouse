@@ -52,7 +52,7 @@ abstract class Db_base extends Conexion
     public $joins;
     public $select_query;
     public $validaciones;
-    protected function __construct($tabla = "", $db_n = 1)
+    public function __construct($tabla = "", $db_n = 1)
     {
         $this->variables = array();
         $this->tabla = $tabla;

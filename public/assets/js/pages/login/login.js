@@ -1,5 +1,8 @@
+import { nuevaBitacora } from "../../Functions2.js";
 import functionGeneral from "../../Functions.js";
-const { validateField, setValidationStyles, sessionInfo, binnacle } = functionGeneral()
+
+const { validateField, setValidationStyles, sessionInfo } = functionGeneral()
+
 
 document.querySelectorAll("#login_form #login-correo, #login_form #login-password").forEach((input) => {
   input.addEventListener("keyup", (e) => validateField(e, rules))
@@ -44,7 +47,9 @@ login_form.addEventListener("submit", async (e) => {
     let result = await validate.json()
     if (result.success == true) {
       let session = await sessionInfo()
-      binnacle(session.message.id, "Usuarios", "Login", "inicio de sesion")
+      nuevaBitacora("Usuarios", "Login", "inicio de sesion")
+      console.log(result);
+      
       window.location = "home"
     } else {
       const Toast = Swal.mixin({

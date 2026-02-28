@@ -11,6 +11,16 @@ Ejemplo de parametros POST:
     "descripcion": "Descripcion de la unidad 1" # no tiene descripcion, pero bueno sirve como ejemplop
 }
 
+resultado esperado:
+
+[
+    {'nombre': "a"},
+    {'nombre': "a"},
+    {'nombre': "a"},
+    {'nombre': "a"},
+    ...
+]
+
 Ejemplo de limitacion y ordenamiento:
 
 
@@ -20,7 +30,7 @@ Donde:
 0(n): numero de pagina
 9(limite): limite de registros
 nombre(order_by): columna por la que se ordena
-ASC(order_type): direccion del ordenamiento
+ASC(order_type): direccion del ordenamiento puede ser ASC o DESC
 
 Notas:
  - Se pueden incluir tanto GET como POST en la misma peticion.

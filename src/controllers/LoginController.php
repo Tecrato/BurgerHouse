@@ -5,6 +5,7 @@ namespace Shtch\Burgerhouse\controllers;
 use Shtch\Burgerhouse\controllers\Controller_base;
 use Shtch\Burgerhouse\models\Permiso;
 use Shtch\Burgerhouse\models\Usuario;
+use Shtch\Burgerhouse\models\Rol;
 
 class LoginController extends Controller_base
 {
@@ -20,25 +21,25 @@ class LoginController extends Controller_base
         if (empty($result)) {
             echo json_encode(['success' => false, 'message' => 'Usuario o contraseña incorrectos']);
         } else {
-            $token = $_POST['token'];
-            $secretKey = '0x4AAAAAABDYzHAap8ofRwK1xEfj_e_rKz8';
-            $response = file_get_contents("https://challenges.cloudflare.com/turnstile/v0/siteverify", false, stream_context_create([
-                'http' => [
-                    'method' => 'POST',
-                    'header' => "Content-Type: application/x-www-form-urlencoded\r\n",
-                    'content' => http_build_query(['secret' => $secretKey, 'response' => $token])
-                ]
-            ]));
-            $resultado = json_decode($response, true);
-            if (!$resultado['success']) {
-                echo json_encode(['success' => false, 'message' => 'Error de verificación de captcha']);
-            } else {
+            // $token = $_POST['token'];
+            // $secretKey = '0x4AAAAAABDYzHAap8ofRwK1xEfj_e_rKz8';
+            // $response = file_get_contents("https://challenges.cloudflare.com/turnstile/v0/siteverify", false, stream_context_create([
+            //     'http' => [
+            //         'method' => 'POST',
+            //         'header' => "Content-Type: application/x-www-form-urlencoded\r\n",
+            //         'content' => http_build_query(['secret' => $secretKey, 'response' => $token])
+            //     ]
+            // ]));
+            // $resultado = json_decode($response, true);
+            // if (!$resultado['success']) {
+            //     echo json_encode(['success' => false, 'message' => 'Error de verificación de captcha']);
+            // } else {
                 $session_id = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
                 $us = new Usuario(id: $result[0]['id'], session_id: $session_id);
                 $us->actualizar();
                 echo json_encode(['success' => true, 'message' => 'Usuario encontrado']);
-                $permission = new Permiso(id_rol: $result[0]['rol_id']);
-                $permisos = $permission->search(n:0, limite:2000);
+                $rol = new Rol(id: $result[0]['rol_id']);
+                $permisos = $rol->obtener_permisos();
                 $_SESSION['permisos'] = $permisos;
                 $_SESSION['id'] = $result[0]['id'];
                 $_SESSION['id_rol'] = $result[0]['rol_id'];
@@ -49,7 +50,7 @@ class LoginController extends Controller_base
                 $_SESSION['session_id'] = $session_id;
                 $_SESSION['imagen'] = $result[0]['imagen'];
             }
-        }
+        // }
     }
     public function logout()
     {
@@ -98,19 +99,19 @@ class LoginController extends Controller_base
     }
     public function UpdateSession()
     {
-        if (isset($_POST['imagen_name'])) {
-            $imagen = $_POST['imagen_name'];
-            $_SESSION['imagen'] = $imagen;
-        } else if (isset($_POST['nombre']) && isset($_POST['apellido']) && isset($_POST['email'])) {
-            $nombre = $_POST['nombre'];
-            $apellido = $_POST['apellido'];
-            $correo = $_POST['email'];
-            $_SESSION['nombre'] = $nombre;
-            $_SESSION['apellido'] = $apellido;
-            $_SESSION['correo'] = $correo;
-        } else {
-            $permisos = $_POST['permisos'];
-            $_SESSION['permisos'] = $permisos;
-        }
+        // if (isset($_POST['imagen_name'])) {
+        //     $imagen = $_POST['imagen_name'];
+        //     $_SESSION['imagen'] = $imagen;
+        // } else if (isset($_POST['nombre']) && isset($_POST['apellido']) && isset($_POST['email'])) {
+        //     $nombre = $_POST['nombre'];
+        //     $apellido = $_POST['apellido'];
+        //     $correo = $_POST['email'];
+        //     $_SESSION['nombre'] = $nombre;
+        //     $_SESSION['apellido'] = $apellido;
+        //     $_SESSION['correo'] = $correo;
+        // } else {
+        //     $permisos = $_POST['permisos'];
+        //     $_SESSION['permisos'] = $permisos;
+        // }
     }
 }

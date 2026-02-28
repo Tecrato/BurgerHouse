@@ -1,4 +1,5 @@
 <?php
+    $GLOBALS['public_modules'] = ['login', 'recover_password', 'index', 'web'];
     $GLOBALS['expresiones_regulares'] = [
         // id's
         'id' => '/^[0-9]*$/',

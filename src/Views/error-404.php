@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" sizes="16x16" href="./assets/img/favicon.png">
 
+  <?php header("HTTP/1.0 404 Not Found"); ?>
+
   <title>404 Not Found</title>
   <style>
     body {

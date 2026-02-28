@@ -58,7 +58,7 @@ if (await CheckCash() != null) {
 const not = async () => {
     let contNot = document.querySelector(".notifications")
     let template = ""
-    let pet = await fetch("notification/get_all/0/4/id/desc")
+    let pet = await fetch("notificaciones/get_all/0/4/id/desc")
     let response = await pet.json()
     if (response.length == 0) {
         template = `
@@ -78,7 +78,7 @@ const not = async () => {
     feather.replace();
     let params = new FormData()
     params.append("status", 0)
-    let petBadge = await fetch("notification/get_all/0/10000/id/desc", { method: "POST", body: params })
+    let petBadge = await fetch("notificaciones/get_all/0/10000/id/desc", { method: "POST", body: params })
     let responseBadge = await petBadge.json()
     let badge = document.querySelector('.notification-badge')
     if (responseBadge.length == 0) {

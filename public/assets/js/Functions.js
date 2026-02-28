@@ -1,83 +1,45 @@
 export default function functionGeneral() {
+
   async function permission(module = null, funtion = null) {
     if (module != null) {
       let session = await sessionInfo();
-      let data = await searchParam({ id_rol: session.message.id_rol }, "permissions", 100000000)
+      let data = await searchParam({ id_rol: session.message.id_rol }, "permisos", 100000000)
       const permiss = data.find((e) => e.modulo.toLocaleLowerCase() == module.toLocaleLowerCase()) ? data.find((e) => e.modulo.toLocaleLowerCase() == module.toLocaleLowerCase()) : null;
 
       if (permiss != null) {
         let permissions = permiss.permisos.split(",");
-        if (!permissions.includes("agregar") && document.querySelector(`[data-module-add='${module}']`)) {
-          document.querySelectorAll(`[data-module-add='${module}']`).forEach((d) => d.remove())
+        let tipos_permisos = {
+          "agregar": "-add",
+          "editar": "-edit",
+          "eliminar": "-delete",
+          "consultar": "",
+          "verificar": "-verify",
+          "anular": "-null",
+          "crear": "-create",
+          "despachar": "-dispatch",
+          "preparar": "-prepared",
+          "ver detalles": "-details",
+          "guardar gasto": "-gasto",
+          "guardar ingreso": "-ingreso",
+          "restaurar": "-restore",
+          "abrir": "-open",
+          "cerrar": "-close",
+          "asignar roles": "-assign_rol",
+          "importar": "-import",
+          "exportar": "-export",
+          "agregar productos": "-moreProducts",
+          "pagar": "-PayOrder",
+          "aceptar entrega": "-acceptDelivery",
+          "agendar reservacion": "-schedule",
+          "anular reservacion": "-nullSchedule",
+          "verificar reservacion": "-verifySchedule"
         }
-        if (!permissions.includes("editar")) {
-          document.querySelectorAll(`[data-module-edit='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("eliminar")) {
-          document.querySelectorAll(`[data-module-delete='${module}']`).forEach((d) => d.remove());
-        }
-        if (!permissions.includes("consultar")) {
-          document.querySelectorAll(`[data-module='${module}']`).forEach((d) => d.remove());
-        }
-        if (!permissions.includes("verificar")) {
-          document.querySelectorAll(`[data-module-verify='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("anular")) {
-          document.querySelectorAll(`[data-module-null='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("crear")) {
-          document.querySelectorAll(`[data-module-create='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("despachar")) {
-          document.querySelectorAll(`[data-module-dispatch='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("preparar")) {
-          document.querySelectorAll(`[data-module-prepared='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("ver detalles")) {
-          document.querySelectorAll(`[data-module-details='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("guardar gasto")) {
-          document.querySelectorAll(`[data-module-gasto='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("guardar ingreso")) {
-          document.querySelectorAll(`[data-module-ingreso='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("restaurar")) {
-          document.querySelectorAll(`[data-module-restore='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("abrir")) {
-          document.querySelectorAll(`[data-module-open='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("cerrar")) {
-          document.querySelectorAll(`[data-module-close='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("asignar roles")) {
-          document.querySelectorAll(`[data-module-assign_rol='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("importar")) {
-          document.querySelectorAll(`[data-module-import='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("exportar")) {
-          document.querySelectorAll(`[data-module-export='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("agregar productos")) {
-          document.querySelectorAll(`[data-module-moreProducts='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("pagar")) {
-          document.querySelectorAll(`[data-module-PayOrder='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("aceptar entrega")) {
-          document.querySelectorAll(`[data-module-acceptDelivery='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("agendar reservacion")) {
-          document.querySelectorAll(`[data-module-schedule='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("anular reservacion")) {
-          document.querySelectorAll(`[data-module-nullSchedule='${module}']`).forEach((d) => d.remove())
-        }
-        if (!permissions.includes("verificar reservacion")) {
-          document.querySelectorAll(`[data-module-verifySchedule='${module}']`).forEach((d) => d.remove())
+        
+        
+        for (const permiso in tipos_permisos) {
+          if (!permissions.includes(permiso)) {
+            document.querySelectorAll(`[data-module${tipos_permisos[permiso]}='${module}']`).forEach((d) => d.remove());
+          }
         }
       } else {
         if (document.querySelector(`[data-module='${module}']`)) {
@@ -94,7 +56,7 @@ export default function functionGeneral() {
         let valueUser = e.target.value.replace(/,/g, "").replace(/\./g, "").replace(/[^0-9]/g, "");
         let valueLength = valueUser.length;
         if (valueLength <= 2) {
-          element.value = "0" + "," + valueUser;
+          element.value = "0," + valueUser;
         } else if (valueLength >= 3) {
           let it = valueUser.slice(0, valueLength - 2) + "," + valueUser.slice(valueLength - 2);
           element.value = it.replace(/^0(?=\d)\,?/, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -104,7 +66,7 @@ export default function functionGeneral() {
   }
   const CheckCash = async () => {
     let id_cash = null
-    let caja = await searchParam({}, "cash")
+    let caja = await searchParam({}, "caja")
     if (caja.length > 0) {
       caja.forEach((e) => {
         if ((fecha(e.fecha_apertura) == fecha(new Date())) && e.estado == 1) {

@@ -31,7 +31,7 @@ check_all.addEventListener("change", () => {
         tootip.show();
         setTimeout(() => {
             tootip.dispose();
-        }, 500);
+        }, 5000);
     } else {
         if (check_all.checked) {
             form_check_input.forEach(input => {
@@ -118,7 +118,7 @@ form_check_input.forEach(input => {
             tootip.show();
             setTimeout(() => {
                 tootip.dispose();
-            }, 500);
+            }, 5000);
         }
 
     })
@@ -265,7 +265,7 @@ verify.forEach(d => {
             tootip.show();
             setTimeout(() => {
                 tootip.dispose();
-            }, 500);
+            }, 5000);
         } else {
             let action = d.getAttribute("data-action");
 

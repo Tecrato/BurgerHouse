@@ -1,10 +1,61 @@
+import {myfecth} from "./Functions2.js"
 import functionGeneral from "./Functions.js"
-const { searchParam, fecha, hora, amountDolar } = functionGeneral()
-const name_user = async (id_user) => {
-    let result = await searchParam({ id: id_user }, "users")
+const { searchParam, fecha, hora } = functionGeneral()
+const name_user = (id_user) => {
+    let result = myfecth("users/get_all", {}, { id: id_user }, null, "POST")
+    result = result.json()
+    console.log(result);
+    
     let nombre = result[0].nombre + " " + result[0].apellido
     return nombre
 }
+export function targetPermission(data, edit=false, del=false) {
+        return `
+        <div class="col-md-4 col-lg-3 ">
+            <div class="position-relative">
+                <span class="badge bh_1 d-flex justify-content-center align-items-center position-absolute rounded-circle" style="z-index: 1; width: 40px; height: 40px; top: -15px; right: -10px;">
+                    <span><i style="font-size: 24px;" data-feather="shield" class="svg-icon"></i></span>
+                </span>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3 border-bottom">
+                            <div class="d-flex justify-content-between ">
+                                <h5 class="card-title">${data.nombre}</h5>
+                            </div>
+                        </div>
+
+                        <div class="row gap-3">
+                            <div class="d-flex flex-column gap-4">
+                                <div class="text-start">
+                                    <h4>Descripcion</h4>
+                                    <div class="fs-6">${data.descripcion}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-body-secondary">
+                            <div style="display: flex; justify-content: end; align-items: center;">
+                                <div class="d-flex gap-3">
+                                    ${edit ? 
+                                    `<a class="link-secondary edit_btn" data-id="${data.id}" module-edit="rol" data-module="rol" data-module-edit="roles y permisos" style="cursor: pointer" data-bs-toggle="tooltip" data-bs-title="Editar Permiso" data-bs-placement="bottom">
+                                        <i data-feather="edit"></i>
+                                    </a>`
+                                    : ""}
+                                    ${del ?
+                                        `<a class="link-secondary trash_btn btn_eliminar" data-id="${data.id}" data-module="rol" data-module-delete="roles y permisos" style="cursor: pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar Permiso" data-bs-placement="bottom">
+                                            <i data-feather="trash-2"></i>
+                                        </a>`
+                                    : ""}
+                                </div>
+                            </div>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `
+    }
 export default function Templates() {
     function targetProductPrepared(objet) {
         return `
@@ -64,7 +115,7 @@ export default function Templates() {
         </div>
                 `
     }
-    async function targetCash(objet) {
+    function targetCash(objet) {
         return `
         <div class="col-md-4 col-lg-3 ">
             <div class="position-relative">
@@ -91,7 +142,7 @@ export default function Templates() {
                             <div class="d-flex flex-column gap-4">
                                 <div class="d-flex align-item-center justify-content-between text-start">
                                     <div>Usuario</div>
-                                    <div class="fs-6">${await name_user(objet.id_usuario)}</div>
+                                    <div class="fs-6">${name_user(objet.id_usuario)}</div>
                                 </div>
 
                                 <div class="d-flex justify-content-center pt-3 border-top ${objet.estado == 1 ? "gap-3" : ""}">

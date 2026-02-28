@@ -1,7 +1,11 @@
 import functionGeneral from "../../Functions.js";
 import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
-const { resetForm, setValidationStyles, validateField, addDataTables, reindex, deleteDatatable, editDataTables, updateDataTables, InputPrice, sessionInfo, viewImage, binnacle, permission } = functionGeneral();
+import { 
+    nuevaBitacora,
+    InputPriceFormat
+ } from "../../Functions2.js";
+const { resetForm, setValidationStyles, validateField, addDataTables, reindex, deleteDatatable, editDataTables, updateDataTables, InputPrice, sessionInfo, viewImage, permission } = functionGeneral();
 const { elemenFormAdditional } = Templates()
 const { additional } = introTooltip()
 additional('navbarDropdown')
@@ -15,7 +19,7 @@ let n = $(".table_additional").DataTable({
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
     ajax: {
-        url: 'additional/get_all/0/10000000/id/asc',
+        url: 'adicionales/get_all/0/10000000/id/asc',
         dataSrc: '',
         type: 'POST',
         data: { active: 1, tipo: "adicional" },
@@ -59,7 +63,7 @@ function addAdditional() {
     additionalCount++;
     document.getElementById("additionals-container").insertAdjacentHTML('beforeend', elemenFormAdditional(additionalCount));
     feather.replace();
-    InputPrice("[input_price]");
+    InputPriceFormat("[input_price]");
     viewImage(".input-image")
 
     attachValidationListeners(additionalCount);
@@ -240,7 +244,7 @@ if (!form.dataset.listenerAttached) {
                 dataFinal.append(`lista[${index}][imagen_name]`, additional.imagen.name)
                 dataFinal.append(`lista[${index}][tipo]`, "adicional")
             })
-            addDataTables(n, dataFinal, "additional", () => binnacle(session.message.id, "Adicionales", "Agregar", "Se agrego un nuevo adicional"))
+            addDataTables(n, dataFinal, "additional", () => nuevaBitacora("Adicionales", "Agregar", "Se agrego un nuevo adicional"))
             resetForm(".additionals", form)
             bootstrap.Modal.getOrCreateInstance('#register-additional').hide()
         }
@@ -295,11 +299,11 @@ if (!formEdit.dataset.listenerAttached) {
                 dataFinal.append(`imagen`, document.querySelector(`#input-image-additional`).files[0])
                 dataFinal.append(`imagen_name`, document.querySelector(`#input-image-additional`).files[0].name)
             }
-            updateDataTables(n, dataFinal, "additional", () => binnacle(session.message.id, "Adicionales", "Actualizacion", "Se actualizo un adicional"))
+            updateDataTables(n, dataFinal, "additional", () => nuevaBitacora("Adicionales", "Actualizacion", "Se actualizo un adicional"))
             bootstrap.Modal.getOrCreateInstance('#edit-additional').hide()
         }
     })
     formEdit.dataset.listenerAttached = "true";
 }
-deleteDatatable(".table_additional", n, () => binnacle(session.message.id, "Adicionales", "Eliminacion", "Se ha eliminado un adicional"))
+deleteDatatable(".table_additional", n, () => nuevaBitacora("Adicionales", "Eliminacion", "Se ha eliminado un adicional"))
 attachValidationListeners(1);

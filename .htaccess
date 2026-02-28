@@ -3,4 +3,3 @@
     
     RewriteCond %{REQUEST_URI} !^/BurgerHouse/public/
     RewriteRule ^(.*)$ public/$1 [QSA,L]
-    

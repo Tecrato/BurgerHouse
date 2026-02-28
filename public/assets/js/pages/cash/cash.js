@@ -131,7 +131,7 @@ const modalDetail = () => {
                 let id = btn.getAttribute("data-id")
                 let data = new FormData();
                 data.append("id", id);
-                let pet = await fetch(`cash/detailCash`, { method: "POST", body: data })
+                let pet = await fetch(`caja/detailCash`, { method: "POST", body: data })
                 let response = await pet.json()
                 let group = {}
                 let detailsCash = {}
@@ -201,7 +201,7 @@ const closeCash = () => {
                     let id = btn.getAttribute("data-id")
                     let data = new FormData();
                     data.append("id", id);
-                    let pet = await fetch(`cash/closeCash`, { method: "POST", body: data })
+                    let pet = await fetch(`caja/closeCash`, { method: "POST", body: data })
                     let response = await pet.json()
                     console.log(response);
                     if (response.success) {

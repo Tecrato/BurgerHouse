@@ -205,7 +205,7 @@
                             <?php } ?>
                             <?php if ($tieneAdicionales) { ?>
                                 <li class="sidebar-item module_link">
-                                    <a href="additional" class="sidebar-link">
+                                    <a href="adicionales" class="sidebar-link">
                                         <span class="hide-menu">Adicionales</span>
                                     </a>
                                 </li>
@@ -320,7 +320,7 @@
 
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'metodo pago' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link sidebar-link" href="paymentMethod"
+                            <a class="sidebar-link sidebar-link" href="metodos_de_pago"
                                 aria-expanded="false">
                                 <i data-feather="award" class="feather-icon"></i>
                                 <span
@@ -338,7 +338,7 @@
                 <?php for ($i = 0; $i < count($_SESSION['permisos']); $i++) { ?>
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'roles y permisos' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link sidebar-link" href="permissions"
+                            <a class="sidebar-link sidebar-link" href="permisos"
                                 aria-expanded="false">
                                 <i data-feather="lock" class="feather-icon"></i>
                                 <span
