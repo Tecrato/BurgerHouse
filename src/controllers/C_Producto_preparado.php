@@ -28,3 +28,9 @@ function productprepared_delete(...$args)
 }
 
 
+
+function producto_preparado_view(...$args) { return productprepared_view(...$args); }
+function producto_preparado_get_all(...$args) { return productprepared_get_all(...$args); }
+function producto_preparado_add(...$args) { return productprepared_add(...$args); }
+function producto_preparado_update(...$args) { return productprepared_update(...$args); }
+function producto_preparado_delete(...$args) { return productprepared_delete(...$args); }

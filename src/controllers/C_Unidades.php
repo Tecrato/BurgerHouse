@@ -28,3 +28,9 @@ function unidad_delete(...$args)
 }
 
 
+
+function unidades_view(...$args) { return unidad_view(...$args); }
+function unidades_get_all(...$args) { return unidad_get_all(...$args); }
+function unidades_add(...$args) { return unidad_add(...$args); }
+function unidades_update(...$args) { return unidad_update(...$args); }
+function unidades_delete(...$args) { return unidad_delete(...$args); }

@@ -84,3 +84,11 @@ function drink_total(...$args)
     total(new Adicionales(), ...$args);
 }
 
+
+function bebidas_view(...$args) { return drink_view(...$args); }
+function bebidas_add(...$args) { return drink_add(...$args); }
+function bebidas_add_many(...$args) { return drink_add_many(...$args); }
+function bebidas_update(...$args) { return drink_update(...$args); }
+function bebidas_get_all(...$args) { return drink_get_all(...$args); }
+function bebidas_check(...$args) { return drink_check(...$args); }
+function bebidas_total(...$args) { return drink_total(...$args); }

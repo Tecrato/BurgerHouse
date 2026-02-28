@@ -28,3 +28,9 @@ function productprocesado_delete(...$args)
 }
 
 
+
+function producto_procesado_view(...$args) { return productprocesado_view(...$args); }
+function producto_procesado_get_all(...$args) { return productprocesado_get_all(...$args); }
+function producto_procesado_add(...$args) { return productprocesado_add(...$args); }
+function producto_procesado_update(...$args) { return productprocesado_update(...$args); }
+function producto_procesado_delete(...$args) { return productprocesado_delete(...$args); }

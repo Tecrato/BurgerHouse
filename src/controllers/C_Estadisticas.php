@@ -1,108 +1,54 @@
 <?php
 require_once __DIR__ . '/Controller_base.php';
 
-function statistics_gastoClienteSemana(...) {
-    // converted from StatisticsController.php::gastoClienteSemana - please implement logic
-    // TODO: migrate code from class method
+use Shtch\Burgerhouse\models\Estadisticas;
+
+function estadisticas_conn()
+{
+    return new Estadisticas();
 }
 
-function statistics_gastoClienteMes(...) {
-    // converted from StatisticsController.php::gastoClienteMes - please implement logic
-    // TODO: migrate code from class method
-}
+function statistics_gastoClienteSemana(...$args) { echo json_encode(estadisticas_conn()->GastoClienteSemana($_POST['anio'], $_POST['semana'])); }
+function statistics_gastoClienteMes(...$args) { echo json_encode(estadisticas_conn()->gastoClienteMes($_POST['anio'], $_POST['mes'])); }
+function statistics_gastoClienteAnual(...$args) { echo json_encode(estadisticas_conn()->gastoClienteAnio($_POST['anio'])); }
+function statistics_productosMasVendidoSemana(...$args) { echo json_encode(estadisticas_conn()->productosMasVendidoSemana($_POST['anio'], $_POST['semana'])); }
+function statistics_productosVendidosMes(...$args) { echo json_encode(estadisticas_conn()->productosMasVendidosMes($_POST['anio'], $_POST['mes'])); }
+function statistics_productosVendidosAnual(...$args) { echo json_encode(estadisticas_conn()->productosMasVendidosAnio($_POST['anio'])); }
+function statistics_productosMenosVendidosSemana(...$args) { echo json_encode(estadisticas_conn()->productosMenosVendidoSemana($_POST['anio'], $_POST['semana'])); }
+function statistics_productosMenosVendidosMes(...$args) { echo json_encode(estadisticas_conn()->productosMenosVendidosMes($_POST['anio'], $_POST['mes'])); }
+function statistics_productosMenosVendidosAnual(...$args) { echo json_encode(estadisticas_conn()->productosMenosVendidosAnio($_POST['anio'])); }
+function statistics_totalVentaSemana(...$args) { echo json_encode(estadisticas_conn()->totalVentaSemana($_POST['anio'], $_POST['semana'])); }
+function statistics_totalVentaMes(...$args) { echo json_encode(estadisticas_conn()->totalVentaMes($_POST['anio'], $_POST['mes'])); }
+function statistics_totalVentaAnio(...$args) { echo json_encode(estadisticas_conn()->totalVentaAnio($_POST['anio'])); }
+function statistics_utilidadNetaSemana(...$args) { echo json_encode(estadisticas_conn()->utilidadNetaSemana($_POST['anio'], $_POST['semana'])); }
+function statistics_utilidadNetaMes(...$args) { echo json_encode(estadisticas_conn()->utilidadNetaMes($_POST['anio'], $_POST['mes'])); }
+function statistics_utilidadNetaAnio(...$args) { echo json_encode(estadisticas_conn()->utilidadNetaAnio($_POST['anio'])); }
+function statistics_ReservaHorarioSemana(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasSemana($_POST['anio'], $_POST['semana'])); }
+function statistics_ReservaHorarioMes(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasMes($_POST['anio'], $_POST['mes'])); }
+function statistics_ReservaHorarioAnio(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasAnio($_POST['anio'])); }
+function statistics_ReservasPorMetodoSemana(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasMetodoSemana($_POST['anio'], $_POST['semana'])); }
+function statistics_ReservasPorMetodoMes(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasMetodoMes($_POST['anio'], $_POST['mes'])); }
+function statistics_ReservasPorMetodoAnio(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasMetodoAnio($_POST['anio'])); }
 
-function statistics_gastoClienteAnual(...) {
-    // converted from StatisticsController.php::gastoClienteAnual - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_productosMasVendidoSemana(...) {
-    // converted from StatisticsController.php::productosMasVendidoSemana - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_productosVendidosMes(...) {
-    // converted from StatisticsController.php::productosVendidosMes - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_productosVendidosAnual(...) {
-    // converted from StatisticsController.php::productosVendidosAnual - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_productosMenosVendidosSemana(...) {
-    // converted from StatisticsController.php::productosMenosVendidosSemana - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_productosMenosVendidosMes(...) {
-    // converted from StatisticsController.php::productosMenosVendidosMes - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_productosMenosVendidosAnual(...) {
-    // converted from StatisticsController.php::productosMenosVendidosAnual - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_totalVentaSemana(...) {
-    // converted from StatisticsController.php::totalVentaSemana - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_totalVentaMes(...) {
-    // converted from StatisticsController.php::totalVentaMes - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_totalVentaAnio(...) {
-    // converted from StatisticsController.php::totalVentaAnio - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_utilidadNetaSemana(...) {
-    // converted from StatisticsController.php::utilidadNetaSemana - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_utilidadNetaMes(...) {
-    // converted from StatisticsController.php::utilidadNetaMes - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_utilidadNetaAnio(...) {
-    // converted from StatisticsController.php::utilidadNetaAnio - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_ReservaHorarioSemana(...) {
-    // converted from StatisticsController.php::ReservaHorarioSemana - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_ReservaHorarioMes(...) {
-    // converted from StatisticsController.php::ReservaHorarioMes - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_ReservaHorarioAnio(...) {
-    // converted from StatisticsController.php::ReservaHorarioAnio - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_ReservasPorMetodoSemana(...) {
-    // converted from StatisticsController.php::ReservasPorMetodoSemana - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_ReservasPorMetodoMes(...) {
-    // converted from StatisticsController.php::ReservasPorMetodoMes - please implement logic
-    // TODO: migrate code from class method
-}
-
-function statistics_ReservasPorMetodoAnio(...) {
-    // converted from StatisticsController.php::ReservasPorMetodoAnio - please implement logic
-    // TODO: migrate code from class method
-}
-
+// Compatibilidad con el nombre de módulo C_Estadisticas
+function estadisticas_gastoClienteSemana(...$args) { return statistics_gastoClienteSemana(...$args); }
+function estadisticas_gastoClienteMes(...$args) { return statistics_gastoClienteMes(...$args); }
+function estadisticas_gastoClienteAnual(...$args) { return statistics_gastoClienteAnual(...$args); }
+function estadisticas_productosMasVendidoSemana(...$args) { return statistics_productosMasVendidoSemana(...$args); }
+function estadisticas_productosVendidosMes(...$args) { return statistics_productosVendidosMes(...$args); }
+function estadisticas_productosVendidosAnual(...$args) { return statistics_productosVendidosAnual(...$args); }
+function estadisticas_productosMenosVendidosSemana(...$args) { return statistics_productosMenosVendidosSemana(...$args); }
+function estadisticas_productosMenosVendidosMes(...$args) { return statistics_productosMenosVendidosMes(...$args); }
+function estadisticas_productosMenosVendidosAnual(...$args) { return statistics_productosMenosVendidosAnual(...$args); }
+function estadisticas_totalVentaSemana(...$args) { return statistics_totalVentaSemana(...$args); }
+function estadisticas_totalVentaMes(...$args) { return statistics_totalVentaMes(...$args); }
+function estadisticas_totalVentaAnio(...$args) { return statistics_totalVentaAnio(...$args); }
+function estadisticas_utilidadNetaSemana(...$args) { return statistics_utilidadNetaSemana(...$args); }
+function estadisticas_utilidadNetaMes(...$args) { return statistics_utilidadNetaMes(...$args); }
+function estadisticas_utilidadNetaAnio(...$args) { return statistics_utilidadNetaAnio(...$args); }
+function estadisticas_ReservaHorarioSemana(...$args) { return statistics_ReservaHorarioSemana(...$args); }
+function estadisticas_ReservaHorarioMes(...$args) { return statistics_ReservaHorarioMes(...$args); }
+function estadisticas_ReservaHorarioAnio(...$args) { return statistics_ReservaHorarioAnio(...$args); }
+function estadisticas_ReservasPorMetodoSemana(...$args) { return statistics_ReservasPorMetodoSemana(...$args); }
+function estadisticas_ReservasPorMetodoMes(...$args) { return statistics_ReservasPorMetodoMes(...$args); }
+function estadisticas_ReservasPorMetodoAnio(...$args) { return statistics_ReservasPorMetodoAnio(...$args); }
