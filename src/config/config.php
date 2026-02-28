@@ -51,7 +51,7 @@
         'token' => '/^[a-zA-Z0-9]+$/',
         'token_expiracion' => '/^[0-9]+$/',
         'imagen' => '/^[a-zA-Z0-9\.\- á-úÁ-Ú\(\)\s\']+$/',
-        'hash' => '//', // aqui iria la expresion regular que tiene el js
+        'hash' => '/^(?:\$2[ayb]\$\d{2}\$[./A-Za-z0-9]{53}|\$argon2(?:i|id)\$v=\d+\$m=\d+,t=\d+,p=\d+\$[A-Za-z0-9+/]+={0,2}\$[A-Za-z0-9+/]+={0,2})$/',
         'nombre_like' => '/^[a-zA-Z ]+$/',
         'modulo' => '/^[a-zA-Z ]+$/',
         'accion' => '/^[a-zA-Z ]+$/',

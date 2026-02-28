@@ -12,15 +12,15 @@ let cash = await CheckCash()
 permission("caja")
 searchFilter('#searchCashClose', async (e) => {
     if (e.target.value == "") {
-        print({ ...config, search: () => searchParam({ estado: 0 }, "cash"), container: ".cont-cash_close" })
+        print({ ...config, search: () => searchParam({ estado: 0 }, "caja"), container: ".cont-cash_close" })
     } else {
         let user = await searchParam({ active: 1, nombre_like: e.target.value }, "users")
         if (user.length != 0) {
             user.forEach((user) => {
-                print({ ...config, search: () => searchParam({ id_usuario: user.id, estado: 0 }, "cash"), container: ".cont-cash_close" })
+                print({ ...config, search: () => searchParam({ id_usuario: user.id, estado: 0 }, "caja"), container: ".cont-cash_close" })
             })
         } else {
-            print({ ...config, search: () => searchParam({ estado: 25 }, "cash"), container: ".cont-cash_close" })
+            print({ ...config, search: () => searchParam({ estado: 25 }, "caja"), container: ".cont-cash_close" })
         }
     }
 })
@@ -31,15 +31,15 @@ searchFilter('#searchCashOpen', async (e) => {
         let user = await searchParam({ active: 1, nombre_like: e.target.value }, "users")
         if (user.length != 0) {
             user.forEach((user) => {
-                print({ ...config, search: () => searchParam({ id_usuario: user.id, estado: 1 }, "cash") })
+                print({ ...config, search: () => searchParam({ id_usuario: user.id, estado: 1 }, "caja") })
             })
         } else {
-            print({ ...config, search: () => searchParam({ estado: 25 }, "cash") })
+            print({ ...config, search: () => searchParam({ estado: 25 }, "caja") })
         }
     }
 })
 const config = {
-    search: () => searchParam({ estado: "1" }, "cash",12),
+    search: () => searchParam({ estado: "1" }, "caja",12),
     template: targetCash,
     container: ".cont-cash_open",
     funtions: () => {
@@ -79,7 +79,7 @@ const rules = {
     },
 };
 print(config)
-print({ ...config, search: () => searchParam({ estado: 0 }, "cash"), container: ".cont-cash_close" })
+print({ ...config, search: () => searchParam({ estado: 0 }, "caja"), container: ".cont-cash_close" })
 form.querySelectorAll("input").forEach((input) => {
     input.addEventListener("keyup", (e) => validateField(e, rules));
     input.addEventListener("blur", (e) => validateField(e, rules));
@@ -99,7 +99,7 @@ form.addEventListener("submit", (e) => {
         data.append("lista[0][monto_inicial_bs]", document.getElementById("input-price-bs-cash").value.replace(/\./g, '').replace(',', '.'))
         data.append("lista[0][id_usuario]", session.message.id)
         add(config,
-            'cash',
+            'caja',
             data,
             () => {
                 binnacle(session.message.id, 'Caja', 'Agregar', 'Se abrio una caja')
@@ -124,7 +124,7 @@ const modalDetail = () => {
     btn.forEach((btn) => {
         if (!btn.dataset.listenerAttached) {
             btn.addEventListener("click", async (e) => {
-                let info = await searchParam({ id: btn.getAttribute("data-id") }, "cash")
+                let info = await searchParam({ id: btn.getAttribute("data-id") }, "caja")
                 document.querySelector(".infoCash").innerHTML = await infoCash(info[0])
                 feather.replace()
                 new bootstrap.Tooltip(document.querySelector(".btn_print"))
@@ -219,7 +219,7 @@ const closeCash = () => {
                             tooltip.update();
                         }
                         print(config)
-                        print({ ...config, search: () => searchParam({ estado: 0 }, "cash"), container: ".cont-cash_close" })
+                        print({ ...config, search: () => searchParam({ estado: 0 }, "caja"), container: ".cont-cash_close" })
                     } else {
                         swal.fire({
                             icon: 'error',
@@ -237,5 +237,5 @@ formFilter.addEventListener("submit", (e) => {
     e.preventDefault()
     let init = formFilter.querySelector("#date_start").value
     let end = formFilter.querySelector("#date_end").value
-    console.log(searchParam({ init: init, end: end }, "cash"));
+    console.log(searchParam({ init: init, end: end }, "caja"));
 })

@@ -1,13 +1,14 @@
 <?php
-require_once __DIR__ . '/Controller_base.php';
+use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 use Shtch\Burgerhouse\models\Usuario;
+use PHPMailer\PHPMailer\PHPMailer;
 
-function recover_password_view(...$args)
+function cambiar_contraseña_view(...$args)
 {
     view('recover_password');
 }
 
-function recover_password_sendEmail(...$args)
+function cambiar_contraseña_sendEmail(...$args)
 {
     date_default_timezone_set('America/Caracas');
     $day = new DateTime();
@@ -27,16 +28,12 @@ function recover_password_sendEmail(...$args)
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
-        $mail->CharSet  = 'UTF-8';
+        $mail->CharSet = 'UTF-8';
         $mail->setFrom('garnicaluis391@gmail.com', 'Burger House Soporte');
         $mail->addAddress($_POST['email']);
         $mail->isHTML(true);
         $mail->Subject = 'Restablece tu contraseña';
-        $mail->addEmbeddedImage(
-            './assets/img/banner.png',
-            'logo_cid',
-            'logo.png'
-        );
+        $mail->addEmbeddedImage('./assets/img/banner.png', 'logo_cid', 'logo.png');
         $mail->Body = '
             <html>
                 <body>
@@ -57,11 +54,11 @@ function recover_password_sendEmail(...$args)
     }
 }
 
-function recover_password_validateToken(...$args)
+function cambiar_contraseña_validateToken(...$args)
 {
     $token = $_POST['token'] ?? '';
     date_default_timezone_set('America/Caracas');
-    $now  = new DateTime();
+    $now = new DateTime();
     $now->format('Y-m-d H:i:s');
     $usuario = new Usuario();
     $usuario->__construct(token: $token);
@@ -78,15 +75,3 @@ function recover_password_validateToken(...$args)
         echo json_encode(["success" => false, "mensaje" => "Codigo no valido."]);
     }
 }
-
-
-function changepass_sendEmail(...) {
-    // converted from ChangepassController.php::sendEmail - please implement logic
-    // TODO: migrate code from class method
-}
-
-function changepass_validateToken(...) {
-    // converted from ChangepassController.php::validateToken - please implement logic
-    // TODO: migrate code from class method
-}
-

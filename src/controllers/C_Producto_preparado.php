@@ -1,36 +1,29 @@
 <?php
-require_once __DIR__ . '/Controller_base.php';
+use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 use Shtch\Burgerhouse\models\ProductoPreparado;
 
-function productprepared_view(...$args)
+function producto_preparado_view(...$args)
 {
-    view('productPrepared');
+    view('producto_preparado');
 }
 
-function productprepared_get_all(...$args)
+function producto_preparado_get_all(...$args)
 {
     get_all(new ProductoPreparado(), ...$args);
 }
 
-function productprepared_add(...$args)
+function producto_preparado_add(...$args)
 {
     add(new ProductoPreparado(), $_POST);
 }
 
-function productprepared_update(...$args)
+function producto_preparado_update(...$args)
 {
     update(new ProductoPreparado(), $_POST);
 }
 
-function productprepared_delete(...$args)
+function producto_preparado_delete(...$args)
 {
     delete(new ProductoPreparado(), $_POST['id']);
 }
 
-
-
-function producto_preparado_view(...$args) { return productprepared_view(...$args); }
-function producto_preparado_get_all(...$args) { return productprepared_get_all(...$args); }
-function producto_preparado_add(...$args) { return productprepared_add(...$args); }
-function producto_preparado_update(...$args) { return productprepared_update(...$args); }
-function producto_preparado_delete(...$args) { return productprepared_delete(...$args); }

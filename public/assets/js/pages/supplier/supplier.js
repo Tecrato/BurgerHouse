@@ -8,7 +8,7 @@ let session = await sessionInfo()
 supplier('navbarDropdown')
 permission("proveedores")
 const config = {
-    search: () => searchParam({ active: 1 }, "supplier"),
+    search: () => searchParam({ active: 1 }, "proveedor"),
     template: targetSupplier,
     container: ".cont_suppliers",
     funtions: () => {
@@ -20,7 +20,7 @@ const config = {
 }
 searchFilter("#SearchSupplier", (e) => {
     if (e.target.value == "") print(config)
-    else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value }, "supplier") })
+    else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value }, "proveedor") })
 })
 selectOptionAll(".select_options_td", null)
 selectOptionAll(".select_options_td_edit", null)
@@ -52,7 +52,7 @@ function addSupplier() {
     const newSupplier = document.getElementById(`suppliers-${SupplierCount}`);
     newSupplier.querySelector(".remove-supplier").addEventListener("click", function () {
         newSupplier.remove();
-        reindex("#suppliers-container .suppliers", "supplier", SupplierCount, "Proveedor");
+        reindex("#suppliers-container .suppliers", "proveedor", SupplierCount, "Proveedor");
     });
 }
 function attachValidationListeners(index) {
@@ -72,7 +72,7 @@ function attachValidationListeners(index) {
 }
 document.getElementById("add-supplier-btn").addEventListener("click", () => {
     addSupplier()
-    reindex("#suppliers-container .suppliers", "supplier", SupplierCount, "Proveedor");
+    reindex("#suppliers-container .suppliers", "proveedor", SupplierCount, "Proveedor");
 });
 validate.validators.telefonoValido = function (value) {
     if (!value) return

@@ -4,9 +4,26 @@
 // controller.  it must reside *before* the namespace declaration so that
 // it lives in the root namespace rather than in
 // Shtch\Burgerhouse\controllers.
+namespace Shtch\Burgerhouse\controllers;
+use Exception;
+
 function view($module_name)
 {
-    include_once __DIR__ . '/../views/' . $module_name . '.php';
+    $candidates = [
+        __DIR__ . '/../views/V_' . $module_name . '.php',
+        __DIR__ . '/../Views/V_' . $module_name . '.php',
+        __DIR__ . '/../views/' . $module_name . '.php',
+        __DIR__ . '/../Views/' . $module_name . '.php',
+    ];
+
+    foreach ($candidates as $file) {
+        if (file_exists($file)) {
+            include_once $file;
+            return;
+        }
+    }
+
+    throw new Exception('Vista no encontrada: ' . $module_name);
 }
 function get_all($modelo, ...$args)
 {
@@ -28,10 +45,26 @@ function add($modelo, $args = [])
         $modelo->clear();
         $modelo->__construct(...$args);
         if (isset($_FILES['imagen'])) {
-            guardar_imagen_single($modelo->module_name);
+            guardar_imagen_single(get_called_class($modelo));
         }
         $id = $modelo->agregar();
         echo json_encode(['success' => true, 'last_id' => $id]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
+}
+
+function add_many($modelo, $args = [])
+{
+    try {
+        for ($i = 0; $i < count($_POST['lista']); $i++) {
+            $modelo->__construct(...$_POST['lista'][$i]);
+            if (isset($_FILES['lista'])) {
+                guardar_imagen_mult($i, get_called_class($modelo));
+            }
+            $modelo->agregar();
+        }
+        echo json_encode(['success' => true]);
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     }

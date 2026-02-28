@@ -1,15 +1,11 @@
 <?php
-require_once __DIR__ . '/Controller_base.php';
+use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 
 use Shtch\Burgerhouse\models\Backup;
 use Shtch\Burgerhouse\models\Usuario;
 
-function mantenimiento_export(...$args)
-{
-    return maintenance_export(...$args);
-}
 
-function maintenance_export(...$args)
+function mantenimiento_export(...$args)
 {
     try {
         $backup = new Backup();
@@ -19,12 +15,8 @@ function maintenance_export(...$args)
     }
 }
 
-function mantenimiento_import(...$args)
-{
-    return maintenance_import(...$args);
-}
 
-function maintenance_import(...$args)
+function mantenimiento_import(...$args)
 {
     try {
         $usuario = new Usuario();
@@ -44,12 +36,8 @@ function maintenance_import(...$args)
     }
 }
 
-function mantenimiento_search(...$args)
-{
-    return maintenance_search(...$args);
-}
 
-function maintenance_search(...$args)
+function mantenimiento_search(...$args)
 {
     try {
         $backup = new Backup();
@@ -59,12 +47,8 @@ function maintenance_search(...$args)
     }
 }
 
-function mantenimiento_delete(...$args)
-{
-    return maintenance_delete(...$args);
-}
 
-function maintenance_delete(...$args)
+function mantenimiento_delete(...$args)
 {
     try {
         $usuario = new Usuario();

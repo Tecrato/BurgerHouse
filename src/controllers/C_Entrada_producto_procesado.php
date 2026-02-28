@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/Controller_base.php';
+use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 use Shtch\Burgerhouse\models\Entrada_producto_procesado;
 use Shtch\Burgerhouse\models\Pago_entrada_producto_procesado;
 
@@ -28,7 +28,7 @@ function entrada_producto_procesado_add_many(...$args)
                 is_dir("../src/media/pay_entrys_product_process") or mkdir("../src/media/pay_entrys_product_process");
                 $imagen = $_FILES["lista"];
                 move_uploaded_file($imagen['tmp_name']["detalles_entrada"][$i]["payment"][$j]["imagen"], "../src/media/pay_entrys_product_process" . '/' . $imagen['name']["detalles_entrada"][$i]["payment"][$j]["imagen"]);
-                $result = $pago_producto_procesado->agregar();
+                $pago_producto_procesado->agregar();
             }
         }
         echo json_encode(['success' => true]);

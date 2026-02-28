@@ -3,7 +3,7 @@ export default async function domicile_and_takeaway(functions, templates, report
     const { tagFilterProduct, selectProduct, targetDetailProductOrder, targetDetailOtherOrder, targetClienteOrder, optionsRol, elemenFormPaymentOrder } = templates()
     viewImage(".input-image")
     InputPrice("[input_price]");
-    selectOptionAll(".select_options_payment", "paymentMethod", optionsRol);
+    selectOptionAll(".select_options_payment", "metodo_pago", optionsRol);
     let iti = window.intlTelInput(document.querySelector("#input-tel-client-order"), { initialCountry: "ve", separateDialCode: true, utilsScript: "./assets/libs/libs/intl-tel-input/js/utils.js" });
     const resetFormModal = () => {
         document.querySelector(".cont-select-product-order").innerHTML = ""
@@ -87,9 +87,9 @@ export default async function domicile_and_takeaway(functions, templates, report
     const initPopover = async () => {
         let data = []
         let elements = []
-        let recipeDetails = await searchParam({}, "recipe", 5000)
+        let recipeDetails = await searchParam({}, "receta", 5000)
         for (const item of recipeDetails) {
-            let pet = await searchParam({ active: 1, tipo: "adicional", id: item.id_producto }, "additional", 100);
+            let pet = await searchParam({ active: 1, tipo: "adicional", id: item.id_producto }, "adicionales", 100);
             for (const el of pet) {
                 elements.push(el)
             }
@@ -174,11 +174,11 @@ export default async function domicile_and_takeaway(functions, templates, report
     const products = async () => {
         let templatePrepared = "";
         let templateProcess = "";
-        let recipeDetails = await searchParam({}, "recipe", 5000)
+        let recipeDetails = await searchParam({}, "receta", 5000)
         for (const recipe of recipeDetails) {
             const id = recipe.id_producto
-            let product = await searchParam({ id: id, tipo: "producto" }, "productPrepared", 100)
-            product.forEach((product) => { templatePrepared += selectProduct(product, "productPrepared") })
+            let product = await searchParam({ id: id, tipo: "producto" }, "producto_preparado", 100)
+            product.forEach((product) => { templatePrepared += selectProduct(product, "producto_preparado") })
         }
         let productProcess = await searchParam({ active: 1 }, "productProcess", 100)
         productProcess.forEach((product) => { templateProcess += selectProduct(product, "productProcess") })
@@ -300,7 +300,7 @@ export default async function domicile_and_takeaway(functions, templates, report
         paymentCount++;
         document.getElementById("payments-container").insertAdjacentHTML('beforeend', elemenFormPaymentOrder(paymentCount));
         feather.replace();
-        selectOptionAll(".select_options_payment", "paymentMethod", optionsRol);
+        selectOptionAll(".select_options_payment", "metodo_pago", optionsRol);
         viewImage(".input-image")
         InputPrice("[input_price]");
         attachValidationListeners(paymentCount);
@@ -695,7 +695,7 @@ export default async function domicile_and_takeaway(functions, templates, report
                     order.append(`lista_detalle_preparado[${index}][cantidad]`, aditional.cantidad);
                     index++
                 })
-                let petOrder = await fetch("order/add", { method: "POST", body: order })
+                let petOrder = await fetch("orden/add", { method: "POST", body: order })
                 let resOrder = await petOrder.json()
                 console.log(resOrder);
                 if (resOrder.success == true) {
@@ -738,7 +738,7 @@ export default async function domicile_and_takeaway(functions, templates, report
                     let invoice = await report(productPreparedData, productProcessData, clientData, window.id_orden_invoice, directionSale, amountTotal, "invoice", null, null, paymentInvoice)
                     let invoiceData = new FormData();
                     invoiceData.append("pdf", invoice, "factura.pdf");
-                    let send = await fetch("order/sendInvoice", { method: "POST", body: invoiceData });
+                    let send = await fetch("orden/sendInvoice", { method: "POST", body: invoiceData });
                     let dataResInvoice = await send.json();
                     const mensaje = `*FACTURA DE ORDEN* \n\n*${clientData.nameClient}*\n\n${dataResInvoice.url}`;
                     const url = `https://wa.me/${clientData.telefonoClient}?text=${encodeURIComponent(mensaje)}`;

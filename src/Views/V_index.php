@@ -352,7 +352,7 @@
 <script src="./assets/libs/libs/jspdf/jspdf.plugin.autotable.min.js"></script>
 <script src="./assets/libs/libs/chart.js/dist/Chart.min.js"></script>
 <script src="./assets/libs/libs/chart.js/dist/chartjs-plugin-datalabels.js"></script>
-<script type="module" defer src="./assets/js/pages/dashboards/dashboard1.js"></script>
 <script src="./assets/libs/libs/daysjs/dayjs.min.js"></script>
 <script src="./assets/libs/libs/daysjs/es.js"></script>
 <script src="./assets/libs/libs/daysjs/relativeTime.js"></script>
+<script type="module" defer src="./assets/js/pages/dashboards/dashboard1.js"></script>

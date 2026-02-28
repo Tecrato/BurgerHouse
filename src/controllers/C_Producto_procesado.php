@@ -1,36 +1,29 @@
 <?php
-require_once __DIR__ . '/Controller_base.php';
+use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 use Shtch\Burgerhouse\models\ProductoProcesado;
 
-function productprocesado_view(...$args)
+function producto_procesado_view(...$args)
 {
-    view('productProcess');
+    view('producto_procesado');
 }
 
-function productprocesado_get_all(...$args)
+function producto_procesado_get_all(...$args)
 {
     get_all(new ProductoProcesado(), ...$args);
 }
 
-function productprocesado_add(...$args)
+function producto_procesado_add(...$args)
 {
     add(new ProductoProcesado(), $_POST);
 }
 
-function productprocesado_update(...$args)
+function producto_procesado_update(...$args)
 {
     update(new ProductoProcesado(), $_POST);
 }
 
-function productprocesado_delete(...$args)
+function producto_procesado_delete(...$args)
 {
     delete(new ProductoProcesado(), $_POST['id']);
 }
 
-
-
-function producto_procesado_view(...$args) { return productprocesado_view(...$args); }
-function producto_procesado_get_all(...$args) { return productprocesado_get_all(...$args); }
-function producto_procesado_add(...$args) { return productprocesado_add(...$args); }
-function producto_procesado_update(...$args) { return productprocesado_update(...$args); }
-function producto_procesado_delete(...$args) { return productprocesado_delete(...$args); }

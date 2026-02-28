@@ -36,7 +36,7 @@
                         <ul aria-expanded="false" class="collapse first-level base-level-line">
                             <?php if ($tieneOrdenes) { ?>
                                 <li class="sidebar-item module_link">
-                                    <a href="order" class="sidebar-link">
+                                    <a href="orden" class="sidebar-link">
                                         <span class="hide-menu">Ordenes</span>
                                     </a>
                                 </li>
@@ -57,7 +57,7 @@
 
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'cocina' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link" href="kitchen"
+                            <a class="sidebar-link" href="cocina"
                                 aria-expanded="false">
                                 <i data-feather="coffee" class="feather-icon"></i>
                                 <span class="hide-menu">Cocina</span>
@@ -67,7 +67,7 @@
 
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'mesas' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link" href="table"
+                            <a class="sidebar-link" href="mesa"
                                 aria-expanded="false">
                                 <i data-feather="grid" class="feather-icon"></i>
                                 <span class="hide-menu">Mesas</span>
@@ -77,7 +77,7 @@
 
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'estadisticas' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link" href="statistics"
+                            <a class="sidebar-link" href="estadisticas"
                                 aria-expanded="false">
                                 <i data-feather="bar-chart" class="feather-icon"></i>
                                 <span class="hide-menu">Estadisticas</span>
@@ -107,14 +107,14 @@
                         <ul aria-expanded="false" class="collapse first-level base-level-line">
                             <?php if ($reservaciones) { ?>
                                 <li class="sidebar-item module_link">
-                                    <a href="calendar" class="sidebar-link">
+                                    <a href="calendario" class="sidebar-link">
                                         <span class="hide-menu">Reservaciones</span>
                                     </a>
                                 </li>
                             <?php } ?>
                             <?php if ($paquetes) { ?>
                                 <li class="sidebar-item module_link">
-                                    <a href="package_reservation" class="sidebar-link">
+                                    <a href="paquete_reservacion" class="sidebar-link">
                                         <span class="hide-menu">Paquetes de reservaciones</span>
                                     </a>
                                 </li>
@@ -127,7 +127,7 @@
                 <?php for ($i = 0; $i < count($_SESSION['permisos']); $i++) { ?>
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'bitacora' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link sidebar-link" href="binnacle"
+                            <a class="sidebar-link sidebar-link" href="bitacora"
                                 aria-expanded="false">
                                 <i data-feather="book-open" class="feather-icon"></i>
                                 <span class="hide-menu">Bitacora</span>
@@ -147,7 +147,7 @@
 
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'papelera' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link sidebar-link" href="trash"
+                            <a class="sidebar-link sidebar-link" href="basura"
                                 aria-expanded="false">
                                 <i data-feather="trash-2" class="feather-icon"></i>
                                 <span class="hide-menu">Papelera</span>
@@ -184,21 +184,21 @@
                         <ul aria-expanded="false" class="collapse first-level base-level-line">
                             <?php if ($tieneProductoPreparado) { ?>
                                 <li class="sidebar-item module_link">
-                                    <a href="productPrepared" class="sidebar-link">
+                                    <a href="producto_preparado" class="sidebar-link">
                                         <span class="hide-menu">Producto</span>
                                     </a>
                                 </li>
                             <?php } ?>
                             <?php if ($tieneMateriaPrima) { ?>
                                 <li class="sidebar-item module_link">
-                                    <a href="rawmaterial" class="sidebar-link">
+                                    <a href="materia_prima" class="sidebar-link">
                                         <span class="hide-menu">Materia Prima</span>
                                     </a>
                                 </li>
                             <?php } ?>
                             <?php if ($tieneRecetas) { ?>
                                 <li class="sidebar-item module_link">
-                                    <a href="recipe" class="sidebar-link">
+                                    <a href="recetas" class="sidebar-link">
                                         <span class="hide-menu">Recetas</span>
                                     </a>
                                 </li>
@@ -227,7 +227,7 @@
 
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'proveedores' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link sidebar-link" href="supplier"
+                            <a class="sidebar-link sidebar-link" href="proveedor"
                                 aria-expanded="false">
                                 <i data-feather="bookmark" class="feather-icon"></i>
                                 <span
@@ -251,7 +251,7 @@
 
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'caja' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link sidebar-link" href="cash"
+                            <a class="sidebar-link sidebar-link" href="caja"
                                 aria-expanded="false">
                                 <i data-feather="inbox" class="feather-icon"></i>
                                 <span
@@ -296,7 +296,7 @@
                 <?php for ($i = 0; $i < count($_SESSION['permisos']); $i++) { ?>
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'unidades' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link sidebar-link" href="units"
+                            <a class="sidebar-link sidebar-link" href="unidades"
                                 aria-expanded="false">
                                 <i data-feather="flag" class="feather-icon"></i>
                                 <span

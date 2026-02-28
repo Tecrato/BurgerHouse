@@ -9,7 +9,7 @@ let table = $(".table_category_rawmaterial").DataTable({
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
     ajax: {
-        url: 'categoryMateriaPrima/get_all/0/10000000/id/asc',
+        url: 'categoria_materia_prima/get_all/0/10000000/id/asc',
         dataSrc: '',
         type: 'POST',
         data: {
@@ -24,10 +24,10 @@ let table = $(".table_category_rawmaterial").DataTable({
             orderable: false,
             render: function (data, type, row, meta) {
                 return `
-                <button data-id="${data.id}" module-edit="categoryMateriaPrima" data-module-edit="categorias" class="btn bh_1 rounded-circle btn-circle edit_btn_datatable" data-bs-toggle="modal" data-bs-target="#edit-categoryRawMaterial" data-bs-title="Editar Categoria" data-bs-placement="bottom">
+                <button data-id="${data.id}" module-edit="categoria_materia_prima" data-module-edit="categorias" class="btn bh_1 rounded-circle btn-circle edit_btn_datatable" data-bs-toggle="modal" data-bs-target="#edit-categoryRawMaterial" data-bs-title="Editar Categoria" data-bs-placement="bottom">
                     <i data-feather="edit" class="text-white"></i>
                 </button>
-                <button data-id="${data.id}" module-delete="categoryMateriaPrima" data-module-delete="categorias" class="btn bh_5 rounded-circle btn-circle trash_btn_datatable" data-bs-toggle="tooltip" data-bs-title="Eliminar Categoria" data-bs-placement="bottom">
+                <button data-id="${data.id}" module-delete="categoria_materia_prima" data-module-delete="categorias" class="btn bh_5 rounded-circle btn-circle trash_btn_datatable" data-bs-toggle="tooltip" data-bs-title="Eliminar Categoria" data-bs-placement="bottom">
                     <i data-feather="trash" class="text-white"></i>
                 </button>
 `;
@@ -127,7 +127,7 @@ if (!form.dataset.listenerAttached) {
             datacategoryRawMaterial.forEach((category, index) => {
                 dataFinal.append(`lista[${index}][nombre]`, category.nombre)
             })
-            addDataTables(table, dataFinal, "categoryMateriaPrima", binnacle(session.user_id, "Materia Prima", "Agregar", "Se agrego una nueva categoria materia prima"))
+            addDataTables(table, dataFinal, "categoria_materia_prima", binnacle(session.user_id, "Materia Prima", "Agregar", "Se agrego una nueva categoria materia prima"))
             resetForm(".categoryRawMaterials", form)
             bootstrap.Modal.getOrCreateInstance('#register-categoryRawMaterials').hide()
         }
@@ -165,7 +165,7 @@ editDataTables(".table_category_rawmaterial", (response) => {
                 let dataFinal = new FormData()
                 dataFinal.append(`nombre`, document.querySelector(`#input-name-categoryRawMaterial`).value)
                 dataFinal.append(`id`, document.querySelector("#input-id-categoryRawMaterial").value)
-                updateDataTables(table, dataFinal, "categoryMateriaPrima", binnacle(session.user_id, "Materia Prima", "Actualizar", "Se actualizo una categoria de materia prima"))
+                updateDataTables(table, dataFinal, "categoria_materia_prima", binnacle(session.user_id, "Materia Prima", "Actualizar", "Se actualizo una categoria de materia prima"))
                 bootstrap.Modal.getOrCreateInstance('#edit-categoryRawMaterial').hide()
             }
         })

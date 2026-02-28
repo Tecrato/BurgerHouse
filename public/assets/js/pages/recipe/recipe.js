@@ -8,16 +8,16 @@ const { elemenFormRecipe, optionsRol, optionsRawMaterial, targetRecipe, elemenFo
 recipe('navbarDropdown')
 InputPrice("[input_price]");
 permission("Recetas")
-selectOptionAll(".select_options_product", "productPrepared", optionsRol)
-selectOptionAll(".select_options_rawmaterial", "rawmaterial", optionsRawMaterial)
+selectOptionAll(".select_options_product", "producto_preparado", optionsRol)
+selectOptionAll(".select_options_rawmaterial", "materia_prima", optionsRawMaterial)
 let session = await sessionInfo()
 let RecipeCount = 1;
 function addRecipe() {
     RecipeCount++;
     document.getElementById("recipes-container").insertAdjacentHTML('beforeend', elemenFormRecipe(RecipeCount));
     feather.replace();
-    selectOptionAll(".select_options_product", "productPrepared", optionsRol)
-    selectOptionAll(".select_options_rawmaterial", "rawmaterial", optionsRawMaterial)
+    selectOptionAll(".select_options_product", "producto_preparado", optionsRol)
+    selectOptionAll(".select_options_rawmaterial", "materia_prima", optionsRawMaterial)
     InputPrice("[input_price]");
     attachValidationListeners(RecipeCount);
 
@@ -168,7 +168,7 @@ let n = $(".table_recipe").DataTable({
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
     ajax: {
-        url: 'recipe/get_all/0/10000000/id/asc',
+        url: 'recetas/get_all/0/10000000/id/asc',
         dataSrc: '',
         type: 'POST',
         data: { active: 1 },
@@ -184,7 +184,7 @@ let n = $(".table_recipe").DataTable({
                 <div class="dropdown dropstart">
                     <i data-feather="more-horizontal" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer"></i>
                     <ul class="dropdown-menu" data-bs-boundary="viewport">
-                        <li><a data-id="${data.id}" module-edit="Detallerecipe" data-module-edit="Recetas" class="edit_btn dropdown-item" data-bs-title="Editar Receta" data-bs-placement="bottom"><i class="me-1" data-feather="edit"></i>Editar</a></li>
+                        <li><a data-id="${data.id}" module-edit="Detalle_receta"" data-module-edit="Recetas" class="edit_btn dropdown-item" data-bs-title="Editar Receta" data-bs-placement="bottom"><i class="me-1" data-feather="edit"></i>Editar</a></li>
                         <li><a class="details_recipe dropdown-item" data-id="${data.id}" style="cursor: pointer"><i class="me-1" data-feather="eye"></i>Ver detalles</a></li>
                     </ul>
                 </div>
@@ -207,7 +207,7 @@ let n = $(".table_recipe").DataTable({
                 template += elemenFormEditRecipe(index, item, "false");
             });
             document.getElementById("recipe-edit-container").innerHTML = template;
-            selectOptionAll(".select_options_edit_rawmaterial", "rawmaterial", optionsRawMaterial);
+            selectOptionAll(".select_options_edit_rawmaterial", "materia_prima", optionsRawMaterial);
             InputPrice("[input_price]");
             feather.replace();
             document.querySelectorAll(".recipe-edit").forEach((item, i) => {
@@ -228,7 +228,7 @@ let n = $(".table_recipe").DataTable({
                     index++;
                     document.getElementById("recipe-edit-container").innerHTML += elemenFormEditRecipe(index, null, "true");
                     feather.replace();
-                    selectOptionAll(".select_options_edit_rawmaterial", "rawmaterial", optionsRawMaterial);
+                    selectOptionAll(".select_options_edit_rawmaterial", "materia_prima", optionsRawMaterial);
                     InputPrice("[input_price]");
                     document.querySelectorAll(".recipe-edit").forEach((item, i) => {
                         item.querySelectorAll("input[type='text'], input[type='button']").forEach((input) => {
@@ -261,7 +261,7 @@ let n = $(".table_recipe").DataTable({
                                     let id = item.getAttribute("data-id");
                                     let data = new FormData();
                                     data.append(`id`, id);
-                                    let pet = await fetch(`Detallerecipe/delete`, { method: "POST", body: data });
+                                    let pet = await fetch(`Detalle_receta/delete`, { method: "POST", body: data });
                                     let petRes = await pet.json();
                                     if (petRes.success == true) {
                                         item.closest(".recipe-edit").remove();
@@ -321,7 +321,7 @@ let n = $(".table_recipe").DataTable({
                                 dataInsert.append(`lista[${index}][id_materia_prima]`, item.id_rawmaterial);
                                 dataInsert.append(`lista[${index}][id_receta]`, item.id_receta);
                             });
-                            let petInsert = await fetch(`Detallerecipe/add_many`, { method: "POST", body: dataInsert });
+                            let petInsert = await fetch(`Detalle_receta/add_many`, { method: "POST", body: dataInsert });
                             let petResInsert = await petInsert.json();
                             petInsertAlert = petResInsert
                         }
@@ -331,7 +331,7 @@ let n = $(".table_recipe").DataTable({
                             dataUpdate.append(`lista[${index}][id_materia_prima]`, item.id_rawmaterial);
                             dataUpdate.append(`lista[${index}][id]`, item.id);
                         });
-                        let petUpdate = await fetch(`Detallerecipe/updateMany`, { method: "POST", body: dataUpdate });
+                        let petUpdate = await fetch(`Detalle_receta/updateMany`, { method: "POST", body: dataUpdate });
                         let petResUpdate = await petUpdate.json();
                         console.log(petResUpdate);
 
@@ -372,7 +372,7 @@ const details_recipe = () => {
             item.addEventListener("click", async () => {
                 let id = item.getAttribute("data-id");
                 document.querySelector(".btn-print-recipe").setAttribute("data-id", id);
-                const data = await searchParam({ id_receta: id }, "Detallerecipe", 10000);
+                const data = await searchParam({ id_receta: id }, "Detalle_receta", 10000);
                 let template = "";
                 data.forEach((item, index) => {
                     template += `
@@ -404,7 +404,7 @@ const print_single_recipe = () => {
     if (!btn.dataset.listenerAttached) {
         btn.addEventListener("click", async () => {
             let id = document.querySelector(".btn-print-recipe").getAttribute("data-id");
-            let data = await searchParam({ id_receta: id }, "Detallerecipe", 10000);
+            let data = await searchParam({ id_receta: id }, "Detalle_receta", 10000);
             let nombre_producto = data[0].nombre.toUpperCase()
             recipe_detail(nombre_producto, data)
         })
@@ -416,7 +416,7 @@ const print_all_recipe = () => {
     let btn = document.querySelector(".btn_print_all_recipe")
     if (!btn.dataset.listenerAttached) {
         btn.addEventListener("click", async () => {
-            let data = await searchParam({}, "Detallerecipe", 10000);
+            let data = await searchParam({}, "Detalle_receta", 10000);
             let group = {}
             data.forEach(item => {
                 if (!group[item.nombre]) group[item.nombre] = [{ ingrediente: item.ingrediente, cantidad: item.cantidad, unidad: item.unidad }];

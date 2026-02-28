@@ -112,46 +112,68 @@ document.querySelectorAll(".container_inputs_filter").forEach(form => {
 })
 const activity = async () => {
     let color = ['bh_1', 'bh_2', 'bh_4', 'bh_5', 'bh_6'];
-    let pet = await searchParam({}, "binnacle", 5)
+    let pet = await searchParam({}, "bitacora", 5)
     let template = ""
     let icon = ""
     let title = ""
+    console.log(pet)
     pet.forEach((item, index) => {
-        if (item.descripcion.includes("Se agrego ") || item.descripcion.includes("Se creo ")) icon = "plus"
-        else if (item.descripcion.includes("Se elimino ") || item.descripcion.includes("Se Elimino")) icon = "trash"
-        else if (item.descripcion.includes("Se actualizo ")) icon = "edit"
-        else if (item.descripcion.includes("Se ha restaurado ")) icon = "refresh-cw"
-        else if (item.descripcion.includes("Se abrio ")) icon = "book-open"
-        else if (item.descripcion.includes("Se cerro ")) icon = "x"
-        else if (item.descripcion.includes("Se preparo ")) icon = "coffee"
-        else if (item.descripcion.includes("Se verifico ")) icon = "check"
-        else if (item.descripcion.includes("Se anulo ")) icon = "x-circle"
-        else if (item.descripcion.includes("Se acepto ")) icon = "check-circle"
-        else if (item.descripcion.includes("inicio de sesion")) icon = "log-in"
-        else if (item.descripcion.includes("Se ha agregado")) icon = "plus-circle"
-        else if (item.descripcion.includes("Se despacho")) icon = "log-in"
-        else if (item.descripcion.includes("Se envio")) icon = "log-out"
-        else if (item.descripcion.includes("Guardar Gasto") || item.descripcion.includes("Guardar Ingreso")) icon = "dollar-sign"
-        else if (item.descripcion.includes("Se pago")) icon = "dollar-sign"
+        const dict_icon = {
+            "Se agrego ": "plus",
+            "Se creo ": "plus",
+            "Se elimino ": "trash",
+            "Se Elimino": "trash",
+            "Se actualizo ": "edit",
+            "Se ha restaurado ": "refresh-cw",
+            "Se abrio ": "book-open",
+            "Se cerro ": "x",
+            "Se preparo ": "coffee",
+            "Se verifico ": "check",
+            "Se anulo ": "x-circle",
+            "Se acepto ": "check-circle",
+            "inicio de sesion": "log-in",
+            "Se ha agregado": "plus-circle",
+            "Se despacho": "log-in",
+            "Se envio": "log-out",
+            "Guardar Gasto": "dollar-sign",
+            "Guardar Ingreso": "dollar-sign",
+            "Se pago": "dollar-sign"
+        }
 
-        if (item.descripcion.includes("Se agrego ") || item.descripcion.includes("Se creo ")) title = "Nuevo elemento agregado"
-        else if (item.descripcion.includes("Se elimino ")) title = "Elemento eliminado"
-        else if (item.descripcion.includes("Se actualizo ")) title = "Elemento actualizado"
-        else if (item.descripcion.includes("Se ha restaurado ")) title = "Elemento restaurado"
-        else if (item.descripcion.includes("Se abrio ")) title = "Elemento abierto"
-        else if (item.descripcion.includes("Se ha cerrado ")) title = "Elemento cerrado"
-        else if (item.descripcion.includes("Se preparo ")) title = "Elemento preparado"
-        else if (item.descripcion.includes("Se verifico ")) title = "Elemento verificado"
-        else if (item.descripcion.includes("Se anulo ")) title = "Elemento anulado"
-        else if (item.descripcion.includes("Se acepto ")) title = "Elemento aceptado"
-        else if (item.descripcion.includes("inicio de sesion")) title = "Inicio de sesion"
-        else if (item.descripcion.includes("Se ha agregado")) title = "Nuevo elemento agregado"
-        else if (item.descripcion.includes("Se despacho")) title = "Nuevo despacho"
-        else if (item.descripcion.includes("Se envio")) title = "Nuevo envio"
-        else if (item.descripcion.includes("Se pago")) title = "Pago realizado"
-
-        else if (item.descripcion.includes("Guardar Gasto") || item.descripcion.includes("Guardar Ingreso")) title = "Nuevo movimiento de dinero"
-
+        const dict_title = {
+            "Se agrego ": "Nuevo elemento agregado",
+            "Se creo ": "Nuevo elemento agregado",
+            "Se elimino ": "Elemento eliminado",
+            "Se Elimino": "Elemento eliminado",
+            "Se actualizo ": "Elemento actualizado",
+            "Se ha restaurado ": "Elemento restaurado",
+            "Se abrio ": "Elemento abierto",
+            "Se cerro ": "Elemento cerrado",
+            "Se preparo ": "Elemento preparado",
+            "Se verifico ": "Elemento verificado",
+            "Se anulo ": "Elemento anulado",
+            "Se acepto ": "Elemento aceptado",
+            "inicio de sesion": "Inicio de sesion",
+            "Se ha agregado": "Nuevo elemento agregado",
+            "Se despacho": "Nuevo despacho",
+            "Se envio": "Nuevo envio",
+            "Guardar Gasto": "Nuevo movimiento de dinero",
+            "Guardar Ingreso": "Nuevo movimiento de dinero",
+            "Se pago": "Pago realizado"
+        }
+        try {
+            for (const key in dict_icon) {
+                if (item.descripcion.includes(key)) {
+                    icon = dict_icon[key];
+                    title = dict_title[key];
+                    break;
+                }
+            }
+        } catch (error) {
+            icon = "alert-triangle";
+            title = "Nueva actividad";
+            console.error("Error al asignar icono o título para la actividad:", error);
+        }
 
         template += `
         <div class="d-flex align-items-start border-left-line pb-3">
@@ -177,11 +199,11 @@ const targetItem = async () => {
     let data = new FormData();
     data.append("anio", new Date().getFullYear());
     data.append("mes", new Date().getMonth() + 1);
-    let numeroClientes = await searchParam({ active: 1 }, "clients", 1000000000);
-    let tablesAvaliable = await searchParam({ active: 1, estado: "LIBRE" }, "table", 1000000000);
-    let orders = await searchParam({ status: "entregada" }, "order", 1000000000);
-    let orders2 = await searchParam({ status: "pagado" }, "order", 1000000000);
-    let ganancias = await fetch("statistics/UtilidadNetaMes", { method: "POST", body: data });
+    let numeroClientes = await searchParam({ active: 1 }, "clientes", 1000000000);
+    let tablesAvaliable = await searchParam({ active: 1, estado: "LIBRE" }, "mesa", 1000000000);
+    let orders = await searchParam({ status: "entregada" }, "orden", 1000000000);
+    let orders2 = await searchParam({ status: "pagado" }, "orden", 1000000000);
+    let ganancias = await fetch("estadisticas/UtilidadNetaMes", { method: "POST", body: data });
     let res = await ganancias.json();
     let gananciasMes = res.reduce((acc, item) => acc + (item.ingresos || 0), 0);
 

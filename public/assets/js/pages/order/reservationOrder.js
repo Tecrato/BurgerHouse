@@ -1,7 +1,7 @@
 export async function payOrderReservation(functions, templates, invoice, reload) {
     const { searchParam, amountDolar, viewImage, InputPrice, selectOptionAll, validateField, setValidationStyles, reindex, CheckCash, sessionInfo, binnacle, resetForm, notification, notificationAlert } = functions()
     const { optionsRol, elemenFormPaymentReservationOrder } = templates()
-    selectOptionAll(".select_options_payment_local_reservation", "paymentMethod", optionsRol);
+    selectOptionAll(".select_options_payment_local_reservation", "metodo_pago", optionsRol);
     viewImage(".input-image")
     InputPrice("[input_price]");
     const dolar = parseFloat(await amountDolar())
@@ -49,7 +49,7 @@ export async function payOrderReservation(functions, templates, invoice, reload)
         paymentCount++;
         document.getElementById("payments-container-local-reservation").insertAdjacentHTML('beforeend', elemenFormPaymentReservationOrder(paymentCount));
         feather.replace();
-        selectOptionAll(".select_options_payment_local_reservation", "paymentMethod", optionsRol);
+        selectOptionAll(".select_options_payment_local_reservation", "metodo_pago", optionsRol);
         viewImage(".input-image")
         InputPrice("[input_price]");
         attachValidationListeners(paymentCount);
@@ -271,7 +271,7 @@ export async function payOrderReservation(functions, templates, invoice, reload)
                                     allowOutsideClick: false,
                                     didOpen: () => { Swal.showLoading() }
                                 });
-                                let info = await searchParam({ id: window.IdOrderPaymentLocal }, "order")
+                                let info = await searchParam({ id: window.IdOrderPaymentLocal }, "orden")
                                 bootstrap.Modal.getOrCreateInstance('#payment_order_local_reservation').hide()
                                 if (info[0].status == "pagado") {
                                     Swal.close();
@@ -284,7 +284,7 @@ export async function payOrderReservation(functions, templates, invoice, reload)
                                     let dataOrder = new FormData();
                                     dataOrder.append("id", window.IdOrderPaymentLocal)
                                     dataOrder.append("status", "pagado")
-                                    let petOrder = await fetch("order/update", { method: "POST", body: dataOrder })
+                                    let petOrder = await fetch("orden/update", { method: "POST", body: dataOrder })
                                     console.log(await petOrder.json());
 
                                     let dataRes = new FormData();
@@ -316,7 +316,7 @@ export async function payOrderReservation(functions, templates, invoice, reload)
                                     let petPaymentDetails = await fetch("PaymentSale/add_many", { method: "POST", body: dataPaymentDetails })
                                     let resPaymentDetails = await petPaymentDetails.json()
                                     console.log(resPaymentDetails);
-                                    let infoOrderActualizada = await searchParam({ id: window.IdOrderPaymentLocal }, "order")
+                                    let infoOrderActualizada = await searchParam({ id: window.IdOrderPaymentLocal }, "orden")
                                     let detailsPrepered = await searchParam({ id_orden: window.IdOrderPaymentLocal }, "Detalle_orden_producto_preparado")
                                     let detailsProcess = await searchParam({ id_orden: window.IdOrderPaymentLocal }, "Detalle_orden_producto_procesado")
                                     let totalAmountPrepared = detailsPrepered.map(item => item.precio * item.cantidad).reduce((a, b) => a + b, 0)
@@ -352,7 +352,7 @@ export async function payOrderReservation(functions, templates, invoice, reload)
                                     let invoiceBlob = await invoice(detailsPrepered, detailsProcess, clientData, window.IdOrderPaymentLocal, directionSale, amountTotal, "invoice", null, above)
                                     let invoiceData = new FormData();
                                     invoiceData.append("pdf", invoiceBlob, "factura.pdf");
-                                    let send = await fetch("order/sendInvoice", { method: "POST", body: invoiceData });
+                                    let send = await fetch("orden/sendInvoice", { method: "POST", body: invoiceData });
                                     let dataResInvoice = await send.json();
                                     const mensaje = `*FACTURA DE ORDEN* \n\n*${clientData.nameClient}*\n\n${dataResInvoice.url}`;
                                     const url = `https://wa.me/${clientData.telefonoClient}?text=${encodeURIComponent(mensaje)}`;

@@ -1,35 +1,35 @@
 <?php
-require_once __DIR__ . '/Controller_base.php';
+use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 use Shtch\Burgerhouse\models\Notificacion;
 use Pusher\Pusher;
 use Exception;
 
-function notification_view(...$args)
+function notificationes_view(...$args)
 {
     view('notifications');
 }
 
-function notification_get_all(...$args)
+function notificationes_get_all(...$args)
 {
     get_all(new Notificacion(), ...$args);
 }
 
-function notification_add(...$args)
+function notificationes_add(...$args)
 {
     add(new Notificacion(), $_POST);
 }
 
-function notification_update(...$args)
+function notificationes_update(...$args)
 {
     update(new Notificacion(), $_POST);
 }
 
-function notification_delete(...$args)
+function notificationes_delete(...$args)
 {
     delete(new Notificacion(), $_POST['id']);
 }
 
-function notification_sendNotifications(...$args)
+function notificationes_sendNotifications(...$args)
 {
     try {
         date_default_timezone_set('America/Caracas');
@@ -52,10 +52,3 @@ function notification_sendNotifications(...$args)
         echo json_encode(['success' => false, 'message' => $th->getMessage()]);
     }
 }
-
-
-function notification_sendNotifications(...) {
-    // converted from NotificationController.php::sendNotifications - please implement logic
-    // TODO: migrate code from class method
-}
-

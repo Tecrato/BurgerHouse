@@ -8,7 +8,7 @@ let session = await sessionInfo();
 
 let table = $('.table_binnacle_user').DataTable({
     language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
-    "order": [[0, "desc"]],
+    "orden": [[0, "desc"]],
     processing: true,
     serverSide: true,
     pageLength: 10,
@@ -16,7 +16,7 @@ let table = $('.table_binnacle_user').DataTable({
         let page = Math.floor(data.start / data.length);
         let size = data.length;
         // obtener total vía la función síncrona myfecth (devuelve string)
-        let totalRaw = myfecth("binnacle/count", {}, { id_usuario: session.message.id }, null, 'POST');
+        let totalRaw = myfecth("bitacora/count", {}, { id_usuario: session.message.id }, null, 'POST');
         console.log(totalRaw);
         
         let total = 0;
@@ -25,7 +25,7 @@ let table = $('.table_binnacle_user').DataTable({
         } catch (e) {
             total = parseInt(totalRaw) || 0;
         }
-        fetch(`binnacle/get_all/${page}/${size}/id/asc`, {
+        fetch(`bitacora/get_all/${page}/${size}/id/asc`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id_usuario: session.message.id }),
@@ -60,7 +60,7 @@ let table = $('.table_binnacle_user').DataTable({
 
 let table2 = $('.table_binnacle_system').DataTable({
     language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
-    "order": [[0, "desc"]],
+    "orden": [[0, "desc"]],
     processing: true,
     serverSide: true,
     pageLength: 10,
@@ -68,14 +68,14 @@ let table2 = $('.table_binnacle_system').DataTable({
         let page = Math.floor(data.start / data.length);
         let size = data.length;
         // obtener total para toda la bitacora (sistema)
-        let totalRaw = myfecth("binnacle/count", {}, {}, null, 'POST');
+        let totalRaw = myfecth("bitacora/count", {}, {}, null, 'POST');
         let total = 0;
         try {
             total = JSON.parse(totalRaw);
         } catch (e) {
             total = parseInt(totalRaw) || 0;
         }
-        fetch(`binnacle/get_all/${page}/${size}/id/asc`, { method: 'POST' })
+        fetch(`bitacora/get_all/${page}/${size}/id/asc`, { method: 'POST' })
             .then(res => res.json())
             .then(resp => {
                 const out = {
@@ -110,7 +110,7 @@ $('#searchBinnacleSystem').on('keyup', function () {
 });
 
 const algo = async () => {
-    let pet = await fetch(`binnacle/get_all/0/10000000/id/asc`);
+    let pet = await fetch(`bitacora/get_all/0/10000000/id/asc`);
     let response = await pet.json()
     console.log(response)
 }

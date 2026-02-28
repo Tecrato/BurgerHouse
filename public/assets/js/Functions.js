@@ -312,10 +312,10 @@ export default function functionGeneral() {
               let id = item.getAttribute("data-id");
               item.parentElement.parentElement.parentElement.firstElementChild.setAttribute("data-id", id);
             }
-            if (module == "rawmaterial") {
+            if (module == "materia_prima") {
               item.closest(".row").querySelector(".type_unit").textContent = item.getAttribute("data-unit");
             }
-            if (module == "paymentMethod") {
+            if (module == "metodo_pago") {
               if (item.textContent.toLocaleLowerCase() == "efectivo" || item.textContent.toLocaleLowerCase() == "transferencia" || item.textContent.toLocaleLowerCase() == "pago movil") {
                 item.closest(".row").querySelector(".type_payment").textContent = "Bs";
               } else { item.closest(".row").querySelector(".type_payment").textContent = "$"; }
@@ -383,11 +383,10 @@ export default function functionGeneral() {
   };
   const binnacle = async (id_user, table, action, description) => {
     let data = new FormData();
-    data.append("id_usuario", id_user);
     data.append("tabla", table);
     data.append("accion", action);
     data.append("descripcion", description);
-    let search = await fetch("binnacle/add", { method: "POST", body: data });
+    let search = await fetch("bitacora/add", { method: "POST", body: data });
   }
   const print = async (config) => {
     const { search, template, container, funtions } = config;
@@ -546,7 +545,7 @@ export default function functionGeneral() {
         let id = btn.getAttribute("data-id")
         let module = btn.getAttribute("module-edit")
         let data = new FormData();
-        module == "Detallerecipe" ? data.append("id_receta", id) : data.append("id", id);
+        module == "Detalle_receta" ? data.append("id_receta", id) : data.append("id", id);
         let pet = await fetch(`${module}/get_all`, {
           method: "POST",
           body: data

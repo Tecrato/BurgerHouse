@@ -11,7 +11,7 @@ const session = await sessionInfo();
 permission("reservaciones")
 
 const events = async () => {
-    const pet = await fetch('calendar/get_all/0/10000000/id/asc', { method: 'POST' })
+    const pet = await fetch('calendario/get_all/0/10000000/id/asc', { method: 'POST' })
     let res = await pet.json()
     return res.map(item => {
         let color = '#FFB200';
@@ -111,7 +111,7 @@ if (!btnAddReservation.dataset.listenerAttached) {
 const detailsClient = async (id) => {
     let data = new FormData();
     data.append("id", id)
-    let pet = await fetch("order/get_all", { method: "POST", body: data })
+    let pet = await fetch("orden/get_all", { method: "POST", body: data })
     let res = await pet.json()
     document.querySelector(".name_client_edit_reservation").textContent = "CLIENTE: " + res[0].cliente_nombre + " " + res[0].cliente_apellido
     document.querySelector(".document_client_edit_reservation").textContent = "DOCUMENTO: " + res[0].cliente_documento
@@ -120,11 +120,11 @@ const detailsClient = async (id) => {
 const detailsReservation = async (id_reserva) => {
     let data = new FormData();
     data.append("id", id_reserva)
-    let pet = await fetch("calendar/get_all", { method: "POST", body: data })
+    let pet = await fetch("calendario/get_all", { method: "POST", body: data })
     let res = await pet.json()
     let dataPackage = new FormData();
     dataPackage.append("id_paquete", res[0].id_paquete)
-    let tables = await fetch("package_table/get_all", { method: "POST", body: dataPackage })
+    let tables = await fetch("package_mesa/get_all", { method: "POST", body: dataPackage })
     let resTables = await tables.json()
     document.querySelector(".date_edit_reservation").textContent = fecha(res[0].fecha_inicio) + " a las " + hora(res[0].fecha_inicio)
     document.querySelector(".cont_edit_package_reservation").textContent = res[0].paquete + " por " + res[0].precio_paquete + " USD" + " para " + resTables.reduce((acc, item) => acc + parseInt(item.sillas), 0) + " personas"
@@ -149,7 +149,7 @@ const detailsPay = async (id_reserva) => {
 document.querySelector(".edit_client_edit_reservation").addEventListener("click", async () => {
     let data = new FormData();
     data.append("id", document.querySelector('.edit_client_edit_reservation').getAttribute('data-id'))
-    const pet = await fetch('calendar/get_all/0/10000000/id/asc', { method: 'POST', body: data })
+    const pet = await fetch('calendario/get_all/0/10000000/id/asc', { method: 'POST', body: data })
     let res = await pet.json()
     window.dataClient = {
         documento: res[0].documento.split('-')[1],
@@ -179,7 +179,7 @@ document.querySelector(".edit_client_edit_reservation").addEventListener("click"
 document.querySelector(".edit_date_reservationEdit").addEventListener("click", async () => {
     let data = new FormData();
     data.append("id", document.querySelector('.edit_date_reservationEdit').getAttribute('data-id'))
-    const pet = await fetch('calendar/get_all/0/10000000/id/asc', { method: 'POST', body: data })
+    const pet = await fetch('calendario/get_all/0/10000000/id/asc', { method: 'POST', body: data })
     let res = await pet.json()
     window.editDateReservation = { date: res[0].fecha_inicio, id: res[0].id }
 
@@ -200,7 +200,7 @@ document.querySelector(".edit_date_reservationEdit").addEventListener("click", a
 document.querySelector(".edit_package_reservationEdit").addEventListener("click", async () => {
     let data = new FormData();
     data.append("id", document.querySelector('.edit_package_reservationEdit').getAttribute('data-id'))
-    const pet = await fetch('calendar/get_all/0/10000000/id/asc', { method: 'POST', body: data })
+    const pet = await fetch('calendario/get_all/0/10000000/id/asc', { method: 'POST', body: data })
     let res = await pet.json()
     stepperReservationEdit.to(0)
     window.editPackageReservation = {
@@ -253,7 +253,7 @@ document.querySelector(".btn-null-reservation").addEventListener("click", () => 
             let responseReservation = await petReservation.json()
             dataOrder.append("id", id_orden)
             dataOrder.append("status", "anulada")
-            let petOrder = await fetch("order/update", { method: "POST", body: dataOrder })
+            let petOrder = await fetch("orden/update", { method: "POST", body: dataOrder })
             let responseOrder = await petOrder.json()
             if (responseOrder.success == true && responseReservation.success == true) {
                 Swal.fire({
@@ -303,7 +303,7 @@ document.querySelector(".btn-verify-reservation").addEventListener("click", () =
             let responseReservation = await petReservation.json()
             dataOrder.append("id", id_orden)
             dataOrder.append("status", "pendiente")
-            let petOrder = await fetch("order/update", { method: "POST", body: dataOrder })
+            let petOrder = await fetch("orden/update", { method: "POST", body: dataOrder })
             let responseOrder = await petOrder.json()
             if (responseOrder.success == true && responseReservation.success == true) {
                 Swal.fire({

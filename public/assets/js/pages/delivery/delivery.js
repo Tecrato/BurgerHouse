@@ -5,7 +5,7 @@ const { searchParam, binnacle, sessionInfo, print, searchFilter, permission, not
 const { targetDelivery, infoKitchenDelivery, detailsKitchenDelivery } = Templates();
 let session = await sessionInfo()
 const config = {
-    search: () => searchParam({ status: 'para despachar', tipo: "delivery" }, "order", 12),
+    search: () => searchParam({ status: 'para despachar', tipo: "delivery" }, "orden", 12),
     template: targetDelivery,
     container: ".cont-delivery-pending",
     funtions: () => {
@@ -16,11 +16,11 @@ const config = {
 }
 searchFilter("#searchDeliveryPending", (e) => {
     if (e.target.value == "") print(config)
-    else print({ ...config, search: () => searchParam({ status: "para despachar", nombre_like: e.target.value }, "order") })
+    else print({ ...config, search: () => searchParam({ status: "para despachar", nombre_like: e.target.value }, "orden") })
 })
 searchFilter("#searchDeliveryOff", (e) => {
-    if (e.target.value == "") print({ ...config, search: () => searchParam({ status: "entregado", tipo: "delivery" }, "order"), container: ".cont-delivery-off" })
-    else print({ ...config, search: () => searchParam({ status: "entregado", nombre_like: e.target.value, tipo: "delivery" }, "order"), container: ".cont-delivery-off" })
+    if (e.target.value == "") print({ ...config, search: () => searchParam({ status: "entregado", tipo: "delivery" }, "orden"), container: ".cont-delivery-off" })
+    else print({ ...config, search: () => searchParam({ status: "entregado", nombre_like: e.target.value, tipo: "delivery" }, "orden"), container: ".cont-delivery-off" })
 })
 const saleBTN = async (config, binnacleSale) => {
     document.querySelectorAll(".btn_sale").forEach(item => {
@@ -44,7 +44,7 @@ const saleBTN = async (config, binnacleSale) => {
                     let id = item.getAttribute("id_order")
                     let data = new FormData();
                     data.append("id", id)
-                    let verify = await searchParam({ id: id, status: 'en camino' }, "order")
+                    let verify = await searchParam({ id: id, status: 'en camino' }, "orden")
                     if (verify.length > 0) {
                         Swal.fire({
                             title: `Error!`,
@@ -54,7 +54,7 @@ const saleBTN = async (config, binnacleSale) => {
                         Swal.close();
                     } else {
                         data.append("status", "en camino")
-                        let pet = await fetch('order/update', { method: "POST", body: data })
+                        let pet = await fetch('orden/update', { method: "POST", body: data })
                         let res = await pet.json()
                         if (res.success == true) {
                             Swal.close();
@@ -64,7 +64,7 @@ const saleBTN = async (config, binnacleSale) => {
                                 icon: "success",
                             });
                             print(config)
-                            print({ ...config, search: () => searchParam({ status: "entregada", tipo: "delivery" }, "order", 12), container: ".cont-delivery-off" })
+                            print({ ...config, search: () => searchParam({ status: "entregada", tipo: "delivery" }, "orden", 12), container: ".cont-delivery-off" })
                             binnacleSale()
                             let deliveryData = new FormData();
                             deliveryData.append("id_venta", item.getAttribute("id_venta"))
@@ -76,9 +76,9 @@ const saleBTN = async (config, binnacleSale) => {
                                 mensaje: `La orden ${id.toString().padStart(4, '0')} esta en camino para despachar`,
                             })
                             notificationAlert({
-                                channel: "Order",
+                                channel: "orden",
                                 message: `La orden ${id.toString().padStart(4, '0')} esta en camino para despachar`,
-                                event: "order"
+                                event: "orden"
                             })
                             notificationAlert({
                                 channel: "General",
@@ -134,13 +134,13 @@ document.getElementById('navbarDropdown').addEventListener('click', function () 
     }
 });
 print(config)
-print({ ...config, search: () => searchParam({ status: "entregada", tipo: "delivery" }, "order", 12), container: ".cont-delivery-off" })
+print({ ...config, search: () => searchParam({ status: "entregada", tipo: "delivery" }, "orden", 12), container: ".cont-delivery-off" })
 //modal de detalles
 const modalDetails = () => {
     document.querySelectorAll(".btn-details-kitchen-delivery").forEach(item => {
         item.addEventListener("click", async () => {
             let id = item.getAttribute('data-id')
-            let info = await searchParam({ id: id }, "order")
+            let info = await searchParam({ id: id }, "orden")
             let detailsPrepered = await searchParam({ id_orden: id }, "Detalle_orden_producto_preparado")
             let detailsProcess = await searchParam({ id_orden: id }, "Detalle_orden_producto_procesado")
             document.querySelector(".cont_info_kitchen_delivery").innerHTML = infoKitchenDelivery(info[0])
@@ -170,5 +170,5 @@ channelKitchen.bind('delivery', function (data) {
     const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toas.querySelector("#liveToast"), { delay: 5000 })
     toastBootstrap.show()
     print(config)
-    print({ ...config, search: () => searchParam({ status: "entregada", tipo: "delivery" }, "order", 12), container: ".cont-delivery-off" })
+    print({ ...config, search: () => searchParam({ status: "entregada", tipo: "delivery" }, "orden", 12), container: ".cont-delivery-off" })
 });

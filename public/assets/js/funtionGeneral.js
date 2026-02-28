@@ -150,6 +150,6 @@ bell.addEventListener("click", () => {
 // data.append("lista_detalle_preparado[1][descripcion]", "");
 // data.append("lista_detalle_preparado[2][id_producto]", 50);
 // data.append("lista_detalle_preparado[2][cantidad]", 1);
-// let pet = await fetch('order/add', { method: "POST", body: data })
+// let pet = await fetch('orden/add', { method: "POST", body: data })
 // let res = await pet.json()
 // console.log(res);

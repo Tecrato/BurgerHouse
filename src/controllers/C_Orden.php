@@ -1,16 +1,29 @@
 <?php
 // Procedural controller translated from OrderController.php
-require_once __DIR__ . '/Controller_base.php';
+use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 use Shtch\Burgerhouse\models\Orden;
 use Shtch\Burgerhouse\models\DetalleOrdenProductoPreparado;
 use Shtch\Burgerhouse\models\DetalleOrdenProductoProcesado;
 use Shtch\Burgerhouse\models\Receta;
 use Shtch\Burgerhouse\models\Detalle_receta;
 use Shtch\Burgerhouse\models\ProductoProcesado;
+use Shtch\Burgerhouse\models\Detalle_entrada_materia_prima;
+use Shtch\Burgerhouse\models\Entrada_producto_procesado;
+use Shtch\Burgerhouse\models\Materia_prima;
+use Shtch\Burgerhouse\models\Notificacion;
+
+use Pusher\Pusher;
+use Kunnu\Dropbox\DropboxApp;
+use Kunnu\Dropbox\Dropbox;
 
 function orden_view(...$args)
 {
     view('orders');
+}
+
+function orden_get_all(...$args) {
+    get_all(new Orden(), ...$args);
+    
 }
 
 function orden_add(...$args)
@@ -113,7 +126,7 @@ function orden_add_process_and_prepared(...$args)
                     }
                 }
             }
-            $result = verify_prepared($detalles_receta);
+            $result = orden_verify_prepared($detalles_receta);
             $result_detalle_preparado = $result['success'];
             $message_error_detalle_preparado = $result['faltantes'];
         }
@@ -130,7 +143,7 @@ function orden_add_process_and_prepared(...$args)
                     }
                 }
             }
-            $result = veryfy_process($detalles_productos);
+            $result = orden_veryfy_process($detalles_productos);
             $result_detalle_procesado = $result['success'];
             $message_error_detalle_procesado = $result['faltantes'];
         }
@@ -150,16 +163,16 @@ function orden_add_process_and_prepared(...$args)
                     $clase_detalle_producto_preparado->__construct(...$item);
                     $clase_detalle_producto_preparado->agregar();
                 }
-                descount_prepared($detalles_receta);
-                verify_stock_prepared($detalles_receta);
+                orden_descount_prepared($detalles_receta);
+                orden_verify_stock_prepared($detalles_receta);
             }
             if (!empty($_POST['lista_detalle_procesado'])) {
                 foreach ($_POST['lista_detalle_procesado'] as $item) {
                     $clase_detalle_producto_procesado->__construct(...$item);
                     $clase_detalle_producto_procesado->agregar();
                 }
-                descount_process($detalles_productos);
-                verify_stock_process($detalles_productos);
+                orden_descount_process($detalles_productos);
+                orden_verify_stock_process($detalles_productos);
             }
             echo json_encode(['success' => true]);
         } else {
@@ -173,7 +186,7 @@ function orden_add_process_and_prepared(...$args)
     }
 }
 
-function get_dropbox_access_token($clientId, $clientSecret, $refreshToken)
+function orden_dropbox_access_token($clientId, $clientSecret, $refreshToken)
 {
     $ch = curl_init('https://api.dropboxapi.com/oauth2/token');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -204,7 +217,7 @@ function orden_sendInvoice(...$args)
         $clientSecret = 'xctzdywh51b3oxy';
         $refreshToken = 'c3RXYAqJBP4AAAAAAAAAAU5M0GoRBtJnQYrvl6gPHYlmDSir37GjiGXiQC7KQZxm';
 
-        $accessToken = get_dropbox_access_token($clientId, $clientSecret, $refreshToken);
+        $accessToken = orden_dropbox_access_token($clientId, $clientSecret, $refreshToken);
 
         $app = new DropboxApp($clientId, $clientSecret, $accessToken);
         $dropbox = new Dropbox($app);
@@ -232,7 +245,7 @@ function orden_sendInvoice(...$args)
     }
 }
 
-function verify_prepared($detalle_receta)
+function orden_verify_prepared($detalle_receta)
 {
     date_default_timezone_set('America/Caracas');
     $entradas_materia_prima = new Detalle_entrada_materia_prima();
@@ -272,7 +285,7 @@ function verify_prepared($detalle_receta)
     ];
 }
 
-function descount_prepared($detalle_receta)
+function orden_descount_prepared($detalle_receta)
 {
     date_default_timezone_set('America/Caracas');
     $entradas_materia_prima = new Detalle_entrada_materia_prima();
@@ -306,7 +319,7 @@ function descount_prepared($detalle_receta)
     }
 }
 
-function veryfy_process($detalle_producto)
+function orden_veryfy_process($detalle_producto)
 {
     date_default_timezone_set('America/Caracas');
     $entradas_process = new Entrada_producto_procesado();
@@ -346,7 +359,7 @@ function veryfy_process($detalle_producto)
     ];
 }
 
-function descount_process($detalle_producto)
+function orden_descount_process($detalle_producto)
 {
     date_default_timezone_set('America/Caracas');
     $entradas_process = new Entrada_producto_procesado();
@@ -380,7 +393,7 @@ function descount_process($detalle_producto)
     }
 }
 
-function verify_stock_process($detalle_producto)
+function orden_verify_stock_process($detalle_producto)
 {
     $productos = new ProductoProcesado();
     $notification = new Notificacion();
@@ -419,7 +432,7 @@ function verify_stock_process($detalle_producto)
     }
 }
 
-function verify_stock_prepared($detalles_receta)
+function orden_verify_stock_prepared($detalles_receta)
 {
     $materia_prima = new Materia_prima();
     $notification = new Notificacion();
@@ -429,10 +442,30 @@ function verify_stock_prepared($detalles_receta)
     foreach ($detalles_receta as $detalle_receta) {
         foreach ($result_productos as $producto) {
             $stock_min = $producto['stock_min'];
-            $stock_max = $producto['stock_max'];
             if ($producto['existencia'] <= $stock_min && $detalle_receta['id_materia_prima'] == $producto['id']) {
                 $notification->__construct(
                     id_usuario: $_SESSION['id'],
                     titulo: "Producto con stock bajo",
                     mensaje: "El producto " . $producto['nombre'] . " tiene un stock bajo",
-
+                    status: 0
+                );
+                $notification->agregar();
+                date_default_timezone_set('America/Caracas');
+                $channel = 'General';
+                $event = "notificaciones";
+                $message = "El producto " . $producto['nombre'] . " tiene un stock bajo";
+                $pusher = new Pusher(
+                    '2a7ca356d030e2945ae9',
+                    '3c3f676721576bb7c676',
+                    '2016820',
+                    [
+                        'cluster' => 'us2',
+                        'useTLS' => true
+                    ]
+                );
+                $data = ['message' => $message, 'time' => date('Y-m-d H:i:s'), 'event' => $event];
+                $pusher->trigger($channel, $event, $data);
+            }
+        }
+    }
+}

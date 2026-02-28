@@ -10,7 +10,7 @@ let n = $(".table_combo").DataTable({
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
     ajax: {
-        url: 'categoryProducto/get_all/0/10000000/id/asc',
+        url: 'categoria_producto/get_all/0/10000000/id/asc',
         dataSrc: '',
         type: 'POST',
         data: {

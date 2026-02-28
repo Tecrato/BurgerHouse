@@ -5,10 +5,10 @@ const { InputPrice, selectOptionAll, viewImage, resetForm, setValidationStyles, 
 let session = await sessionInfo();
 const dolar = await amountDolar()
 permission("Entradas de productos procesados")
-selectOptionAll(".select_options_supplier", "supplier", optionsSupplier)
+selectOptionAll(".select_options_supplier", "proveedor", optionsSupplier)
 selectOptionAll(".select_options_product", "productProcess", optionsRol)
-selectOptionAll(".select_options_unit", "units", optionsRol)
-selectOptionAll(".select_options_payment", "paymentMethod", optionsRol)
+selectOptionAll(".select_options_unit", "unidades", optionsRol)
+selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
 InputPrice("[input_price]")
 viewImage(".input-image")
 function reindexEntrys(elementAll, id, counter, name) {
@@ -139,7 +139,7 @@ async function reference() {
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="fw-bold text-uppercase">Comprobante</h5>
-                                <img class="img-fluid" src="media/pay_entrys_rawmaterial/${element.comprobante}" alt="Vista previa">
+                                <img class="img-fluid" src="media/pay_entrys_materia_prima/${element.comprobante}" alt="Vista previa">
                                 <h5 class="fw-bold text-uppercase mt-3">Metodo de pago</h5>
                                 <p class="ms-2">${element.metodo_pago} <strong>${element.precio_compra} ${element.metodo_pago.toLowerCase() != "divisa" ? "Bs" : "Usd"}</strong></p>
                                 <h5 class="fw-bold text-uppercase">Fecha</h5>
@@ -373,10 +373,10 @@ function addEntrys() {
         return elementFormPaymentEntrysProductProcess(paymentCount);
     }));
     feather.replace();
-    selectOptionAll(".select_options_supplier", "supplier", optionsSupplier)
+    selectOptionAll(".select_options_supplier", "proveedor", optionsSupplier)
     selectOptionAll(".select_options_product", "productProcess", optionsRol)
-    selectOptionAll(".select_options_unit", "units", optionsRol)
-    selectOptionAll(".select_options_payment", "paymentMethod", optionsRol)
+    selectOptionAll(".select_options_unit", "unidades", optionsRol)
+    selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
     InputPrice("[input_price]")
     viewImage(".input-image")
     attachValidationListeners();
@@ -389,7 +389,7 @@ function addEntrys() {
         feather.replace();
         InputPrice("[input_price]")
         viewImage(".input-image")
-        selectOptionAll(".select_options_payment", "paymentMethod", optionsRol)
+        selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
     });
     payRemove.addEventListener("click", () => {
         paymentCount--;
@@ -410,7 +410,7 @@ function addPayment() {
             paymentCount++;
             document.querySelector(`#entrys-${id}`).querySelector("#payment_entry_container").insertAdjacentHTML('beforeend', elementFormPaymentEntrysProductProcess(paymentCount));
             feather.replace();
-            selectOptionAll(".select_options_payment", "paymentMethod", optionsRol)
+            selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
             InputPrice("[input_price]")
             attachValidationListeners();
             viewImage(".input-image")
@@ -889,10 +889,10 @@ editDataTables(".table_entrys_active", async (response) => {
     }
     document.querySelector("#payment_entry_container_edit").innerHTML = template;
     feather.replace()
-    selectOptionAll(".select_options_supplier", "supplier", optionsSupplier)
+    selectOptionAll(".select_options_supplier", "proveedor", optionsSupplier)
     selectOptionAll(".select_options_product", "productProcess", optionsRol)
-    selectOptionAll(".select_options_unit", "units", optionsRol)
-    selectOptionAll(".select_options_payment", "paymentMethod", optionsRol)
+    selectOptionAll(".select_options_unit", "unidades", optionsRol)
+    selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
     InputPrice("[input_price]")
     viewImage(".input-image")
     attachValidationListeners()
@@ -968,7 +968,7 @@ editDataTables(".table_entrys_active", async (response) => {
         feather.replace();
         attachValidationListeners()
         index++
-        selectOptionAll(".select_options_payment_edit", "paymentMethod", optionsRol)
+        selectOptionAll(".select_options_payment_edit", "metodo_pago", optionsRol)
         InputPrice("[input_price]")
         viewImage(".input-image")
         document.querySelectorAll(".remove-payment-entry").forEach(payRemove => {

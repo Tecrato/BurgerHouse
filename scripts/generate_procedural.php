@@ -29,7 +29,7 @@ foreach ($files as $file) {
     $methods = array_filter($mm[1], function($name){ return $name !== '__construct'; });
 
     $out = "<?php\n";
-    $out .= "require_once __DIR__ . '/Controller_base.php';\n";
+    $out .= "use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};\n";
     if ($model) {
         $out .= "use Shtch\\Burgerhouse\\models\\$model;\n";
     }

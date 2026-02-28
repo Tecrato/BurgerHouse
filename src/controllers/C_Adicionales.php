@@ -2,7 +2,7 @@
 // C_Adicionales.php will become a plain procedural controller.  it no longer
 // uses a namespace so that its functions are global and visible from
 // public/index.php.
-require_once __DIR__ . '/Controller_base.php';
+use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, delete, check};
 
 use Shtch\Burgerhouse\models\ProductoPreparado as Adicional;
 

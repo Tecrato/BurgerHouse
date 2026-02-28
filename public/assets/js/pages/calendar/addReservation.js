@@ -6,7 +6,7 @@ export async function payReservation(functions, templates, calendar) {
     let session = await sessionInfo()
     let cash = await CheckCash()
     stepperReservation.to(0)
-    selectOptionAll(".select_options_payment_reservation", "paymentMethod", optionsRol);
+    selectOptionAll(".select_options_payment_reservation", "metodo_pago", optionsRol);
     selectOptionAll(".select_options_client_reservation", "clients", optionsRol);
     let iti = window.intlTelInput(document.querySelector("#input-tel-client-reservation"), { initialCountry: "ve", separateDialCode: true, utilsScript: "./assets/libs/libs/intl-tel-input/js/utils.js" });
     let toas = (type, msj) => {
@@ -382,7 +382,7 @@ export async function payReservation(functions, templates, calendar) {
                     order.append("tipo", "reserva");
                     order.append("nro_orden", nro_orden)
                     order.append("status", "confirmada")
-                    let petOrder = await fetch("order/add", { method: "POST", body: order })
+                    let petOrder = await fetch("orden/add", { method: "POST", body: order })
                     let resOrder = await petOrder.json()
                     console.log(resOrder);
                     let id_order = resOrder.last_id
@@ -454,7 +454,7 @@ export async function payReservation(functions, templates, calendar) {
         paymentCount++;
         document.getElementById("payments-container-reservation").insertAdjacentHTML('beforeend', elemenFormPaymentReservation(paymentCount));
         feather.replace();
-        selectOptionAll(".select_options_payment_reservation", "paymentMethod", optionsRol);
+        selectOptionAll(".select_options_payment_reservation", "metodo_pago", optionsRol);
         viewImage(".input-image")
         InputPrice("[input_price]");
         attachValidationListeners(paymentCount);

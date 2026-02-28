@@ -8,7 +8,7 @@ const modulesConfig = {
     mesas: {
         ajax: {
             dataSrc: '',
-            url: 'table/get_all/0/10000000/id/asc',
+            url: 'mesa/get_all/0/10000000/id/asc',
             type: 'POST',
             data: { active: 0 },
         },
@@ -30,7 +30,7 @@ const modulesConfig = {
     },
     product_prepared: {
         ajax: {
-            url: 'productPrepared/get_all/0/10000000/id/asc',
+            url: 'producto_preparado/get_all/0/10000000/id/asc',
             dataSrc: '',
             type: 'POST',
             data: {
@@ -46,7 +46,7 @@ const modulesConfig = {
                 data: null,
                 render: (data) =>
                     `
-                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="productPrepared" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Producto" data-bs-placement="bottom">
+                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="producto_preparado" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Producto" data-bs-placement="bottom">
                     <i data-feather="refresh-ccw" class="text-white"></i>
                 </button>
                 `
@@ -97,7 +97,7 @@ const modulesConfig = {
                 data: null,
                 render: (data) =>
                     `
-                  <button data-id="${data.id}" data-module-restore="Papelera" module-restore="supplier" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Proveedor" data-bs-placement="bottom">
+                  <button data-id="${data.id}" data-module-restore="Papelera" module-restore="proveedor" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Proveedor" data-bs-placement="bottom">
                       <i data-feather="refresh-ccw" class="text-white"></i>
                   </button>
                   `
@@ -131,7 +131,7 @@ const modulesConfig = {
     },
     Unidades: {
         ajax: {
-            url: 'units/get_all/0/10000000/id/asc',
+            url: 'unidades/get_all/0/10000000/id/asc',
             dataSrc: '',
             type: 'POST',
             dataSrc: '',
@@ -148,7 +148,7 @@ const modulesConfig = {
                 data: null,
                 render: (data) =>
                     `
-                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="units" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Unidad" data-bs-placement="bottom">
+                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="unidades" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Unidad" data-bs-placement="bottom">
                     <i data-feather="refresh-ccw" class="text-white"></i>
                 </button>
                 `
@@ -157,7 +157,7 @@ const modulesConfig = {
     },
     materia_prima: {
         ajax: {
-            url: 'rawmaterial/get_all/0/10000000/id/asc',
+            url: 'materia_prima/get_all/0/10000000/id/asc',
             dataSrc: '',
             type: 'POST',
             dataSrc: '',
@@ -178,7 +178,7 @@ const modulesConfig = {
                 data: null,
                 render: (data) =>
                     `
-                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="rawmaterial" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Unidad" data-bs-placement="bottom">
+                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="materia_prima" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Unidad" data-bs-placement="bottom">
                     <i data-feather="refresh-ccw" class="text-white"></i>
                 </button>
                 `
@@ -187,7 +187,7 @@ const modulesConfig = {
     },
     Categoria_combo: {
         ajax: {
-            url: 'categoryProducto/get_all/0/10000000/id/asc',
+            url: 'categoria_producto/get_all/0/10000000/id/asc',
             dataSrc: '',
             type: 'POST',
             data: {
@@ -211,7 +211,7 @@ const modulesConfig = {
     },
     Categoria_rawmaterial: {
         ajax: {
-            url: 'categoryMateriaPrima/get_all/0/10000000/id/asc',
+            url: 'categoria_materia_prima/get_all/0/10000000/id/asc',
             dataSrc: '',
             type: 'POST',
             data: {
@@ -226,7 +226,7 @@ const modulesConfig = {
                 data: null,
                 render: (data) =>
                     `
-                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="categoryMateriaPrima" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Categoria" data-bs-placement="bottom">
+                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="categoria_materia_prima" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Categoria" data-bs-placement="bottom">
                     <i data-feather="refresh-ccw" class="text-white"></i>
                 </button>
                 `
@@ -235,7 +235,7 @@ const modulesConfig = {
     },
     Metodos_pago: {
         ajax: {
-            url: 'paymentMethod/get_all/0/10000000/id/asc',
+            url: 'metodo_pago/get_all/0/10000000/id/asc',
             dataSrc: '',
             type: 'POST',
             data: {
@@ -250,7 +250,7 @@ const modulesConfig = {
                 data: null,
                 render: (data) =>
                     `
-                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="paymentMethod" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Metodo de pago" data-bs-placement="bottom">
+                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="metodo_pago" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Metodo de pago" data-bs-placement="bottom">
                     <i data-feather="refresh-ccw" class="text-white"></i>
                 </button>
                 `
@@ -323,7 +323,7 @@ const modulesConfig = {
                 data: null,
                 render: (data) =>
                     `
-                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="additional" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Adicional" data-bs-placement="bottom">
+                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="adicionales" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Adicional" data-bs-placement="bottom">
                     <i data-feather="refresh-ccw" class="text-white"></i>
                 </button>
                 `
@@ -332,7 +332,7 @@ const modulesConfig = {
     },
     entry_raw_material: {
         ajax: {
-            url: 'Entry_rawmaterial_details/get_all/0/10000000/id/asc',
+            url: 'Entrada_materia_prima/get_all/0/10000000/id/asc',
             dataSrc: '',
             type: 'POST',
             data: {
@@ -351,7 +351,7 @@ const modulesConfig = {
                 data: null,
                 render: (data) =>
                     `
-                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="Entry_rawmaterial_details" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Entrada" data-bs-placement="bottom">
+                <button data-id="${data.id}" data-module-restore="Papelera" module-restore=Entrada_materia_prima/ class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Entrada" data-bs-placement="bottom">
                     <i data-feather="refresh-ccw" class="text-white"></i>
                 </button>
                 `

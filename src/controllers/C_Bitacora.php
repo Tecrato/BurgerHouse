@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/Controller_base.php';
+use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 use Shtch\Burgerhouse\models\Bitacora;
 
 function bitacora_view()
@@ -22,4 +22,7 @@ function bitacora_add(...$args) {
 function bitacora_update(...$args) {
     $modelo = new Bitacora();
     $modelo->actualizar($_SESSION['id']);
+}
+function bitacora_count() {
+    total(new Bitacora());
 }

@@ -267,17 +267,6 @@ abstract class Db_base extends Conexion
         $consulta->execute();
         return $consulta->fetch()['total'];
     }
-    public function consultar_vista($vista)
-    {
-        try {
-            $query = "SELECT * FROM $vista";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            return ['error' => true, 'message' => $e->getMessage()];
-        }
-    }
     public function get($key)
     {
         return $this->variables[$key];

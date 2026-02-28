@@ -7,17 +7,17 @@ const { elemenFormRawMaterial, optionsRol } = Templates()
 let session = await sessionInfo()
 rawMaterial('navbarDropdown')
 permission("Materia prima")
-selectOptionAll(".select_options_categorys_rawmaterial", "categoryMateriaPrima", optionsRol)
-selectOptionAll(".select_options_units_rawmaterial", "units", optionsRol)
-selectOptionAll(".select_options_categorys_rawmaterial_edit", "categoryMateriaPrima", optionsRol)
-selectOptionAll(".select_options_units_rawmaterial_edit", "units", optionsRol)
+selectOptionAll(".select_options_categorys_rawmaterial", "categoria_materia_prima", optionsRol)
+selectOptionAll(".select_options_units_rawmaterial", "unidades", optionsRol)
+selectOptionAll(".select_options_categorys_rawmaterial_edit", "categoria_materia_prima", optionsRol)
+selectOptionAll(".select_options_units_rawmaterial_edit", "unidades", optionsRol)
 
 let n = $(".table_rawmaterial").DataTable({
     language: {
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
     ajax: {
-        url: 'rawmaterial/get_all/0/10000000/id/asc',
+        url: 'materia_prima/get_all/0/10000000/id/asc',
         dataSrc: '',
         type: 'POST',
         data: { active: 1, },
@@ -45,10 +45,10 @@ let n = $(".table_rawmaterial").DataTable({
             orderable: false,
             render: function (data, type, row, meta) {
                 return `
-                <button data-id="${data.id}" module-edit="rawmaterial" data-module-edit="Materia prima" class="btn bh_1 rounded-circle btn-circle edit_btn_datatable" data-bs-toggle="modal" data-bs-target="#edit-rawMaterial" data-bs-title="Editar Materia Prima" data-bs-placement="bottom">
+                <button data-id="${data.id}" module-edit="materia_prima" data-module-edit="Materia prima" class="btn bh_1 rounded-circle btn-circle edit_btn_datatable" data-bs-toggle="modal" data-bs-target="#edit-rawMaterial" data-bs-title="Editar Materia Prima" data-bs-placement="bottom">
                     <i data-feather="edit" class="text-white"></i>
                 </button>
-                <button data-id="${data.id}" module-delete="rawmaterial" data-module-delete="Materia prima" class="btn bh_5 rounded-circle btn-circle trash_btn_datatable" data-bs-toggle="tooltip" data-bs-title="Eliminar Materia Prima" data-bs-placement="bottom">
+                <button data-id="${data.id}" module-delete="materia_prima" data-module-delete="Materia prima" class="btn bh_5 rounded-circle btn-circle trash_btn_datatable" data-bs-toggle="tooltip" data-bs-title="Eliminar Materia Prima" data-bs-placement="bottom">
                     <i data-feather="trash" class="text-white"></i>
                 </button>
 `;
@@ -77,8 +77,8 @@ function addRawMaterial() {
     RawmaterialCount++;
     document.getElementById("rawmaterials-container").insertAdjacentHTML('beforeend', elemenFormRawMaterial(RawmaterialCount));
     feather.replace();
-    selectOptionAll(".select_options_categorys_rawmaterial", "categoryMateriaPrima", optionsRol)
-    selectOptionAll(".select_options_units_rawmaterial", "units", optionsRol)
+    selectOptionAll(".select_options_categorys_rawmaterial", "categoria_materia_prima", optionsRol)
+    selectOptionAll(".select_options_units_rawmaterial", "unidades", optionsRol)
 
     attachValidationListeners(RawmaterialCount);
 
@@ -278,7 +278,7 @@ if (!form.dataset.listenerAttached) {
                 datafinal.append(`lista[${index}][stock_min]`, material.min)
                 datafinal.append(`lista[${index}][stock_max]`, material.max)
             })
-            addDataTables(n, datafinal, "rawmaterial", () => binnacle(session.message.id, "Materia Prima", "Agregar", "Se creo un nueva materia prima"))
+            addDataTables(n, datafinal, "materia_prima", () => binnacle(session.message.id, "Materia Prima", "Agregar", "Se creo un nueva materia prima"))
             bootstrap.Modal.getOrCreateInstance('#register-rawMaterial').hide()
             resetForm("#rawmaterial-container .rawmaterial", form)
 
@@ -337,7 +337,7 @@ editDataTables(".table_rawmaterial", (response) => {
                 datafinal.append("id_unidad", data.id_unidad)
                 datafinal.append("stock_min", data.min)
                 datafinal.append("stock_max", data.max)
-                updateDataTables(n, datafinal, "rawmaterial", binnacle(session.message.id, "Materia Prima", "Actualizacion", "Se actualizo una materia prima"))
+                updateDataTables(n, datafinal, "materia_prima", binnacle(session.message.id, "Materia Prima", "Actualizacion", "Se actualizo una materia prima"))
                 bootstrap.Modal.getOrCreateInstance('#edit-rawMaterial').hide()
             }
         })

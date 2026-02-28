@@ -116,7 +116,7 @@ export const editReservationClient = async (functionGeneral, Templates) => {
                 let data = new FormData()
                 data.append("id", window.dataClient.id_orden);
                 data.append("id_cliente", document.querySelector(".cont_client-reservation-edit").querySelector("h4[id]").getAttribute("id"));
-                let pet = await fetch(`order/update`, { method: "POST", body: data })
+                let pet = await fetch(`orden/update`, { method: "POST", body: data })
                 let res = await pet.json()
 
                 let dataCli = new FormData()
@@ -430,7 +430,7 @@ export const editPackageReservation = async (functionGeneral, Templates) => {
     const NextConfirmReservation = (packageNew, packageOld) => {
         viewImage(".input-image")
         InputPrice("[input_price]");
-        selectOptionAll(".select_options_payment_reservation_edit", "paymentMethod", optionsRol);
+        selectOptionAll(".select_options_payment_reservation_edit", "metodo_pago", optionsRol);
 
         document.querySelector(".amount_payment_usd_reservation_edit").textContent = packageNew.monto_total + " $"
         document.querySelector(".amount_payment_bs_reservation_edit").textContent = (parseFloat(packageNew.monto_total) * dolar).toFixed(2) + " Bs"
@@ -450,7 +450,7 @@ export const editPackageReservation = async (functionGeneral, Templates) => {
             paymentCount++;
             document.getElementById("payments-container-reservation_edit").insertAdjacentHTML('beforeend', elemenFormPaymentReservationEdit(paymentCount));
             feather.replace();
-            selectOptionAll(".select_options_payment_reservation_edit", "paymentMethod", optionsRol);
+            selectOptionAll(".select_options_payment_reservation_edit", "metodo_pago", optionsRol);
             viewImage(".input-image")
             InputPrice("[input_price]");
             attachValidationListeners(paymentCount);

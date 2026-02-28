@@ -6,10 +6,10 @@ let session = await sessionInfo()
 InputPrice("[input-price]")
 searchFilter("#SearchPackages", (e) => {
   if (e.target.value == "") print(config)
-  else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value }, "package_reservation", 1000) })
+  else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value }, "paquete_reservacion", 1000) })
 })
 const config = {
-    search: () => searchParam({ active: 1 }, "package_reservation", null, 0),
+    search: () => searchParam({ active: 1 }, "paquete_reservacion", null, 0),
     template: targetPackage,
     container: ".cont_packages",
     funtions: () => {
@@ -38,8 +38,8 @@ let toas = (type, msj) => {
     });
 }
 const TablesDataAdd = async () => {
-    let tables = await searchParam({}, "package_table", 50);
-    let data = await searchParam({ active: 1, estado: "LIBRE" }, "table", 50);
+    let tables = await searchParam({}, "paquete_mesa", 50);
+    let data = await searchParam({ active: 1, estado: "LIBRE" }, "mesa", 50);
     let mesaIdsEnPaquetes = tables.map(t => t.id_mesa);
     let mesasFiltradas = data.filter(mesa => !mesaIdsEnPaquetes.includes(mesa.id));
     let mesasFiltradasEdit = data.filter(mesa => !mesaIdsEnPaquetes.includes(mesa.id) && mesaIdsEnPaquetes.includes(mesa.id));
@@ -156,7 +156,7 @@ if (!form.dataset.listenerAttached) {
                 let packageData = new FormData()
                 packageData.append("nombre", form.querySelector("#input-name-package-1").value)
                 packageData.append("precio", (form.querySelector("#input-price-package-1").value).replace(/\./g, '').replace(',', '.'))
-                let send = await fetch("package_reservation/add", { method: "POST", body: packageData })
+                let send = await fetch("paquete_reservacion/add", { method: "POST", body: packageData })
                 let response = await send.json()
                 let idPackage = response.last_id
                 let tablesData = new FormData()
@@ -164,7 +164,7 @@ if (!form.dataset.listenerAttached) {
                     tablesData.append(`lista[${index}][id_paquete]`, idPackage)
                     tablesData.append(`lista[${index}][id_mesa]`, table.id)
                 })
-                add(config, "package_table", tablesData, () => {
+                add(config, "paquete_mesa", tablesData, () => {
                     binnacle(session.message.id, "paquete", "Paquete creado", `Se agrego un nuevo paquete`)
                 })
                 form.reset()
@@ -179,7 +179,7 @@ if (!form.dataset.listenerAttached) {
 async function editData(response) {
     document.getElementById("id_package").value = response[0].id
     const TablesDataAdd = async (idPaqueteSeleccionado) => {
-        let tables = await searchParam({}, "package_table", 50); // todas las asociaciones
+        let tables = await searchParam({}, "paquete_mesa", 50); // todas las asociaciones
         let data = await searchParam({ active: 1, estado: "LIBRE" }, "table", 50); // mesas libres
         let todasLasMesasAsociadas = tables.map(t => t.id_mesa);
         let mesasDelPaquete = tables
@@ -210,11 +210,11 @@ async function editData(response) {
                     let id_package = response[0].id
                     let data = new FormData()
                     data.append("lista[0][id_mesa]", id_table), data.append("lista[0][id_paquete]", id_package)
-                    let send = await fetch("package_table/add_many", { method: "POST", body: data })
+                    let send = await fetch("paquete_mesa/add_many", { method: "POST", body: data })
                     let responseData = await send.json()
                 } else {
                     let id_table = btn.getAttribute("data-id")
-                    let search = await searchParam({ id_mesa: id_table }, "package_table")
+                    let search = await searchParam({ id_mesa: id_table }, "paquete_mesa")
                     let data = new FormData()
                     data.append("id", search[0].id)
                     let count = 0
@@ -225,7 +225,7 @@ async function editData(response) {
                         toas("error", "Debe haber al menos 1 mesa asociadas al paquete")
                         btn.checked = true
                     } else if (count >= 2) {
-                        let send = await fetch("package_table/delete", { method: "POST", body: data })
+                        let send = await fetch("paquete_mesa/delete", { method: "POST", body: data })
                         let response = await send.json()
                     }
                 }
@@ -263,7 +263,7 @@ async function editData(response) {
                 dataUpdate.append("id", document.getElementById("id_package").value)
                 dataUpdate.append("nombre", data.nombre)
                 dataUpdate.append("precio", (data.precio))
-                update(config, "Package_reservation", dataUpdate, () => {
+                update(config, "paquete_reservacion", dataUpdate, () => {
                     binnacle(session.message.id, "paquete", "Actualizacion", `Se actualizo el paquete ${document.getElementById("id_package").value}`);
                 })
             }
@@ -274,4 +274,4 @@ async function editData(response) {
     attachValidationListeners(1)
 }
 attachValidationListeners(1)
-pagination((page) => print({ ...config, search: () => searchParam({ active: 1 }, "Package_reservation", null, page) }), ".pagination")
+pagination((page) => print({ ...config, search: () => searchParam({ active: 1 }, "paquete_reservacion", null, page) }), ".pagination")

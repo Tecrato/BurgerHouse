@@ -7,12 +7,12 @@ const { targetProductPrepared, elemenFormCombo, optionsRol } = Templates()
 const tooltip = new bootstrap.Tooltip(document.querySelector(".btn-add-tooltip"))
 productPrepared('navbarDropdown')
 InputPrice("[input_price]");
-selectOptionAll(".select_options_category_combo", "categoryProducto", optionsRol)
+selectOptionAll(".select_options_category_combo", "categoria_producto", optionsRol)
 viewImage(".input-image")
 permission("Producto preparado")
 let session = await sessionInfo();
 const config = {
-  search: () => searchParam({ active: 1, tipo: "producto" }, "productPrepared", null, 0),
+  search: () => searchParam({ active: 1, tipo: "producto" }, "producto_preparado", null, 0),
   template: targetProductPrepared,
   container: ".cont-product",
   funtions: () => {
@@ -24,7 +24,7 @@ const config = {
 }
 searchFilter("#searchProduct", (e) => {
   if (e.target.value == "") print(config)
-  else print({ ...config, search: () => searchParam({ active: 1, tipo: "producto", nombre_like: e.target.value }, "productPrepared", 1000) })
+  else print({ ...config, search: () => searchParam({ active: 1, tipo: "producto", nombre_like: e.target.value }, "producto_preparado", 1000) })
 })
 // ------------------Validacion de Formulario---------------------------
 
@@ -359,4 +359,4 @@ if (!formEdit.dataset.listenerAttached) {
   form.dataset.listenerAttached = "true";
 }
 
-pagination((page) => print({ ...config, search: () => searchParam({ active: 1, tipo: "producto" }, "productPrepared", null, page) }), ".pagination")
+pagination((page) => print({ ...config, search: () => searchParam({ active: 1, tipo: "producto" }, "producto_preparado", null, page) }), ".pagination")

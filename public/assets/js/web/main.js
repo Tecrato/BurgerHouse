@@ -11,7 +11,7 @@ const { targetCategories, targetProductsPrepared } = Templates();
    * Apply .scrolled class to the body as the page is scrolled down
   */
   const configProducts = {
-    search: () => searchParam({ active: 1, tipo: "producto" }, "productPrepared"),
+    search: () => searchParam({ active: 1, tipo: "producto" }, "producto_preparado"),
     template: targetProductsPrepared,
     container: "#productsPrepared-container",
     funtions: ""

@@ -24,7 +24,7 @@ const rules_between = {
     }
 }
 const config = {
-    search: () => searchParam({ status: typeFilter == "local" ? "pagado" : "entregada", tipo: typeFilter }, "order", 12),
+    search: () => searchParam({ status: typeFilter == "local" ? "pagado" : "entregada", tipo: typeFilter }, "orden", 12),
     template: targetInvoice,
     container: ".cont_invoice",
     funtions: () => {
@@ -56,7 +56,7 @@ searchFilter("#searchInvoice", (e) => {
                     between_fecha: data_between,
                     status: typeFilter == "local" ? "pagado" : "entregada",
                     tipo: typeFilter
-                }, "order", 12)
+                }, "orden", 12)
             })
         } else {
             print({
@@ -67,7 +67,7 @@ searchFilter("#searchInvoice", (e) => {
                     apellido_like: filterClient,
                     status: typeFilter == "local" ? "pagado" : "entregada",
                     tipo: typeFilter
-                }, "order", 12)
+                }, "orden", 12)
             })
         }
     }
@@ -92,7 +92,7 @@ searchBetween("#filterInvoiceBetween", (e) => {
                 apellido_like: filterClient,
                 status: typeFilter == "local" ? "pagado" : "entregada",
                 tipo: typeFilter
-            }, "order", 12)
+            }, "orden", 12)
         })
     }
 })
@@ -194,7 +194,7 @@ document.querySelectorAll(".btn_check").forEach(item => {
                         between_fecha: data_between,
                         status: "entregada",
                         tipo: "delivery"
-                    }, "order", 12)
+                    }, "orden", 12)
                 })
             } else {
                 print({
@@ -205,7 +205,7 @@ document.querySelectorAll(".btn_check").forEach(item => {
                         apellido_like: filterClient,
                         status: "entregada",
                         tipo: "delivery"
-                    }, "order", 12)
+                    }, "orden", 12)
                 })
             }
         } else if (type == "invoice_takeaway") {
@@ -219,7 +219,7 @@ document.querySelectorAll(".btn_check").forEach(item => {
                         between_fecha: data_between,
                         status: "entregada",
                         tipo: "llevar"
-                    }, "order", 12)
+                    }, "orden", 12)
                 })
             } else {
                 print({
@@ -230,7 +230,7 @@ document.querySelectorAll(".btn_check").forEach(item => {
                         apellido_like: filterClient,
                         status: "entregada",
                         tipo: "llevar"
-                    }, "order", 12)
+                    }, "orden", 12)
                 })
             }
         } else if (type == "invoice_local") {
@@ -244,7 +244,7 @@ document.querySelectorAll(".btn_check").forEach(item => {
                         between_fecha: data_between,
                         status: "pagado",
                         tipo: "local"
-                    }, "order", 12)
+                    }, "orden", 12)
                 })
             } else {
                 print({
@@ -255,7 +255,7 @@ document.querySelectorAll(".btn_check").forEach(item => {
                         apellido_like: filterClient,
                         status: "pagado",
                         tipo: "local"
-                    }, "order", 12)
+                    }, "orden", 12)
                 })
             }
         }
@@ -265,13 +265,13 @@ const viewDetails = () => {
     const btnDetails = document.querySelectorAll(".btn-details-invoice")
     btnDetails.forEach(btn => {
         btn.addEventListener("click", async () => {
-            if (btn.getAttribute("type") == "order") {
+            if (btn.getAttribute("type") == "orden") {
                 document.querySelector(".btn-print-invoice").setAttribute("data-id", btn.getAttribute("data-id"))
-                document.querySelector(".btn-print-invoice").setAttribute("type", "order")
+                document.querySelector(".btn-print-invoice").setAttribute("type", "orden")
                 document.querySelector(".btn-print-invoice").setAttribute("data-id-sale", btn.getAttribute("data-id-sale"))
                 const id = btn.getAttribute("data-id")
                 const id_venta = btn.getAttribute("data-id-sale")
-                let petOrder = await searchParam({ id: id }, "order")
+                let petOrder = await searchParam({ id: id }, "orden")
                 document.querySelector(".nro_invoice").textContent = "Factura: " + petOrder[0].id.toString().padStart(8, "0")
                 bootstrap.Modal.getOrCreateInstance(document.querySelector("#modal-details-invoice")).show()
                 const { templateProductPrepared, templateProductProcess } = await detailsProduct(id)
@@ -287,7 +287,7 @@ const viewDetails = () => {
 
                 const id_order = btn.getAttribute("data-id-order")
                 const id_reservation = btn.getAttribute("data-id-reservation")
-                let petOrder = await searchParam({ id: id_order }, "order")
+                let petOrder = await searchParam({ id: id_order }, "orden")
                 document.querySelector(".nro_invoice").textContent = "Factura: " + petOrder[0].id.toString().padStart(8, "0")
                 const { templateProductPrepared, templateProductProcess } = await detailsProduct(id_order)
                 document.querySelector(".tbody-detail-invoice").innerHTML = templateProductPrepared
@@ -404,10 +404,10 @@ const amount = async (id_order) => {
 const printInvoice = async () => {
     let btn = document.querySelector(".btn-print-invoice")
     btn.addEventListener("click", async () => {
-        if (btn.getAttribute("type") == "order") {
+        if (btn.getAttribute("type") == "orden") {
             let id = btn.getAttribute("data-id")
             let id_venta = btn.getAttribute("data-id-sale")
-            let info = await searchParam({ id: id }, "order")
+            let info = await searchParam({ id: id }, "orden")
             let detailsPrepered = await searchParam({ id_orden: id }, "Detalle_orden_producto_preparado")
             let detailsProcess = await searchParam({ id_orden: id }, "Detalle_orden_producto_procesado")
             let payment = await searchParam({ id_venta: id_venta }, "paymentSale")
@@ -434,7 +434,7 @@ const printInvoice = async () => {
         } else {
             let id = btn.getAttribute("data-id-order")
             let id_reservation = btn.getAttribute("data-id-reservation")
-            let info = await searchParam({ id: id }, "order")
+            let info = await searchParam({ id: id }, "orden")
             let detailsPrepered = await searchParam({ id_orden: id }, "Detalle_orden_producto_preparado")
             let detailsProcess = await searchParam({ id_orden: id }, "Detalle_orden_producto_procesado")
             let reservation = await searchParam({ id_reserva: id_reservation }, "paymentReservation", 100000)

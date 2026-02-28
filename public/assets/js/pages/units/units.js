@@ -10,7 +10,7 @@ let n = $(".table_unit").DataTable({
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
     ajax: {
-        url: 'units/get_all/0/10000000/id/asc',
+        url: 'unidades/get_all/0/10000000/id/asc',
         dataSrc: '',
         type: 'POST',
         data: {
@@ -26,10 +26,10 @@ let n = $(".table_unit").DataTable({
             orderable: false,
             render: function (data, type, row, meta) {
                 return `
-                <button data-id="${data.id}" module-edit="units" data-module-edit="unidades" class="btn bh_1 rounded-circle btn-circle edit_btn_datatable" data-bs-toggle="modal" data-bs-target="#edit-unit" data-bs-title="Editar Unidad" data-bs-placement="bottom">
+                <button data-id="${data.id}" module-edit="unidades" data-module-edit="unidades" class="btn bh_1 rounded-circle btn-circle edit_btn_datatable" data-bs-toggle="modal" data-bs-target="#edit-unit" data-bs-title="Editar Unidad" data-bs-placement="bottom">
                     <i data-feather="edit" class="text-white"></i>
                 </button>
-                <button data-id="${data.id}" module-delete="units" data-module-delete="unidades" class="btn bh_5 rounded-circle btn-circle trash_btn_datatable" data-bs-toggle="tooltip" data-bs-title="Eliminar Unidad" data-bs-placement="bottom">
+                <button data-id="${data.id}" module-delete="unidades" data-module-delete="unidades" class="btn bh_5 rounded-circle btn-circle trash_btn_datatable" data-bs-toggle="tooltip" data-bs-title="Eliminar Unidad" data-bs-placement="bottom">
                     <i data-feather="trash" class="text-white"></i>
                 </button>
 `;
@@ -59,12 +59,12 @@ function addUnits() {
     const newUnit = document.getElementById(`unit-${UnitsCount}`);
     newUnit.querySelector(".remove-unit").addEventListener("click", function () {
         newUnit.remove();
-        reindex("#units-container .units", "units", UnitsCount, "Unidad");
+        reindex("#units-container .units", "unidades", UnitsCount, "Unidad");
     });
 }
 document.getElementById("add-unit-btn").addEventListener("click", () => {
     addUnits();
-    reindex("#units-container .units", "units", UnitsCount, "unidad");
+    reindex("#units-container .units", "unidades", UnitsCount, "unidad");
 });
 function attachValidationListeners(index) {
     const unitElement = document.getElementById(`unit-${index}`);
@@ -137,7 +137,7 @@ if (!form.dataset.listenerAttached) {
                 dataFinal.append(`lista[${index}][nombre]`, user.nombre)
                 dataFinal.append(`lista[${index}][alias]`, user.alias)
             })
-            addDataTables(n, dataFinal, "units", () => binnacle(session.message.id, "Unidades", "Agregar", "Se ha agregado una unidad"))
+            addDataTables(n, dataFinal, "unidades", () => binnacle(session.message.id, "Unidades", "Agregar", "Se ha agregado una unidad"))
             resetForm(".units", form)
             bootstrap.Modal.getOrCreateInstance('#register-unit').hide()
         }
@@ -180,7 +180,7 @@ editDataTables(".table_unit", (response) => {
                 dataFinal.append(`nombre`, document.querySelector(`#input-name-unit`).value)
                 dataFinal.append(`alias`, document.querySelector("#input-alias-unit").value)
                 dataFinal.append(`id`, document.querySelector("#input-id-unit").value)
-                updateDataTables(n, dataFinal, "units", () => binnacle(session.message.id, "Unidades", "Editar", "Se ha editado una unidad"))
+                updateDataTables(n, dataFinal, "unidades", () => binnacle(session.message.id, "Unidades", "Editar", "Se ha editado una unidad"))
                 bootstrap.Modal.getOrCreateInstance('#edit-unit').hide()
             }
         })

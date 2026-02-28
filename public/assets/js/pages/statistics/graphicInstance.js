@@ -11,7 +11,7 @@ const searchProcedure = async (anio = new Date().getFullYear(), semana = getNume
     data.append("anio", anio)
     data.append("semana", semana)
     data.append("mes", mes)
-    let pet = await fetch(`statistics/${statistics}`, { method: "POST", body: data });
+    let pet = await fetch(`estadisticas/${statistics}`, { method: "POST", body: data });
     let response = await pet.json()
     return response
 }

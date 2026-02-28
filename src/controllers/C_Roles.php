@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/Controller_base.php';
+use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 use Shtch\Burgerhouse\models\Rol;
 
 
@@ -20,7 +20,7 @@ function roles_update(...$args) {
     $modelo = new Rol(...$_POST);
     $modelo->actualizar();
 }
-function obtener_permisos() {
+function roles_obtener_permisos() {
     $id_rol = intval($_POST['id_rol']) ?? null;
     if ($id_rol) {
         $rol = new Rol(id: $id_rol);

@@ -1,12 +1,7 @@
 <?php
-require_once __DIR__ . '/Controller_base.php';
+use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 
 use Shtch\Burgerhouse\models\DetalleOrdenProductoPreparado;
-
-function detalle_orden_producto_preparado_view(...$args)
-{
-    view('detalle_orden_producto_preparado');
-}
 
 function detalle_orden_producto_preparado_get_all(...$args)
 {

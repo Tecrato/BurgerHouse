@@ -1,6 +1,6 @@
 <?php
 use Shtch\Burgerhouse\models\Caja;
-require_once __DIR__ . '/Controller_base.php';
+use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 
 
 function caja_view()
@@ -15,6 +15,20 @@ function caja_detailCash(...$args)
     $modelo = new Caja();
     $modelo->cajaDetails($_SESSION['id']);
 }
+
+function caja_add(...$args)
+{
+    add(new Caja(), $_POST);
+}
+function caja_add_many(...$args)
+{
+    add_many(new Caja(), $_POST['lista']);
+}
+function caja_update(...$args)
+{
+    update(new Caja(), $_POST);
+}
+
 function caja_closeCash(...$args)
 {
     try {

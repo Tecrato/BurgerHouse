@@ -4,7 +4,7 @@ export async function local(functions, templates, reload) {
     viewImage(".input-image")
     stepper2
     InputPrice("[input_price]");
-    selectOptionAll(".select_options_payment", "paymentMethod", optionsRol);
+    selectOptionAll(".select_options_payment", "metodo_pago", optionsRol);
     const resetFormModal = () => {
         document.querySelector(".cont-select-product-order_local_more").innerHTML = ""
         const container = document.querySelector(".cont_category_product_orders_local_more");
@@ -79,9 +79,9 @@ export async function local(functions, templates, reload) {
     const initPopover = async () => {
         let data = []
         let elements = []
-        let recipeDetails = await searchParam({}, "recipe", 5000)
+        let recipeDetails = await searchParam({}, "receta", 5000)
         for (const item of recipeDetails) {
-            let pet = await searchParam({ active: 1, tipo: "adicional", id: item.id_producto }, "additional", 100);
+            let pet = await searchParam({ active: 1, tipo: "adicional", id: item.id_producto }, "adicionales", 100);
             for (const el of pet) {
                 elements.push(el)
             }
@@ -163,11 +163,11 @@ export async function local(functions, templates, reload) {
     const products = async () => {
         let templatePrepared = "";
         let templateProcess = "";
-        let recipeDetails = await searchParam({}, "recipe", 5000)
+        let recipeDetails = await searchParam({}, "receta", 5000)
         for (const recipe of recipeDetails) {
             const id = recipe.id_producto
-            let product = await searchParam({ id: id, tipo: "producto" }, "productPrepared", 100)
-            product.forEach((product) => { templatePrepared += selectProduct(product, "productPrepared"); })
+            let product = await searchParam({ id: id, tipo: "producto" }, "producto_preparado", 100)
+            product.forEach((product) => { templatePrepared += selectProduct(product, "producto_preparado"); })
         }
         let productProcess = await searchParam({ active: 1 }, "productProcess", 100)
         productProcess.forEach((product) => { templateProcess += selectProduct(product, "productProcess"); })
@@ -383,7 +383,7 @@ export async function local(functions, templates, reload) {
                 if (await CheckCash() == null) {
                     toas("error", "No hay cajas abiertas")
                 } else {
-                    let petOrder = await fetch("order/add", { method: "POST", body: order })
+                    let petOrder = await fetch("orden/add", { method: "POST", body: order })
                     let resOrder = await petOrder.json()
                     let lastId = resOrder.last_id
                     let order_table = tablesData.map((table) => { return { id_mesa: table.id, id_order: lastId } })
@@ -430,7 +430,7 @@ export async function more_product_local_order(functions, templates, reload) {
     viewImage(".input-image")
     InputPrice("[input_price]");
     stepper3.to(0)
-    selectOptionAll(".select_options_payment", "paymentMethod", optionsRol);
+    selectOptionAll(".select_options_payment", "metodo_pago", optionsRol);
     const resetFormModal = () => {
         document.querySelector(".cont-select-product-order_local_more").innerHTML = ""
         const container = document.querySelector(".cont_category_product_orders_local_more");
@@ -505,9 +505,9 @@ export async function more_product_local_order(functions, templates, reload) {
     const initPopover = async () => {
         let data = []
         let elements = []
-        let recipeDetails = await searchParam({}, "recipe", 5000)
+        let recipeDetails = await searchParam({}, "receta", 5000)
         for (const item of recipeDetails) {
-            let pet = await searchParam({ active: 1, tipo: "adicional", id: item.id_producto }, "additional", 100);
+            let pet = await searchParam({ active: 1, tipo: "adicional", id: item.id_producto }, "adicionales", 100);
             for (const el of pet) {
                 elements.push(el)
             }
@@ -589,11 +589,11 @@ export async function more_product_local_order(functions, templates, reload) {
     const products = async () => {
         let templatePrepared = "";
         let templateProcess = "";
-        let recipeDetails = await searchParam({}, "recipe", 5000)
+        let recipeDetails = await searchParam({}, "receta", 5000)
         for (const recipe of recipeDetails) {
             const id = recipe.id_producto
-            let product = await searchParam({ id: id, tipo: "producto" }, "productPrepared", 1000)
-            product.forEach((product) => { templatePrepared += selectProduct(product, "productPrepared") })
+            let product = await searchParam({ id: id, tipo: "producto" }, "producto_preparado", 1000)
+            product.forEach((product) => { templatePrepared += selectProduct(product, "producto_preparado") })
         }
         let productProcess = await searchParam({ active: 1 }, "productProcess", 100)
         productProcess.forEach((product) => { templateProcess += selectProduct(product, "productProcess") })
@@ -791,13 +791,13 @@ export async function more_product_local_order(functions, templates, reload) {
                     productDetails.append(`lista_detalle_preparado[${index}][id_orden]`, window.id_orden);
                     index++
                 })
-                let petAddProduct = await fetch("order/add_process_and_prepared", { method: "POST", body: productDetails })
+                let petAddProduct = await fetch("orden/add_process_and_prepared", { method: "POST", body: productDetails })
                 let res = await petAddProduct.json()
                 if (res.success == true) {
                     let data = new FormData()
                     data.append("id", window.id_orden)
                     data.append("status", "en cocina")
-                    let pet = await fetch("order/update", { method: "POST", body: data })
+                    let pet = await fetch("orden/update", { method: "POST", body: data })
                     Swal.close();
                     Swal.fire({
                         title: 'Exito!',
@@ -873,7 +873,7 @@ export async function payOrder(functions, templates, invoice, reload) {
     document.querySelector(".amount_payment_usd_local").textContent = window.amountTotalOrderLocalPayment.total_dolares
     document.querySelector(".amount_payment_bs_local").textContent = window.amountTotalOrderLocalPayment.total_bs
     stepper4.to(0)
-    selectOptionAll(".select_options_payment_local", "paymentMethod", optionsRol);
+    selectOptionAll(".select_options_payment_local", "metodo_pago", optionsRol);
     let iti = window.intlTelInput(document.querySelector("#input-tel-client-order-local"), { initialCountry: "ve", separateDialCode: true, utilsScript: "./assets/libs/libs/intl-tel-input/js/utils.js" });
     let toas = (type, msj) => {
         const Toast = Swal.mixin({
@@ -954,7 +954,7 @@ export async function payOrder(functions, templates, invoice, reload) {
         paymentCount++;
         document.getElementById("payments-container-local").insertAdjacentHTML('beforeend', elemenFormPaymentOrderLocal(paymentCount));
         feather.replace();
-        selectOptionAll(".select_options_payment_local", "paymentMethod", optionsRol);
+        selectOptionAll(".select_options_payment_local", "metodo_pago", optionsRol);
         viewImage(".input-image")
         InputPrice("[input_price]");
         attachValidationListeners(paymentCount);
@@ -1207,7 +1207,7 @@ export async function payOrder(functions, templates, invoice, reload) {
                                     allowOutsideClick: false,
                                     didOpen: () => { Swal.showLoading() }
                                 });
-                                let info = await searchParam({ id: window.IdOrderPaymentLocal }, "order")
+                                let info = await searchParam({ id: window.IdOrderPaymentLocal }, "orden")
                                 bootstrap.Modal.getOrCreateInstance('#payment_order_local').hide()
                                 if (info[0].status == "pagado") {
                                     Swal.close();
@@ -1228,9 +1228,9 @@ export async function payOrder(functions, templates, invoice, reload) {
                                     dataOrder.append("id", window.IdOrderPaymentLocal)
                                     dataOrder.append("id_cliente", document.querySelector(".cont_client-order-local").querySelector("h4[id]").getAttribute("id"))
                                     dataOrder.append("status", "pagado")
-                                    let petOrder = await fetch("order/update", { method: "POST", body: dataOrder })
+                                    let petOrder = await fetch("orden/update", { method: "POST", body: dataOrder })
                                     console.log(await petOrder.json());
-                                    let infoOrderActualizada = await searchParam({ id: window.IdOrderPaymentLocal }, "order")
+                                    let infoOrderActualizada = await searchParam({ id: window.IdOrderPaymentLocal }, "orden")
                                     let dataSale = new FormData();
                                     dataSale.append("id_orden", window.IdOrderPaymentLocal)
                                     dataSale.append("id_caja", await CheckCash())
@@ -1288,7 +1288,7 @@ export async function payOrder(functions, templates, invoice, reload) {
                                     let invoiceBlob = await invoice(detailsPrepered, detailsProcess, clientData, window.IdOrderPaymentLocal, directionSale, amountTotal, "invoice", null, null, dataPaymentInvoice)
                                     let invoiceData = new FormData();
                                     invoiceData.append("pdf", invoiceBlob, "factura.pdf");
-                                    let send = await fetch("order/sendInvoice", { method: "POST", body: invoiceData });
+                                    let send = await fetch("orden/sendInvoice", { method: "POST", body: invoiceData });
                                     let dataResInvoice = await send.json();
                                     const mensaje = `*FACTURA DE ORDEN* \n\n*${clientData.nameClient}*\n\n${dataResInvoice.url}`;
                                     const url = `https://wa.me/${clientData.telefonoClient}?text=${encodeURIComponent(mensaje)}`;

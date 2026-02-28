@@ -33,10 +33,10 @@ let n = $(".table_additional").DataTable({
             orderable: false,
             render: function (data, type, row, meta) {
                 return `
-                <button data-id="${data.id}" module-edit="additional" data-module-edit="Adicionales" class="btn bh_1 rounded-circle btn-circle edit_btn_datatable" data-bs-toggle="modal" data-bs-target="#edit-additional" data-bs-title="Editar Adicional" data-bs-placement="bottom">
+                <button data-id="${data.id}" module-edit="adicionales" data-module-edit="Adicionales" class="btn bh_1 rounded-circle btn-circle edit_btn_datatable" data-bs-toggle="modal" data-bs-target="#edit-additional" data-bs-title="Editar Adicional" data-bs-placement="bottom">
                     <i data-feather="edit" class="text-white"></i>
                 </button>
-                <button data-id="${data.id}" module-delete="additional" data-module-delete="Adicionales" class="btn bh_5 rounded-circle btn-circle trash_btn_datatable" data-bs-toggle="tooltip" data-bs-title="Eliminar Adicional" data-bs-placement="bottom">
+                <button data-id="${data.id}" module-delete="adicionales" data-module-delete="Adicionales" class="btn bh_5 rounded-circle btn-circle trash_btn_datatable" data-bs-toggle="tooltip" data-bs-title="Eliminar Adicional" data-bs-placement="bottom">
                     <i data-feather="trash" class="text-white"></i>
                 </button>
 `;
@@ -244,7 +244,7 @@ if (!form.dataset.listenerAttached) {
                 dataFinal.append(`lista[${index}][imagen_name]`, additional.imagen.name)
                 dataFinal.append(`lista[${index}][tipo]`, "adicional")
             })
-            addDataTables(n, dataFinal, "additional", () => nuevaBitacora("Adicionales", "Agregar", "Se agrego un nuevo adicional"))
+            addDataTables(n, dataFinal, "adicionales", () => nuevaBitacora("Adicionales", "Agregar", "Se agrego un nuevo adicional"))
             resetForm(".additionals", form)
             bootstrap.Modal.getOrCreateInstance('#register-additional').hide()
         }
@@ -299,7 +299,7 @@ if (!formEdit.dataset.listenerAttached) {
                 dataFinal.append(`imagen`, document.querySelector(`#input-image-additional`).files[0])
                 dataFinal.append(`imagen_name`, document.querySelector(`#input-image-additional`).files[0].name)
             }
-            updateDataTables(n, dataFinal, "additional", () => nuevaBitacora("Adicionales", "Actualizacion", "Se actualizo un adicional"))
+            updateDataTables(n, dataFinal, "adicionales", () => nuevaBitacora("Adicionales", "Actualizacion", "Se actualizo un adicional"))
             bootstrap.Modal.getOrCreateInstance('#edit-additional').hide()
         }
     })

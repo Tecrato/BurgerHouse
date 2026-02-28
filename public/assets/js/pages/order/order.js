@@ -52,9 +52,9 @@ permission("Ordenes (reservas)", () => {
 //tables de domicilio 
 let tableOrderDomicileoPendings = $('.table-order-domicilio-pendientes').DataTable({
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
-  "order": [[1, "desc"]],
+  "orden": [[1, "desc"]],
   ajax: {
-    url: 'order/get_all/0/10000000/id/asc',
+    url: 'orden/get_all/0/10000000/id/asc',
     dataSrc: function (json) {
       let tableOrderDeliveryPendingsVeryfy = []
       json.forEach(element => {
@@ -126,10 +126,10 @@ let tableOrderDomicileoPendings = $('.table-order-domicilio-pendientes').DataTab
   "info": true,
 });
 let tableOrderDomicileProcess = $('.table-order-domicilio-procesadas').DataTable({
-  "order": [[1, "desc"]],
+  "orden": [[1, "desc"]],
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
   ajax: {
-    url: 'order/get_all/0/10000000/id/asc',
+    url: 'orden/get_all/0/10000000/id/asc',
     dataSrc: '',
     type: 'POST',
     data: { status: "entregada", tipo: "delivery" },
@@ -188,9 +188,9 @@ let tableOrderDomicileProcess = $('.table-order-domicilio-procesadas').DataTable
 });
 let tableOrderDomicileNull = $('.table-order-domicilio-null').DataTable({
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
-  "order": [[1, "desc"]],
+  "orden": [[1, "desc"]],
   ajax: {
-    url: 'order/get_all/0/10000000/id/asc',
+    url: 'orden/get_all/0/10000000/id/asc',
     dataSrc: '',
     type: 'POST',
     data: { status: "anulada", tipo: "delivery" },
@@ -258,9 +258,9 @@ $('#searchBoxDomicilioNull').on('keyup', function () { tableOrderDomicileNull.se
 //tables para llevar
 let tableOrderParaLlevarPendingsVeryfy = $('.table-order-llevar-pendientes').DataTable({
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
-  "order": [[1, "desc"]],
+  "orden": [[1, "desc"]],
   ajax: {
-    url: 'order/get_all/0/10000000/id/asc',
+    url: 'orden/get_all/0/10000000/id/asc',
     dataSrc: function (json) {
       let tableOrderLlevarPendingsVeryfy = []
       json.forEach(element => {
@@ -332,10 +332,10 @@ let tableOrderParaLlevarPendingsVeryfy = $('.table-order-llevar-pendientes').Dat
   "info": true,
 });
 let tableOrderParaLlevarProcess = $('.table-order-llevar-procesadas').DataTable({
-  "order": [[1, "desc"]],
+  "orden": [[1, "desc"]],
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
   ajax: {
-    url: 'order/get_all/0/10000000/id/asc',
+    url: 'orden/get_all/0/10000000/id/asc',
     dataSrc: '',
     type: 'POST',
     data: { status: "entregada", tipo: "llevar" },
@@ -389,9 +389,9 @@ let tableOrderParaLlevarProcess = $('.table-order-llevar-procesadas').DataTable(
 });
 let tableOrderParaLlevarNull = $('.table-order-llevar-anuladas').DataTable({
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
-  "order": [[1, "desc"]],
+  "orden": [[1, "desc"]],
   ajax: {
-    url: 'order/get_all/0/10000000/id/asc',
+    url: 'orden/get_all/0/10000000/id/asc',
     dataSrc: '',
     type: 'POST',
     data: { status: "anulada", tipo: "llevar" },
@@ -444,9 +444,9 @@ $('#searchBoxllevarAnuladas').on('keyup', function () { tableOrderParaLlevarNull
 //tables local
 let tableOrderLocalPendingsVeryfy = $('.table-order-local-pendientes').DataTable({
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
-  "order": [[2, "desc"], [3, "desc"]],
+  "orden": [[2, "desc"], [3, "desc"]],
   ajax: {
-    url: 'order/get_all/0/10000000/id/asc',
+    url: 'orden/get_all/0/10000000/id/asc',
     dataSrc: function (json) {
       let tableOrderLocalPendingsVeryfy = []
       json.forEach(element => {
@@ -513,10 +513,10 @@ let tableOrderLocalPendingsVeryfy = $('.table-order-local-pendientes').DataTable
   "info": true,
 });
 let tableOrderLocalProcess = $('.table-order-local-procesadas').DataTable({
-  "order": [[1, "desc"]],
+  "orden": [[1, "desc"]],
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
   ajax: {
-    url: 'order/get_all/0/10000000/id/asc',
+    url: 'orden/get_all/0/10000000/id/asc',
     dataSrc: '',
     type: 'POST',
     data: { status: "pagado", tipo: "local" },
@@ -573,9 +573,9 @@ let tableOrderLocalProcess = $('.table-order-local-procesadas').DataTable({
 //tables reservation
 let tableOrderResPendingsVeryfy = $('.table-order-res-pendientes').DataTable({
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
-  "order": [[2, "desc"], [3, "desc"]],
+  "orden": [[2, "desc"], [3, "desc"]],
   ajax: {
-    url: 'calendar/get_all/0/10000000/id/asc',
+    url: 'calendario/get_all/0/10000000/id/asc',
     dataSrc: function (json) {
       let tableOrderResPendingsVeryfy = []
       json.forEach(element => {
@@ -644,9 +644,9 @@ let tableOrderResPendingsVeryfy = $('.table-order-res-pendientes').DataTable({
 });
 let tableOrderResProcessVeryfy = $('.table-order-res-procesadas').DataTable({
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
-  "order": [[2, "desc"], [3, "desc"]],
+  "orden": [[2, "desc"], [3, "desc"]],
   ajax: {
-    url: 'calendar/get_all/0/10000000/id/asc',
+    url: 'calendario/get_all/0/10000000/id/asc',
     dataSrc: function (json) {
       let tableOrderResPendingsVeryfy = []
       json.forEach(element => {
@@ -798,7 +798,7 @@ const actionOrder = async (btn, status) => {
         let id_order = btn.getAttribute("id_order");
         data.append("id", id_order);
         data.append("status", "en cocina");
-        let pet = await fetch(`order/update`, { method: "POST", body: data });
+        let pet = await fetch(`orden/update`, { method: "POST", body: data });
         let response = await pet.json();
         if (response.success) {
           if (response.success == true) {
@@ -831,7 +831,7 @@ const actionOrder = async (btn, status) => {
     let id_order = btn.getAttribute("id_order");
     let dataVerify = new FormData();
     dataVerify.append("id", id_order);
-    let petVerify = await fetch(`order/get_all`, { method: "POST", body: dataVerify });
+    let petVerify = await fetch(`orden/get_all`, { method: "POST", body: dataVerify });
     let resVerify = await petVerify.json();
     if (resVerify[0].status == "en preparacion" || resVerify[0].status == "en cocina" || resVerify[0].status == "por verificar" || resVerify[0].status == "anulado" || resVerify[0].status == "pendiente" || resVerify[0].status == "pagado") {
       Swal.fire({
@@ -852,7 +852,7 @@ const actionOrder = async (btn, status) => {
           let id_order = btn.getAttribute("id_order");
           data.append("id", id_order);
           data.append("status", status);
-          let pet = await fetch(`order/update`, { method: "POST", body: data });
+          let pet = await fetch(`orden/update`, { method: "POST", body: data });
           let response = await pet.json();
           if (response.success == true) {
             Swal.fire({
@@ -890,7 +890,7 @@ const actionOrder = async (btn, status) => {
     let id = btn.getAttribute('id_order')
     let id_reservation = 0
     if (btn.getAttribute('data_id_reservation')) id_reservation = btn.getAttribute('data_id_reservation')
-    let info = await searchParam({ id: id }, "order")
+    let info = await searchParam({ id: id }, "orden")
     let detailsPrepered = await searchParam({ id_orden: id }, "Detalle_orden_producto_preparado")
     let detailsProcess = await searchParam({ id_orden: id }, "Detalle_orden_producto_procesado")
     let totalAmountPrepared = detailsPrepered.map(item => item.precio * item.cantidad).reduce((a, b) => a + b, 0)
@@ -952,7 +952,7 @@ const actionOrder = async (btn, status) => {
         let id_order = btn.getAttribute("id_order");
         data.append("id", id_order);
         data.append("status", "anulada");
-        let pet = await fetch(`order/update`, { method: "POST", body: data });
+        let pet = await fetch(`orden/update`, { method: "POST", body: data });
         let response = await pet.json();
         if (response.success) {
           if (response.success == true) {
@@ -997,7 +997,7 @@ const actionOrder = async (btn, status) => {
     let id = btn.getAttribute('id_order')
     let id_reservation = 0
     if (btn.getAttribute('id_reservation')) id_reservation = btn.getAttribute('id_reservation')
-    let info = await searchParam({ id: id }, "order")
+    let info = await searchParam({ id: id }, "orden")
     let detailsPrepered = await searchParam({ id_orden: id }, "Detalle_orden_producto_preparado")
     let detailsProcess = await searchParam({ id_orden: id }, "Detalle_orden_producto_procesado")
     let totalAmountPrepared = detailsPrepered.map(item => item.precio * item.cantidad).reduce((a, b) => a + b, 0)
@@ -1058,7 +1058,7 @@ const actionOrder = async (btn, status) => {
           let data = new FormData();
           data.append("id", id);
           data.append("status", "pagado");
-          let pet = await fetch(`order/update`, { method: "POST", body: data });
+          let pet = await fetch(`orden/update`, { method: "POST", body: data });
           let response = await pet.json();
           let dataReservation = new FormData();
           dataReservation.append("id", id_reservation);
@@ -1117,7 +1117,7 @@ const targetUpdate = async (type) => {
 
   let perPayment = []
 
-  let pet = await searchParam({ tipo: type }, "order", 1000000000)
+  let pet = await searchParam({ tipo: type }, "orden", 1000000000)
   pet.forEach((order) => {
     if (order.status == "anulada") dataNull.push(order)
     else if (order.status == "por verificar" && order.tipo == type) dataVerify.push(order)

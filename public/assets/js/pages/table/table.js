@@ -8,7 +8,7 @@ let session = await sessionInfo()
 table('navbarDropdown')
 permission("mesas")
 const config = {
-    search: () => searchParam({ active: 1, estado: "LIBRE" }, "table"),
+    search: () => searchParam({ active: 1, estado: "LIBRE" }, "mesa"),
     template: targetTable,
     container: ".cont_tables_free",
     funtions: () => {
@@ -271,9 +271,9 @@ if (!formEdit.dataset.listenerAttached) {
 }
 attachValidationListeners(1);
 print(config);
-print({ ...config, search: () => searchParam({ active: 1, estado: "OCUPADA" }, "table"), container: ".cont_tables_occupied" });
+print({ ...config, search: () => searchParam({ active: 1, estado: "OCUPADA" }, "mesa"), container: ".cont_tables_occupied" });
 
 // paginacion
 
-pagination((page) => print({ ...config, search: () => searchParam({ active: 1, estado: "OCUPADA" }, "table", null, page), container: ".cont_tables_occupied" }), ".pagination_occupied")
-pagination((page) => print({ ...config, search: () => searchParam({ active: 1, estado: "LIBRE" }, "table", null, page), container: ".cont_tables_free" }), ".pagination_free")
+pagination((page) => print({ ...config, search: () => searchParam({ active: 1, estado: "OCUPADA" }, "mesa", null, page), container: ".cont_tables_occupied" }), ".pagination_occupied")
+pagination((page) => print({ ...config, search: () => searchParam({ active: 1, estado: "LIBRE" }, "mesa", null, page), container: ".cont_tables_free" }), ".pagination_free")

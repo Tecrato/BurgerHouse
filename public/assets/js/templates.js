@@ -4,7 +4,6 @@ const { searchParam, fecha, hora } = functionGeneral()
 const name_user = (id_user) => {
     let result = myfecth("users/get_all", {}, { id: id_user }, null, "POST")
     result = result.json()
-    console.log(result);
     
     let nombre = result[0].nombre + " " + result[0].apellido
     return nombre
@@ -56,6 +55,9 @@ export function targetPermission(data, edit=false, del=false) {
         </div>
         `
     }
+
+
+
 export default function Templates() {
     function targetProductPrepared(objet) {
         return `
@@ -282,7 +284,7 @@ export default function Templates() {
                                     <div class=" text-end fs-6 w-50 ">${objet.monto_final}$</div>
                                 </div>
                                 <div class="d-flex justify-content-center pt-3 border-top">
-                                    <button class="btn btn-sm bh_5 text-white btn-details-invoice" type="order" data-id="${objet.id}" data-id-sale="${objet.id_venta}">Detalles</button>
+                                    <button class="btn btn-sm bh_5 text-white btn-details-invoice" type="orden" data-id="${objet.id}" data-id-sale="${objet.id_venta}">Detalles</button>
                                 </div>
                             </div>
                         </div>
@@ -432,7 +434,7 @@ export default function Templates() {
         `
     }
     async function targetPackage(objet) {
-        let tables = await searchParam({ id_paquete: objet.id }, "package_table", 50)
+        let tables = await searchParam({ id_paquete: objet.id }, "paquete_mesa", 50)
         tables = tables.reduce((acc, table) => acc + (parseInt(table.sillas) || 0), 0)
         return `
         <div class="col-md-4 col-lg-3 ">
@@ -642,7 +644,7 @@ export default function Templates() {
                         <small class="text-body-secondary">
                             <div style="display: flex; justify-content: end; align-items: center;">
                                 <div class="d-flex gap-3">
-                                    <a class="link-secondary edit_btn" data-id="${object1.id}" module-edit="Detallerecipe" data-module-edit="Recetas" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#edit-recipe" data-bs-title="Editar Receta" data-bs-placement="bottom">
+                                    <a class="link-secondary edit_btn" data-id="${object1.id}" module-edit="Detalle_receta"" data-module-edit="Recetas" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#edit-recipe" data-bs-title="Editar Receta" data-bs-placement="bottom">
                                         <i data-feather="edit"></i>
                                     </a>
                                 </div>
@@ -1597,7 +1599,7 @@ export default function Templates() {
                     <input class="form-control input-image" type="file" id="input-image-entry-${objet}" name="imagen">
                     <div class="text-danger mt-1 fs-6" id="error-input-image-entry-${objet}"></div>
                 </div>
-                <img class="mt-3" isImage="true" src="media/pay_entrys_rawmaterial/${Objet2.comprobante}" alt="Vista previa" style="max-width: 200px;">
+                <img class="mt-3" isImage="true" src="media/pay_entrys_materia_prima/${Objet2.comprobante}" alt="Vista previa" style="max-width: 200px;">
             </div>
         
         `
@@ -1865,7 +1867,7 @@ export default function Templates() {
                     <input class="form-control input-image" type="file" id="input-image-entry-${objet}" name="imagen">
                     <div class="text-danger mt-1 fs-6" id="error-input-image-entry-${objet}"></div>
                 </div>
-                <img class="mt-3" isImage="true" src="media/pay_entrys_rawmaterial/${Objet2.comprobante}" alt="Vista previa" style="max-width: 200px;">
+                <img class="mt-3" isImage="true" src="media/pay_entrys_materia_prima/${Objet2.comprobante}" alt="Vista previa" style="max-width: 200px;">
             </div>
         
         `

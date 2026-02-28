@@ -1,7 +1,8 @@
 <?php
-require_once __DIR__ . '/Controller_base.php';
+use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 use Shtch\Burgerhouse\models\Movimiento_capital;
-use Exception;
+use Shtch\Burgerhouse\models\Vista;
+
 
 function capital_view(...$args)
 {
@@ -32,11 +33,9 @@ function capital_getCapital(...$args)
 {
     header('Content-Type: application/json');
     try {
-        $model = new Movimiento_capital();
-        echo json_encode($model->consultar_vista("vista_resumen_financiero"));
+        $model = new Vista("vista_resumen_financiero");
+        echo json_encode($model->search());
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     }
 }
-
-

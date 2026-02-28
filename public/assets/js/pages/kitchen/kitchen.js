@@ -5,7 +5,7 @@ const { print, searchParam, binnacle, sessionInfo, searchFilter, permission, pag
 const { targetKitchen, infoKitchenDelivery, detailsKitchenDelivery } = Templates();
 let session = await sessionInfo()
 const config = {
-    search: () => searchParam({ status: "en cocina" }, "order", 12),
+    search: () => searchParam({ status: "en cocina" }, "orden", 12),
     template: targetKitchen,
     container: ".kitchen-cont-prepared",
     funtions: () => {
@@ -15,20 +15,20 @@ const config = {
     }
 }
 print(config)
-print({ ...config, search: () => searchParam({ status: "en preparacion" }, "order"), container: ".kitchen-cont-inprepared" })
-print({ ...config, search: () => searchParam({ status: "para despachar" }, "order"), container: ".kitchen-cont-prepared-off" })
+print({ ...config, search: () => searchParam({ status: "en preparacion" }, "orden"), container: ".kitchen-cont-inprepared" })
+print({ ...config, search: () => searchParam({ status: "para despachar" }, "orden"), container: ".kitchen-cont-prepared-off" })
 
 searchFilter("#searchKitchenPending", (e) => {
     if (e.target.value == "") print(config)
-    else print({ ...config, search: () => searchParam({ status: "en cocina", nombre_like: e.target.value }, "order") })
+    else print({ ...config, search: () => searchParam({ status: "en cocina", nombre_like: e.target.value }, "orden  ") })
 })
 searchFilter("#searchKitchenPrepared", (e) => {
-    if (e.target.value == "") print({ ...config, search: () => searchParam({ status: "para despachar" }, "order"), container: ".kitchen-cont-prepared-off" })
-    else print({ ...config, search: () => searchParam({ status: "para despachar", nombre_like: e.target.value }, "order"), container: ".kitchen-cont-prepared-off" })
+    if (e.target.value == "") print({ ...config, search: () => searchParam({ status: "para despachar" }, "orden"), container: ".kitchen-cont-prepared-off" })
+    else print({ ...config, search: () => searchParam({ status: "para despachar", nombre_like: e.target.value }, "orden"), container: ".kitchen-cont-prepared-off" })
 })
 searchFilter("#searchKitchenInPrepared", (e) => {
-    if (e.target.value == "") print({ ...config, search: () => searchParam({ status: "en preparacion" }, "order"), container: ".kitchen-cont-inprepared" })
-    else print({ ...config, search: () => searchParam({ status: "en preparacion", nombre_like: e.target.value }, "order"), container: ".kitchen-cont-inprepared" })
+    if (e.target.value == "") print({ ...config, search: () => searchParam({ status: "en preparacion" }, "orden"), container: ".kitchen-cont-inprepared" })
+    else print({ ...config, search: () => searchParam({ status: "en preparacion", nombre_like: e.target.value }, "orden"), container: ".kitchen-cont-inprepared" })
 })
 const preparedKitchen = () => {
     document.querySelectorAll(".btn_prepared").forEach(item => {
@@ -47,7 +47,7 @@ const preparedKitchen = () => {
                         let id = item.getAttribute("id_order")
                         let type = item.getAttribute("type_order")
                         let data = new FormData();
-                        let verify = await searchParam({ id: id }, "order")
+                        let verify = await searchParam({ id: id }, "orden")
                         if (verify[0].status == "en preparacion" && action == "en cocina") {
                             Swal.fire({
                                 title: `Error!`,
@@ -58,7 +58,7 @@ const preparedKitchen = () => {
                             data.append("id", id)
                             if (action == "en cocina") data.append("status", "en preparacion")
                             else data.append("status", "para despachar")
-                            let pet = await fetch('order/update', { method: "POST", body: data })
+                            let pet = await fetch('orden/update', { method: "POST", body: data })
                             let res = await pet.json()
                             if (res.success == true) {
                                 Swal.fire({
@@ -67,8 +67,8 @@ const preparedKitchen = () => {
                                     icon: "success",
                                 });
                                 print(config)
-                                print({ ...config, search: () => searchParam({ status: "en preparacion" }, "order"), container: ".kitchen-cont-inprepared" })
-                                print({ ...config, search: () => searchParam({ status: "para despachar" }, "order"), container: ".kitchen-cont-prepared-off" })
+                                print({ ...config, search: () => searchParam({ status: "en preparacion" }, "orden"), container: ".kitchen-cont-inprepared" })
+                                print({ ...config, search: () => searchParam({ status: "para despachar" }, "orden"), container: ".kitchen-cont-prepared-off" })
                                 binnacle(session.message.id, 'Orden de cocina', action == "en cocina" ? "La orden se encuentra en preparacion" : 'La orden se encuentra para despachar', action == "en cocina" ? 'Se envio una orden a preparar' : 'Se envio una orden a despachar')
                                 notification({
                                     id_usuario: session.message.id,
@@ -76,9 +76,9 @@ const preparedKitchen = () => {
                                     mensaje: `${action == "en cocina" ? 'Se envio una orden a preparar' : 'Se envio una orden a despachar'} con el nro ${id.toString().padStart(4, '0')}`,
                                 })
                                 notificationAlert({
-                                    channel: "Order",
+                                    channel: "orden",
                                     message: `${action == "en cocina" ? "Se ha enviado a preparar la orden" : "Se ha enviado a despachar la orden"} con el nro ${id.toString().padStart(4, '0')}`,
-                                    event: "order"
+                                    event: "orden"
                                 })
                                 notificationAlert({
                                     channel: "General",
@@ -113,31 +113,31 @@ document.querySelectorAll(".btn_check_pending").forEach(item => {
     item.addEventListener("click", () => {
         let type = item.id
         if (type == "kitchen_all_pending") print(config)
-        else if (type == "kitchen_delivery_pending") print({ ...config, search: () => searchParam({ tipo: "delivery", status: "en cocina" }, "order", 1000000000) })
-        else if (type == "kitchen_takeaway_pending") print({ ...config, search: () => searchParam({ tipo: "llevar", status: "en cocina" }, "order", 1000000000) })
-        else if (type == "kitchen_local_pending") print({ ...config, search: () => searchParam({ tipo: "local", status: "en cocina" }, "order", 1000000000) })
-        else print({ ...config, search: () => searchParam({ tipo: "reserva", status: "en cocina" }, "order", 1000000000) })
+        else if (type == "kitchen_delivery_pending") print({ ...config, search: () => searchParam({ tipo: "delivery", status: "en cocina" }, "orden", 1000000000) })
+        else if (type == "kitchen_takeaway_pending") print({ ...config, search: () => searchParam({ tipo: "llevar", status: "en cocina" }, "orden", 1000000000) })
+        else if (type == "kitchen_local_pending") print({ ...config, search: () => searchParam({ tipo: "local", status: "en cocina" }, "orden", 1000000000) })
+        else print({ ...config, search: () => searchParam({ tipo: "reserva", status: "en cocina" }, "orden", 1000000000) })
     })
 })
 document.querySelectorAll(".btn_check_off").forEach(item => {
     item.addEventListener("click", () => {
         let type = item.id
-        if (type == "kitchen_all_off") print({ ...config, search: () => searchParam({ status: "para despachar" }, "order"), container: ".kitchen-cont-prepared-off" })
-        else if (type == "kitchen_delivery_off") print({ ...config, search: () => searchParam({ status: "para despachar", tipo: "delivery" }, "order"), container: ".kitchen-cont-prepared-off" })
-        else if (type == "kitchen_takeaway_off") print({ ...config, search: () => searchParam({ status: "para despachar", tipo: "llevar" }, "order"), container: ".kitchen-cont-prepared-off" })
-        else if (type == "kitchen_local_off") print({ ...config, search: () => searchParam({ status: "para despachar", tipo: "local" }, "order"), container: ".kitchen-cont-prepared-off" })
-        else print({ ...config, search: () => searchParam({ tipo: "reserva", status: "para despachar" }, "order", 1000000000), container: ".kitchen-cont-prepared-off" })
+        if (type == "kitchen_all_off") print({ ...config, search: () => searchParam({ status: "para despachar" }, "orden"), container: ".kitchen-cont-prepared-off" })
+        else if (type == "kitchen_delivery_off") print({ ...config, search: () => searchParam({ status: "para despachar", tipo: "delivery" }, "orden"), container: ".kitchen-cont-prepared-off" })
+        else if (type == "kitchen_takeaway_off") print({ ...config, search: () => searchParam({ status: "para despachar", tipo: "llevar" }, "orden"), container: ".kitchen-cont-prepared-off" })
+        else if (type == "kitchen_local_off") print({ ...config, search: () => searchParam({ status: "para despachar", tipo: "local" }, "orden"), container: ".kitchen-cont-prepared-off" })
+        else print({ ...config, search: () => searchParam({ tipo: "reserva", status: "para despachar" }, "orden", 1000000000), container: ".kitchen-cont-prepared-off" })
 
     })
 })
 document.querySelectorAll(".btn_check_inprepared").forEach(item => {
     item.addEventListener("click", () => {
         let type = item.id
-        if (type == "kitchen_all_inprepared") print({ ...config, search: () => searchParam({ status: "en preparacion" }, "order"), container: ".kitchen-cont-inprepared" })
-        else if (type == "kitchen_delivery_inprepared") print({ ...config, search: () => searchParam({ status: "en preparacion", tipo: "delivery" }, "order"), container: ".kitchen-cont-inprepared" })
-        else if (type == "kitchen_takeaway_inprepared") print({ ...config, search: () => searchParam({ status: "en preparacion", tipo: "llevar" }, "order"), container: ".kitchen-cont-inprepared" })
-        else if (type == "kitchen_local_inprepared") print({ ...config, search: () => searchParam({ status: "en preparacion", tipo: "local" }, "order"), container: ".kitchen-cont-inprepared" })
-        else print({ ...config, search: () => searchParam({ tipo: "reserva", status: "en preparacion" }, "order", 1000000000), container: ".kitchen-cont-inprepared" })
+        if (type == "kitchen_all_inprepared") print({ ...config, search: () => searchParam({ status: "en preparacion" }, "orden"), container: ".kitchen-cont-inprepared" })
+        else if (type == "kitchen_delivery_inprepared") print({ ...config, search: () => searchParam({ status: "en preparacion", tipo: "delivery" }, "orden"), container: ".kitchen-cont-inprepared" })
+        else if (type == "kitchen_takeaway_inprepared") print({ ...config, search: () => searchParam({ status: "en preparacion", tipo: "llevar" }, "orden"), container: ".kitchen-cont-inprepared" })
+        else if (type == "kitchen_local_inprepared") print({ ...config, search: () => searchParam({ status: "en preparacion", tipo: "local" }, "orden"), container: ".kitchen-cont-inprepared" })
+        else print({ ...config, search: () => searchParam({ tipo: "reserva", status: "en preparacion" }, "orden", 1000000000), container: ".kitchen-cont-inprepared" })
 
     })
 })
@@ -146,7 +146,7 @@ const modalDetails = () => {
     document.querySelectorAll(".btn-details-kitchen-delivery").forEach(item => {
         item.addEventListener("click", async () => {
             let id = item.getAttribute('data-id')
-            let info = await searchParam({ id: id }, "order")
+            let info = await searchParam({ id: id }, "orden")
             let detailsPrepered = await searchParam({ id_orden: id }, "Detalle_orden_producto_preparado")
             let detailsProcess = await searchParam({ id_orden: id }, "Detalle_orden_producto_procesado")
             document.querySelector(".cont_info_kitchen_delivery").innerHTML = infoKitchenDelivery(info[0])
@@ -206,7 +206,7 @@ document.getElementById('navbarDropdown').addEventListener('click', function () 
 });
 
 pagination((page) => {
-    print({ ...config, search: () => searchParam({ status: "en cocina" }, "order", 12, page) })
+    print({ ...config, search: () => searchParam({ status: "en cocina" }, "orden", 12, page) })
 }, ".pagination_prepared")
 
 const pusher = new Pusher('2a7ca356d030e2945ae9', { cluster: 'us2' });
@@ -221,6 +221,6 @@ channelKitchen.bind('orden de cocina', function (data) {
     const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toas.querySelector("#liveToast"), { delay: 5000 })
     toastBootstrap.show()
     print(config)
-    print({ ...config, search: () => searchParam({ status: "en preparacion" }, "order"), container: ".kitchen-cont-inprepared" })
-    print({ ...config, search: () => searchParam({ status: "para despachar" }, "order"), container: ".kitchen-cont-prepared-off" })
+    print({ ...config, search: () => searchParam({ status: "en preparacion" }, "orden"), container: ".kitchen-cont-inprepared" })
+    print({ ...config, search: () => searchParam({ status: "para despachar" }, "orden"), container: ".kitchen-cont-prepared-off" })
 });

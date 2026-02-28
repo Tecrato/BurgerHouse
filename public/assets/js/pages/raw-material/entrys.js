@@ -6,9 +6,9 @@ const { optionsSupplier, optionsRawMaterial, elementFormEntrysRawMaterial, optio
 
 const { InputPrice, selectOptionAll, viewImage, setValidationStyles, validateField, fecha, searchParam, diasRestantesFechaVencimiento, sessionInfo, binnacle, deleteDatatable, updateDataTables, permission, amountDolar } = functionGeneral();
 
-selectOptionAll(".select_options_supplier", "supplier", optionsSupplier)
-selectOptionAll(".select_options_raw_material", "rawmaterial", optionsRawMaterial)
-selectOptionAll(".select_options_payment", "paymentMethod", optionsRol)
+selectOptionAll(".select_options_supplier", "proveedor", optionsSupplier)
+selectOptionAll(".select_options_raw_material", "materia_prima", optionsRawMaterial)
+selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
 permission("Entradas de materia prima")
 InputPrice("[input_price]")
 viewImage(".input-image")
@@ -16,7 +16,7 @@ let session = await sessionInfo()
 const dolar = await amountDolar()
 //setear valores de las tarjetas de entradas
 const cardEntrys = async () => {
-    let entrysTotales = await searchParam({ active: 1 }, "Entry_rawmaterial_details")
+    let entrysTotales = await searchParam({ active: 1 }, "Entrada_materia_prima_detalles")
     let entrysVigentes = entrysTotales.filter((element) => diasRestantesFechaVencimiento(element) > 10 && element.existencia > 0);
     let entrysPorVencer = entrysTotales.filter((element) => diasRestantesFechaVencimiento(element) <= 10 && diasRestantesFechaVencimiento(element) > 0 && element.existencia > 0);
     let entrysVencidos = entrysTotales.filter((element) => diasRestantesFechaVencimiento(element) <= 0);
@@ -184,7 +184,7 @@ async function reference() {
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="fw-bold text-uppercase">Comprobante</h5>
-                                <img class="img-fluid" src="media/pay_entrys_rawmaterial/${element.comprobante}" alt="Vista previa">
+                                <img class="img-fluid" src="media/pay_entrys_materia_prima/${element.comprobante}" alt="Vista previa">
                                 <h5 class="fw-bold text-uppercase mt-3">Metodo de pago</h5>
                                 <p class="ms-2">${element.metodo_pago} <strong>${element.precio_compra} ${element.metodo_pago.toLowerCase() != "divisa" ? "Bs" : "Usd"}</strong></p>
                                 <h5 class="fw-bold text-uppercase">Fecha</h5>
@@ -207,7 +207,7 @@ let tableActive = $(".table_entrys_active").DataTable({
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
     ajax: {
-        url: 'Entry_rawmaterial_details/get_all/0/10000000/id/asc',
+        url: 'Entrada_materia_prima_detalles/get_all/0/10000000/id/asc',
         dataSrc: function (json) {
             const EntrysActive = json.filter((element) => {
                 let diasRestantes = diasRestantesFechaVencimiento(element)
@@ -233,8 +233,8 @@ let tableActive = $(".table_entrys_active").DataTable({
                 <div class="dropdown dropstart">
                     <i data-feather="more-horizontal" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer"></i>
                     <ul class="dropdown-menu" data-bs-boundary="viewport">
-                        <li><a data-id="${data.id_entrada}" module-edit="Entry_rawmaterial_details" data-module-edit="Entradas de materia prima" class="edit_btn_datatable dropdown-item" data-bs-title="Editar Entrada" data-bs-placement="bottom"><i class="me-1" data-feather="edit"></i>Editar</a></li>
-                        <li><a data-id="${data.id}" module-delete="Entry_rawmaterial_details" data-module-delete="Entradas de materia prima" class="trash_btn_datatable dropdown-item" data-bs-toggle="tooltip" data-bs-title="Eliminar Entrada" data-bs-placement="bottom"><i class="me-1" data-feather="trash"></i>Eliminar</a></li>
+                        <li><a data-id="${data.id_entrada}" module-edit=Entrada_materia_prima_detalles/ data-module-edit="Entradas de materia prima" class="edit_btn_datatable dropdown-item" data-bs-title="Editar Entrada" data-bs-placement="bottom"><i class="me-1" data-feather="edit"></i>Editar</a></li>
+                        <li><a data-id="${data.id}" module-delete=Entrada_materia_prima_detalles/ data-module-delete="Entradas de materia prima" class="trash_btn_datatable dropdown-item" data-bs-toggle="tooltip" data-bs-title="Eliminar Entrada" data-bs-placement="bottom"><i class="me-1" data-feather="trash"></i>Eliminar</a></li>
                         <li><a class="reference_btn dropdown-item" data-id="${data.id_entrada}" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#comprobante_view"><i class="me-1" data-feather="eye"></i>Ver datos de pago</a></li>
                     </ul>
                 </div>
@@ -257,7 +257,7 @@ let tablePorVencer = $(".table_entrys_por_vencer").DataTable({
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
     ajax: {
-        url: 'Entry_rawmaterial_details/get_all/0/10000000/id/asc',
+        url: 'Entrada_materia_prima_detalles/get_all/0/10000000/id/asc',
         dataSrc: function (json) {
             const EntryPorVencer = json.filter((element) => {
                 let diasRestantes = diasRestantesFechaVencimiento(element)
@@ -304,7 +304,7 @@ let tableVencidas = $(".table_entrys_vencidos").DataTable({
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
     ajax: {
-        url: 'Entry_rawmaterial_details/get_all/0/10000000/id/asc',
+        url: 'Entrada_materia_prima_detalles/get_all/0/10000000/id/asc',
         dataSrc: function (json) {
             const EntryVencidas = json.filter((element) => {
                 let diasRestantes = diasRestantesFechaVencimiento(element)
@@ -350,7 +350,7 @@ let tableSinStock = $(".table_entrys_sin_stock").DataTable({
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
     ajax: {
-        url: 'Entry_rawmaterial_details/get_all/0/10000000/id/asc',
+        url: 'Entrada_materia_prima_detalles/get_all/0/10000000/id/asc',
         dataSrc: function (json) {
             const EntrySinStock = json.filter((element) => {
                 return element.existencia == 0;;
@@ -409,9 +409,9 @@ function addEntrys() {
         return elemenFormProductEntrysRawMaterial(rawMaterialCount);
     }));
     feather.replace();
-    selectOptionAll(".select_options_supplier", "supplier", optionsSupplier)
-    selectOptionAll(".select_options_raw_material", "rawmaterial", optionsRawMaterial)
-    selectOptionAll(".select_options_payment", "paymentMethod", optionsRol)
+    selectOptionAll(".select_options_supplier", "proveedor", optionsSupplier)
+    selectOptionAll(".select_options_raw_material", "materia_prima", optionsRawMaterial)
+    selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
     InputPrice("[input_price]")
     viewImage(".input-image")
     attachValidationListeners();
@@ -426,7 +426,7 @@ function addEntrys() {
         feather.replace();
         InputPrice("[input_price]")
         viewImage(".input-image")
-        selectOptionAll(".select_options_payment", "paymentMethod", optionsRol)
+        selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
     });
     payRemove.addEventListener("click", () => {
         paymentCount--;
@@ -445,7 +445,7 @@ function addEntrys() {
         newEntry.querySelector("#details_entry_container").insertAdjacentHTML('beforeend', elemenFormProductEntrysRawMaterial(rawMaterialCount));
         feather.replace();
         InputPrice("[input_price]")
-        selectOptionAll(".select_options_raw_material", "rawmaterial", optionsRawMaterial)
+        selectOptionAll(".select_options_raw_material", "materia_prima", optionsRawMaterial)
     });
     productRemove.addEventListener("click", () => {
         console.log("object");
@@ -462,7 +462,7 @@ function addPayment() {
             paymentCount++;
             document.querySelector(`#entrys-${id}`).querySelector("#payment_entry_container").insertAdjacentHTML('beforeend', elementFormPaymentEntrysRawMaterial(paymentCount));
             feather.replace();
-            selectOptionAll(".select_options_payment", "paymentMethod", optionsRol)
+            selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
             InputPrice("[input_price]")
             attachValidationListeners();
             viewImage(".input-image")
@@ -485,7 +485,7 @@ function addProduct() {
             rawMaterialCount++;
             document.querySelector(`#entrys-${id}`).querySelector("#details_entry_container").insertAdjacentHTML('beforeend', elemenFormProductEntrysRawMaterial(rawMaterialCount));
             feather.replace();
-            selectOptionAll(".select_options_raw_material", "rawmaterial", optionsRawMaterial)
+            selectOptionAll(".select_options_raw_material", "materia_prima", optionsRawMaterial)
             InputPrice("[input_price]")
             attachValidationListeners();
             let btn_remove = document.querySelectorAll(".remove-product-entrys")
@@ -935,9 +935,9 @@ const editEntrys = () => {
             document.getElementById("detail_entry_container_edit").innerHTML = templateItemsProduct
             document.querySelector("#payment_entry_container_edit").innerHTML = templatePayment;
             feather.replace()
-            selectOptionAll(".select_options_supplier_edit", "supplier", optionsSupplier)
-            selectOptionAll(".select_options_raw_material_edit", "rawmaterial", optionsRawMaterial)
-            selectOptionAll(".select_options_payment_edit", "paymentMethod", optionsRol)
+            selectOptionAll(".select_options_supplier_edit", "proveedor", optionsSupplier)
+            selectOptionAll(".select_options_raw_material_edit", "materia_prima", optionsRawMaterial)
+            selectOptionAll(".select_options_payment_edit", "metodo_pago", optionsRol)
             InputPrice("[input_price]")
             viewImage(".input-image")
             attachValidationListeners()
@@ -993,7 +993,7 @@ const editEntrys = () => {
                         //             //         const id = productRemove.id
                         //             //         let data = new FormData();
                         //             //         data.append("id", id);
-                        //             //         let pet = await fetch("Entry_rawmaterial_details/delete", { method: "POST", body: data });
+                        //             //         let pet = await fetch("Entrada_materia_prima_detalles/delete", { method: "POST", body: data });
                         //             //         let petRes = await pet.json();
                         //             //         if (petRes.success == true) {
                         productRemove.closest(".detail_entry-edit").remove()
@@ -1028,7 +1028,7 @@ const editEntrys = () => {
                     reindexProduct("#detail_entry_container_edit .detail_entry-edit", "detail_entry-edit", indexProduct, "Entrada");
                     feather.replace()
                     InputPrice("[input_price]")
-                    selectOptionAll(".select_options_raw_material_edit", "rawmaterial", optionsRawMaterial)
+                    selectOptionAll(".select_options_raw_material_edit", "materia_prima", optionsRawMaterial)
                     removeProductEditNew()
                     removeProductEditOld()
                     attachValidationListeners()
@@ -1042,7 +1042,7 @@ const editEntrys = () => {
                     document.querySelector("#payment_entry_container_edit").insertAdjacentHTML('beforeend', elementFormPaymentEntrysRawMaterialEditNew(indexPayment));
                     feather.replace();
                     attachValidationListeners();
-                    selectOptionAll(".select_options_payment_edit", "paymentMethod", optionsRol);
+                    selectOptionAll(".select_options_payment_edit", "metodo_pago", optionsRol);
                     InputPrice("[input_price]");
                     viewImage(".input-image");
                     document.querySelectorAll(".remove-payment-entry").forEach(payRemove => {
@@ -1224,7 +1224,7 @@ if (!formEdit.dataset.listenerAttached) {
                     EntryInsert.append(`lista[${index}][fecha_vencimiento]`, element.fecha_vencimiento)
                     EntryInsert.append(`lista[${index}][id_materia_prima]`, element.id_materia_prima)
                 })
-                let updateEntry = await fetch("Entry_rawmaterial_details/add_many", { method: "POST", body: EntryInsert })
+                let updateEntry = await fetch("Entrada_materia_prima_detalles/add_many", { method: "POST", body: EntryInsert })
                 let responseEntry = await updateEntry.json()
                 console.log(responseEntry);
             }
@@ -1241,12 +1241,12 @@ if (!formEdit.dataset.listenerAttached) {
                 let responseInsertPayment = await insertPayment.json()
                 console.log(responseInsertPayment);
             }
-            let updateEntry = await fetch("Entry_rawmaterial_details/updateMany", { method: "POST", body: EntryUpdate })
+            let updateEntry = await fetch("Entrada_materia_prima_detalles/updateMany", { method: "POST", body: EntryUpdate })
             let responseEntry = await updateEntry.json()
             let updatePayment = await fetch("Entry_rawmaterial_payment/updateMany", { method: "POST", body: dataPayUpdate })
             let responsePayment = await updatePayment.json()
             console.log(responsePayment);
-            let updateEntrySupplier = await fetch("Entrada_materia_prima/update", { method: "POST", body: dataSupplier })
+            let updateEntrySupplier = await fetch("Entrada_materia_prima_detalles/update", { method: "POST", body: dataSupplier })
             let responseEntrySupplier = await updateEntrySupplier.json()
             console.log(responseEntrySupplier);
 
