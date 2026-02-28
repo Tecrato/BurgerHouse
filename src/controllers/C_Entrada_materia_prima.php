@@ -77,18 +77,3 @@ function entrada_materia_prima_inventario(...$args)
 }
 
 
-function entrada_materia_prima_brokenear_materia(...) {
-    // converted from Entrada_materia_primaController.php::brokenear_materia - please implement logic
-    // TODO: migrate code from class method
-}
-
-function entrada_materia_prima_add_many(...) {
-    // converted from Entrada_materia_primaController.php::add_many - please implement logic
-    get_all(new Entrada_materia_prima(), ...$args); // adapt as needed
-}
-
-function entrada_materia_prima_inventario(...) {
-    // converted from Entrada_materia_primaController.php::inventario - please implement logic
-    // TODO: migrate code from class method
-}
-

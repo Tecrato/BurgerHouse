@@ -48,15 +48,3 @@ function entrada_producto_procesado_inventario(...$args)
         echo json_encode(['success' => false, 'message' => $th->getMessage()]);
     }
 }
-
-
-function entrada_producto_procesado_add_many(...) {
-    // converted from Entrada_producto_procesadoController.php::add_many - please implement logic
-    get_all(new Entrada_producto_procesado(), ...$args); // adapt as needed
-}
-
-function entrada_producto_procesado_inventario(...) {
-    // converted from Entrada_producto_procesadoController.php::inventario - please implement logic
-    // TODO: migrate code from class method
-}
-

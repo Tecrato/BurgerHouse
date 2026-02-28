@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/Controller_base.php';
-use Shtch\Burgerhouse\models\Adicionales;
+use Shtch\Burgerhouse\models\ProductoProcesado as Adicionales;
 
 function drink_view(...$args)
 {

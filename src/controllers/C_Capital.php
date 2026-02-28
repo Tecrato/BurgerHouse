@@ -40,8 +40,3 @@ function capital_getCapital(...$args)
 }
 
 
-function capital_GetCapital(...) {
-    // converted from CapitalController.php::GetCapital - please implement logic
-    // TODO: migrate code from class method
-}
-
