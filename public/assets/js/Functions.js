@@ -2,52 +2,53 @@ export default function functionGeneral() {
 
   async function permission(module = null, funtion = null) {
     if (module != null) {
-      let session = await sessionInfo();
-      let data = await searchParam({ id_rol: session.message.id_rol }, "permisos", 100000000)
-      const permiss = data.find((e) => e.modulo.toLocaleLowerCase() == module.toLocaleLowerCase()) ? data.find((e) => e.modulo.toLocaleLowerCase() == module.toLocaleLowerCase()) : null;
+      return
+    }
+    let session = await sessionInfo();
+    let response = session.message.permisos
+    const permiss = response.find((e) => e.modulo.toLocaleLowerCase() == module.toLocaleLowerCase()) ? response.find((e) => e.modulo.toLocaleLowerCase() == module.toLocaleLowerCase()) : null;
 
-      if (permiss != null) {
-        let permissions = permiss.permisos.split(",");
-        let tipos_permisos = {
-          "agregar": "-add",
-          "editar": "-edit",
-          "eliminar": "-delete",
-          "consultar": "",
-          "verificar": "-verify",
-          "anular": "-null",
-          "crear": "-create",
-          "despachar": "-dispatch",
-          "preparar": "-prepared",
-          "ver detalles": "-details",
-          "guardar gasto": "-gasto",
-          "guardar ingreso": "-ingreso",
-          "restaurar": "-restore",
-          "abrir": "-open",
-          "cerrar": "-close",
-          "asignar roles": "-assign_rol",
-          "importar": "-import",
-          "exportar": "-export",
-          "agregar productos": "-moreProducts",
-          "pagar": "-PayOrder",
-          "aceptar entrega": "-acceptDelivery",
-          "agendar reservacion": "-schedule",
-          "anular reservacion": "-nullSchedule",
-          "verificar reservacion": "-verifySchedule"
-        }
-        
-        
-        for (const permiso in tipos_permisos) {
-          if (!permissions.includes(permiso)) {
-            document.querySelectorAll(`[data-module${tipos_permisos[permiso]}='${module}']`).forEach((d) => d.remove());
-          }
-        }
-      } else {
-        if (document.querySelector(`[data-module='${module}']`)) {
-          document.querySelectorAll(`[data-module='${module}']`).forEach((d) => d.remove());
+    if (permiss != null) {
+      let permissions = permiss.permisos.split(",");
+      let tipos_permisos = {
+        "agregar": "-add",
+        "editar": "-edit",
+        "eliminar": "-delete",
+        "consultar": "",
+        "verificar": "-verify",
+        "anular": "-null",
+        "crear": "-create",
+        "despachar": "-dispatch",
+        "preparar": "-prepared",
+        "ver detalles": "-details",
+        "guardar gasto": "-gasto",
+        "guardar ingreso": "-ingreso",
+        "restaurar": "-restore",
+        "abrir": "-open",
+        "cerrar": "-close",
+        "asignar roles": "-assign_rol",
+        "importar": "-import",
+        "exportar": "-export",
+        "agregar productos": "-moreProducts",
+        "pagar": "-PayOrder",
+        "aceptar entrega": "-acceptDelivery",
+        "agendar reservacion": "-schedule",
+        "anular reservacion": "-nullSchedule",
+        "verificar reservacion": "-verifySchedule"
+      }
+      
+      
+      for (const permiso in tipos_permisos) {
+        if (!permissions.includes(permiso)) {
+          document.querySelectorAll(`[data-module${tipos_permisos[permiso]}='${module}']`).forEach((d) => d.remove());
         }
       }
-      if (typeof funtion == "function") funtion()
+    } else {
+      if (document.querySelector(`[data-module='${module}']`)) {
+        document.querySelectorAll(`[data-module='${module}']`).forEach((d) => d.remove());
+      }
     }
+    if (typeof funtion == "function") funtion()
   }
   function InputPrice(input) {
     let inputDom = document.querySelectorAll(input);

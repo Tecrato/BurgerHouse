@@ -1,5 +1,4 @@
 <?php
-namespace Shtch\Burgerhouse\controllers\Materia_prima;
 use Shtch\Burgerhouse\models\Materia_prima;
 use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 

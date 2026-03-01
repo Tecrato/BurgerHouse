@@ -41,3 +41,17 @@ function recetas_get_all(...$args)
     get_all(new Receta(), ...$args);
 }
 
+function recetas_update(...$args)
+{
+    update(new Receta(), $_POST);
+}
+
+function recetas_delete(...$args)
+{
+    delete(new Receta(), $_POST['id']);
+}
+
+function recetas_add_many(...$args)
+{
+    add_many(new Receta(), $_POST['data']);
+}

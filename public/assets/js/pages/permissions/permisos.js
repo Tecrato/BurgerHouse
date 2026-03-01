@@ -87,8 +87,6 @@ function editar(id) {
     }
 
     bootstrap.Modal.getOrCreateInstance('#edit-rol').show()
-
-
 }
 
 function establecer_evento_form_edit() {

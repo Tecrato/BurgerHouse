@@ -4,7 +4,7 @@ use Shtch\Burgerhouse\models\Paquetes;
 
 function paquete_reservacion_view(...$args)
 {
-    view('package_reservation');
+    view('paquete_reservacion');
 }
 
 function paquete_reservacion_get_all(...$args)

@@ -217,7 +217,7 @@
                 <?php for ($i = 0; $i < count($_SESSION['permisos']); $i++) { ?>
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'producto procesado' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link sidebar-link" href="productProcess"
+                            <a class="sidebar-link sidebar-link" href="producto_procesado"
                                 aria-expanded="false">
                                 <i data-feather="codepen" class="feather-icon"></i>
                                 <span class="hide-menu">Produc Procesados</span>

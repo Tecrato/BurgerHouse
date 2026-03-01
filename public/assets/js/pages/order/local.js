@@ -79,7 +79,7 @@ export async function local(functions, templates, reload) {
     const initPopover = async () => {
         let data = []
         let elements = []
-        let recipeDetails = await searchParam({}, "receta", 5000)
+        let recipeDetails = await searchParam({}, "recetas", 5000)
         for (const item of recipeDetails) {
             let pet = await searchParam({ active: 1, tipo: "adicional", id: item.id_producto }, "adicionales", 100);
             for (const el of pet) {
@@ -163,7 +163,7 @@ export async function local(functions, templates, reload) {
     const products = async () => {
         let templatePrepared = "";
         let templateProcess = "";
-        let recipeDetails = await searchParam({}, "receta", 5000)
+        let recipeDetails = await searchParam({}, "recetas", 5000)
         for (const recipe of recipeDetails) {
             const id = recipe.id_producto
             let product = await searchParam({ id: id, tipo: "producto" }, "producto_preparado", 100)
@@ -505,7 +505,7 @@ export async function more_product_local_order(functions, templates, reload) {
     const initPopover = async () => {
         let data = []
         let elements = []
-        let recipeDetails = await searchParam({}, "receta", 5000)
+        let recipeDetails = await searchParam({}, "recetas", 5000)
         for (const item of recipeDetails) {
             let pet = await searchParam({ active: 1, tipo: "adicional", id: item.id_producto }, "adicionales", 100);
             for (const el of pet) {
@@ -589,7 +589,7 @@ export async function more_product_local_order(functions, templates, reload) {
     const products = async () => {
         let templatePrepared = "";
         let templateProcess = "";
-        let recipeDetails = await searchParam({}, "receta", 5000)
+        let recipeDetails = await searchParam({}, "recetas", 5000)
         for (const recipe of recipeDetails) {
             const id = recipe.id_producto
             let product = await searchParam({ id: id, tipo: "producto" }, "producto_preparado", 1000)

@@ -3,7 +3,7 @@ use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update
 
 function facturas_view(...$args)
 {
-    view('invoice');
+    view('factura');
 }
 
 

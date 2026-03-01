@@ -35,5 +35,3 @@ function estadisticas_ReservasPorMetodoSemana(...$args) { echo json_encode(estad
 function estadisticas_ReservasPorMetodoMes(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasMetodoMes($_POST['anio'], $_POST['mes'])); }
 function estadisticas_ReservasPorMetodoAnio(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasMetodoAnio($_POST['anio'])); }
 
-// Compatibilidad con el nombre de módulo C_Estadisticas
-

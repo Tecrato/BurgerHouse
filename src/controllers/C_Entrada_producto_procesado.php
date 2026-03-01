@@ -2,6 +2,7 @@
 use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 use Shtch\Burgerhouse\models\Entrada_producto_procesado;
 use Shtch\Burgerhouse\models\Pago_entrada_producto_procesado;
+use Shtch\Burgerhouse\models\Vista;
 
 function entrada_producto_procesado_add_many(...$args)
 {
@@ -40,10 +41,10 @@ function entrada_producto_procesado_add_many(...$args)
 function entrada_producto_procesado_inventario(...$args)
 {
     try {
-        $db = new Entrada_producto_procesado();
+        $db = new Vista("vista_inventario_productos_procesados");
         $db->clear();
         $db->__construct();
-        echo json_encode($db->consultar_vista("vista_inventario_productos_procesados"));
+        echo json_encode($db->search());
     } catch (Exception $th) {
         echo json_encode(['success' => false, 'message' => $th->getMessage()]);
     }

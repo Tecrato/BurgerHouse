@@ -87,7 +87,7 @@ export default async function domicile_and_takeaway(functions, templates, report
     const initPopover = async () => {
         let data = []
         let elements = []
-        let recipeDetails = await searchParam({}, "receta", 5000)
+        let recipeDetails = await searchParam({}, "recetas", 5000)
         for (const item of recipeDetails) {
             let pet = await searchParam({ active: 1, tipo: "adicional", id: item.id_producto }, "adicionales", 100);
             for (const el of pet) {
@@ -166,7 +166,7 @@ export default async function domicile_and_takeaway(functions, templates, report
     }
     const categoryFilter = async () => {
         let template = "";
-        let category = await searchParam({ active: 1 }, "categoryProducto", 100)
+        let category = await searchParam({ active: 1 }, "categoria_producto", 100)
         category.forEach((category) => { template += tagFilterProduct(category); })
         document.querySelector(".cont_category_product_orders").insertAdjacentHTML("beforeend", template)
         filter()
@@ -174,14 +174,14 @@ export default async function domicile_and_takeaway(functions, templates, report
     const products = async () => {
         let templatePrepared = "";
         let templateProcess = "";
-        let recipeDetails = await searchParam({}, "receta", 5000)
+        let recipeDetails = await searchParam({}, "recetas", 5000)
         for (const recipe of recipeDetails) {
             const id = recipe.id_producto
             let product = await searchParam({ id: id, tipo: "producto" }, "producto_preparado", 100)
             product.forEach((product) => { templatePrepared += selectProduct(product, "producto_preparado") })
         }
-        let productProcess = await searchParam({ active: 1 }, "productProcess", 100)
-        productProcess.forEach((product) => { templateProcess += selectProduct(product, "productProcess") })
+        let productProcess = await searchParam({ active: 1 }, "producto_procesado", 100)
+        productProcess.forEach((product) => { templateProcess += selectProduct(product, "producto_procesado") })
 
         document.querySelector(".cont-select-product-order").innerHTML = "";
         document.querySelector(".cont-select-product-order").insertAdjacentHTML("beforeend", templatePrepared)
