@@ -26,6 +26,18 @@ function orden_get_all(...$args) {
     
 }
 
+function orden_update(...$args) {
+    update(new Orden(), $_POST);
+}
+
+function orden_delete(...$args) {
+    delete(new Orden(), $_POST['id']);
+}
+
+function orden_count(...$args) {
+    total(new Orden(), ...$args);
+}
+
 function orden_add(...$args)
 {
     try {

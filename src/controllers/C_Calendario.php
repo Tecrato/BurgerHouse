@@ -51,3 +51,10 @@ function calendario_total(...$args)
 {
     total(new Reservacion());
 }
+
+function calendario_count(...$args)
+{
+    total(new Reservacion());
+}
+
+

@@ -1,5 +1,6 @@
 import functionGeneral from "../../Functions.js";
 import Templates from "../../templates.js"
+import { myfecth } from "../../Functions2.js"
 import domicile_and_takeaway from "./domicile_and_takeaway.js";
 import { local, more_product_local_order, payOrder } from "./local.js";
 import { payOrderReservation } from "./reservationOrder.js"
@@ -49,21 +50,179 @@ permission("Ordenes (reservas)", () => {
   }
 })
 
+
+const parseDataTableTotal = (raw) => {
+  if (raw === null || raw === undefined) return null;
+
+  if (raw && typeof raw.json === "function") {
+    try {
+      return parseDataTableTotal(raw.json());
+    } catch (e) {
+      // continuar con otras estrategias de parseo
+    }
+  }
+
+  if (raw && typeof raw.data !== "undefined") {
+    return parseDataTableTotal(raw.data);
+  }
+
+  if (raw && typeof raw.text !== "undefined") {
+    return parseDataTableTotal(raw.text);
+  }
+
+  if (typeof raw === "number") {
+    return Number.isFinite(raw) ? raw : null;
+  }
+
+  if (typeof raw === "object") {
+    if (typeof raw.total !== "undefined") return parseDataTableTotal(raw.total);
+    if (typeof raw.recordsTotal !== "undefined") return parseDataTableTotal(raw.recordsTotal);
+    if (typeof raw.message !== "undefined") return parseDataTableTotal(raw.message);
+  }
+
+  if (typeof raw === "string") {
+    const value = raw.trim();
+    if (value.length === 0) return null;
+
+    if (/^\d+$/.test(value)) return parseInt(value, 10);
+
+    try {
+      const parsed = JSON.parse(value);
+      return parseDataTableTotal(parsed);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  return null;
+};
+
+const parseDataRows = (response) => {
+  if (Array.isArray(response)) return response;
+  if (response && Array.isArray(response.data)) return response.data;
+  return [];
+};
+
+const encodePostData = (data = {}) => {
+  const params = new URLSearchParams();
+  Object.entries(data).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") return;
+    params.append(key, value);
+  });
+  return params.toString();
+};
+
+const countEndpointByModule = {};
+
+const resolveServerTotal = (module, filters = {}) => {
+  if (countEndpointByModule[module] === false) return null;
+
+  const actions = countEndpointByModule[module]
+    ? [countEndpointByModule[module]]
+    : ["count"];
+
+  for (const action of actions) {
+    try {
+      const raw = myfecth(`${module}/${action}`, {}, filters, null, "POST");
+      const parsed = parseDataTableTotal(raw);
+      if (parsed !== null) {
+        countEndpointByModule[module] = action;
+        return parsed;
+      }
+    } catch (e) {
+      // ignorar y probar siguiente endpoint de conteo
+    }
+  }
+
+  if (!countEndpointByModule[module]) {
+    countEndpointByModule[module] = false;
+  }
+
+  return null;
+};
+
+const buildServerSideAjax = ({
+  module,
+  baseFilters = {},
+  defaultOrderBy = "id",
+  defaultOrderType = "asc",
+  clientFilter = null,
+  searchFiltersBuilder = null,
+}) => {
+  return function (data, callback) {
+    const page = Math.floor(data.start / data.length);
+    const size = data.length;
+    const requestFilters = { ...baseFilters };
+
+    const searchValue = (data.search?.value || "").trim();
+    if (searchValue) {
+      const searchFilters = typeof searchFiltersBuilder === "function"
+        ? searchFiltersBuilder(searchValue)
+        : {
+          nombre_like: searchValue,
+          apellido_like: searchValue,
+          cedula_like: searchValue,
+          nro_factura: searchValue,
+        };
+      Object.assign(requestFilters, searchFilters);
+    }
+
+    const total = resolveServerTotal(module, requestFilters);
+
+    const dtOrder = Array.isArray(data.order) && data.order.length > 0 ? data.order[0] : null;
+    const columnData = dtOrder && data.columns?.[dtOrder.column]
+      ? data.columns[dtOrder.column].data
+      : null;
+    const orderBy = typeof columnData === "string" && columnData.trim() !== ""
+      ? columnData
+      : defaultOrderBy;
+    const orderType = dtOrder?.dir || defaultOrderType;
+
+    fetch(`${module}/get_all/${page}/${size}/${orderBy}/${orderType}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+      body: encodePostData(requestFilters),
+    })
+      .then((res) => res.json())
+      .then((resp) => {
+        const rows = parseDataRows(resp);
+        const filteredRows = typeof clientFilter === "function" ? rows.filter(clientFilter) : rows;
+
+        const inferredTotal = total
+          ?? parseDataTableTotal(resp)
+          ?? (data.start + filteredRows.length + (filteredRows.length === size ? 1 : 0));
+
+        callback({
+          draw: data.draw,
+          data: filteredRows,
+          recordsTotal: inferredTotal,
+          recordsFiltered: inferredTotal,
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        callback({
+          draw: data.draw,
+          data: [],
+          recordsTotal: total || 0,
+          recordsFiltered: total || 0,
+        });
+      });
+  };
+};
 //tables de domicilio 
 let tableOrderDomicileoPendings = $('.table-order-domicilio-pendientes').DataTable({
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
   "orden": [[1, "desc"]],
-  ajax: {
-    url: 'orden/get_all/0/10000000/id/asc',
-    dataSrc: function (json) {
-      let tableOrderDeliveryPendingsVeryfy = []
-      json.forEach(element => {
-        if ((element.status != "entregada" && element.status != "anulada") && element.tipo == "delivery") tableOrderDeliveryPendingsVeryfy.push(element)
-      });
-      return tableOrderDeliveryPendingsVeryfy
-    },
-    type: 'POST',
-  },
+  processing: true,
+  serverSide: true,
+  pageLength: 10,
+  ajax: buildServerSideAjax({
+    module: "orden",
+    baseFilters: { tipo: "delivery" },
+    clientFilter: (row) => row.status != "entregada" && row.status != "anulada",
+  }),
+
   columns: [
     {
       data: null, render: function (data) {
@@ -128,12 +287,14 @@ let tableOrderDomicileoPendings = $('.table-order-domicilio-pendientes').DataTab
 let tableOrderDomicileProcess = $('.table-order-domicilio-procesadas').DataTable({
   "orden": [[1, "desc"]],
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
-  ajax: {
-    url: 'orden/get_all/0/10000000/id/asc',
-    dataSrc: '',
-    type: 'POST',
-    data: { status: "entregada", tipo: "delivery" },
-  },
+  processing: true,
+  serverSide: true,
+  pageLength: 10,
+  ajax: buildServerSideAjax({
+    module: "orden",
+    baseFilters: { status: "entregada", tipo: "delivery" },
+  }),
+
   columns: [
     {
       data: null, render: function (data) {
@@ -188,13 +349,15 @@ let tableOrderDomicileProcess = $('.table-order-domicilio-procesadas').DataTable
 });
 let tableOrderDomicileNull = $('.table-order-domicilio-null').DataTable({
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
-  "orden": [[1, "desc"]],
-  ajax: {
-    url: 'orden/get_all/0/10000000/id/asc',
-    dataSrc: '',
-    type: 'POST',
-    data: { status: "anulada", tipo: "delivery" },
-  },
+  "orden": [[0, "desc"]],
+  processing: true,
+  serverSide: true,
+  pageLength: 10,
+  ajax: buildServerSideAjax({
+    module: "orden",
+    baseFilters: { status: "anulada", tipo: "delivery" },
+  }),
+
   columns: [
     {
       data: null, render: function (data) {
@@ -259,17 +422,15 @@ $('#searchBoxDomicilioNull').on('keyup', function () { tableOrderDomicileNull.se
 let tableOrderParaLlevarPendingsVeryfy = $('.table-order-llevar-pendientes').DataTable({
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
   "orden": [[1, "desc"]],
-  ajax: {
-    url: 'orden/get_all/0/10000000/id/asc',
-    dataSrc: function (json) {
-      let tableOrderLlevarPendingsVeryfy = []
-      json.forEach(element => {
-        if ((element.status != "entregada" && element.status != "anulada") && element.tipo == "llevar") tableOrderLlevarPendingsVeryfy.push(element)
-      });
-      return tableOrderLlevarPendingsVeryfy
-    },
-    type: 'POST',
-  },
+  processing: true,
+  serverSide: true,
+  pageLength: 10,
+  ajax: buildServerSideAjax({
+    module: "orden",
+    baseFilters: { tipo: "llevar" },
+    clientFilter: (row) => row.status != "entregada" && row.status != "anulada",
+  }),
+
   columns: [
     {
       data: null, render: function (data) {
@@ -334,12 +495,14 @@ let tableOrderParaLlevarPendingsVeryfy = $('.table-order-llevar-pendientes').Dat
 let tableOrderParaLlevarProcess = $('.table-order-llevar-procesadas').DataTable({
   "orden": [[1, "desc"]],
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
-  ajax: {
-    url: 'orden/get_all/0/10000000/id/asc',
-    dataSrc: '',
-    type: 'POST',
-    data: { status: "entregada", tipo: "llevar" },
-  },
+  processing: true,
+  serverSide: true,
+  pageLength: 10,
+  ajax: buildServerSideAjax({
+    module: "orden",
+    baseFilters: { status: "entregada", tipo: "llevar" },
+  }),
+
   columns: [
     {
       data: null, render: function (data, type, row, meta) {
@@ -390,12 +553,14 @@ let tableOrderParaLlevarProcess = $('.table-order-llevar-procesadas').DataTable(
 let tableOrderParaLlevarNull = $('.table-order-llevar-anuladas').DataTable({
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
   "orden": [[1, "desc"]],
-  ajax: {
-    url: 'orden/get_all/0/10000000/id/asc',
-    dataSrc: '',
-    type: 'POST',
-    data: { status: "anulada", tipo: "llevar" },
-  },
+  processing: true,
+  serverSide: true,
+  pageLength: 10,
+  ajax: buildServerSideAjax({
+    module: "orden",
+    baseFilters: { status: "anulada", tipo: "llevar" },
+  }),
+
   columns: [
     {
       data: null, render: function (data, type, row, meta) {
@@ -445,17 +610,15 @@ $('#searchBoxllevarAnuladas').on('keyup', function () { tableOrderParaLlevarNull
 let tableOrderLocalPendingsVeryfy = $('.table-order-local-pendientes').DataTable({
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
   "orden": [[2, "desc"], [3, "desc"]],
-  ajax: {
-    url: 'orden/get_all/0/10000000/id/asc',
-    dataSrc: function (json) {
-      let tableOrderLocalPendingsVeryfy = []
-      json.forEach(element => {
-        if (element.status != "pagado" && element.tipo == "local") tableOrderLocalPendingsVeryfy.push(element)
-      });
-      return tableOrderLocalPendingsVeryfy
-    },
-    type: 'POST',
-  },
+  processing: true,
+  serverSide: true,
+  pageLength: 10,
+  ajax: buildServerSideAjax({
+    module: "orden",
+    baseFilters: { tipo: "local" },
+    clientFilter: (row) => row.status != "pagado",
+  }),
+
   columns: [
     {
       data: null, render: function (data) {
@@ -515,12 +678,14 @@ let tableOrderLocalPendingsVeryfy = $('.table-order-local-pendientes').DataTable
 let tableOrderLocalProcess = $('.table-order-local-procesadas').DataTable({
   "orden": [[1, "desc"]],
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
-  ajax: {
-    url: 'orden/get_all/0/10000000/id/asc',
-    dataSrc: '',
-    type: 'POST',
-    data: { status: "pagado", tipo: "local" },
-  },
+  processing: true,
+  serverSide: true,
+  pageLength: 10,
+  ajax: buildServerSideAjax({
+    module: "orden",
+    baseFilters: { status: "pagado", tipo: "local" },
+  }),
+
   columns: [
     {
       data: null, render: function (data) {
@@ -574,17 +739,14 @@ let tableOrderLocalProcess = $('.table-order-local-procesadas').DataTable({
 let tableOrderResPendingsVeryfy = $('.table-order-res-pendientes').DataTable({
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
   "orden": [[2, "desc"], [3, "desc"]],
-  ajax: {
-    url: 'calendario/get_all/0/10000000/id/asc',
-    dataSrc: function (json) {
-      let tableOrderResPendingsVeryfy = []
-      json.forEach(element => {
-        if (element.status_orden != "pagado") tableOrderResPendingsVeryfy.push(element)
-      });
-      return tableOrderResPendingsVeryfy
-    },
-    type: 'POST',
-  },
+  processing: true,
+  serverSide: true,
+  pageLength: 10,
+  ajax: buildServerSideAjax({
+    module: "calendario",
+    clientFilter: (row) => row.status_orden != "pagado",
+  }),
+
   columns: [
     {
       data: null, render: function (data) {
@@ -645,17 +807,14 @@ let tableOrderResPendingsVeryfy = $('.table-order-res-pendientes').DataTable({
 let tableOrderResProcessVeryfy = $('.table-order-res-procesadas').DataTable({
   language: { url: './assets/libs/extra-libs/datatables.net/js/es-Es.json' },
   "orden": [[2, "desc"], [3, "desc"]],
-  ajax: {
-    url: 'calendario/get_all/0/10000000/id/asc',
-    dataSrc: function (json) {
-      let tableOrderResPendingsVeryfy = []
-      json.forEach(element => {
-        if (element.status_orden == "pagado") tableOrderResPendingsVeryfy.push(element)
-      });
-      return tableOrderResPendingsVeryfy
-    },
-    type: 'POST',
-  },
+  processing: true,
+  serverSide: true,
+  pageLength: 10,
+  ajax: buildServerSideAjax({
+    module: "calendario",
+    clientFilter: (row) => row.status_orden == "pagado",
+  }),
+
   columns: [
     {
       data: null, render: function (data) {
@@ -1246,3 +1405,4 @@ channelOrder.bind('order', function (data) {
   const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toas.querySelector("#liveToast"), { delay: 5000 })
   toastBootstrap.show()
 })
+
