@@ -24,7 +24,11 @@ function mantenimiento_import(...$args)
         $usuario->__construct(id: $_POST['id']);
         $result = $usuario->search();
 
-        if ($result[0]['hash'] == $_POST['password']) {
+        $storedHash = $result[0]['hash'] ?? '';
+        $inputPassword = $_POST['password'] ?? '';
+        $validPassword = password_verify($inputPassword, $storedHash) || hash_equals((string)$storedHash, (string)$inputPassword);
+
+        if ($validPassword) {
             $backup = new Backup();
             $backup->restaurar($_POST['db'], $_POST['route'], $_POST['archive']);
             return;
@@ -56,7 +60,11 @@ function mantenimiento_delete(...$args)
         $usuario->__construct(id: $_POST['id']);
         $result = $usuario->search();
 
-        if ($result[0]['hash'] == $_POST['password']) {
+        $storedHash = $result[0]['hash'] ?? '';
+        $inputPassword = $_POST['password'] ?? '';
+        $validPassword = password_verify($inputPassword, $storedHash) || hash_equals((string)$storedHash, (string)$inputPassword);
+
+        if ($validPassword) {
             $backup = new Backup();
             $backup->delete($_POST['route'], $_POST['archive']);
             return;

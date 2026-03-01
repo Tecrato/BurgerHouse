@@ -20,11 +20,39 @@ function users_count(...$args)
 
 function users_add(...$args)
 {
+    if (!empty($_POST['hash'])) {
+        $_POST['hash'] = password_hash($_POST['hash'], PASSWORD_DEFAULT);
+    }
     add(new Usuario(), $_POST);
+}
+
+function users_add_many(...$args)
+{
+    if (!isset($_POST['lista']) || !is_array($_POST['lista'])) {
+        echo json_encode(['success' => false, 'message' => 'Lista de usuarios inválida']);
+        return;
+    }
+
+    foreach ($_POST['lista'] as $index => $user) {
+        if (empty($user['hash'])) {
+            echo json_encode(['success' => false, 'message' => "La contraseña del usuario #{$index} es requerida"]);
+            return;
+        }
+        $_POST['lista'][$index]['hash'] = password_hash($user['hash'], PASSWORD_DEFAULT);
+    }
+
+    add_many(new Usuario(), $_POST);
 }
 
 function users_update(...$args)
 {
+    if (array_key_exists('hash', $_POST)) {
+        if (trim((string)$_POST['hash']) === '') {
+            unset($_POST['hash']);
+        } else {
+            $_POST['hash'] = password_hash($_POST['hash'], PASSWORD_DEFAULT);
+        }
+    }
     update(new Usuario(), $_POST);
 }
 

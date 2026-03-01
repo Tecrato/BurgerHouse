@@ -45,6 +45,7 @@ login_form.addEventListener("submit", async (e) => {
     data.append("token", document.querySelector('.cf-turnstile input[name="cf-turnstile-response"]').value)
     let validate = await fetch("login/login", { method: "POST", body: data })
     let result = await validate.json()
+    console.log(result);
     if (result.success == true) {
       let session = await sessionInfo()
       nuevaBitacora("Usuarios", "Login", "inicio de sesion")

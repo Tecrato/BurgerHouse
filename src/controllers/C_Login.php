@@ -32,12 +32,28 @@ function login_sessionInfo(...$args) {
 }
 function login_login(...$args)
 {
-    $usuario = new Usuario(email: $_POST['email'], hash: $_POST['password']);
+    $usuario = new Usuario(email: $_POST['email']);
     $result = $usuario->search();
 
-    if (empty($result)) {
+    if (empty($result) || !isset($result[0]['hash'])) {
         echo json_encode(['success' => false, 'message' => 'Usuario o contraseña incorrectos']);
     } else {
+        $password = $_POST['password'] ?? '';
+        $storedHash = $result[0]['hash'];
+        $isValidPassword = password_verify($password, $storedHash);
+
+        // compatibilidad temporal para usuarios viejos en texto plano
+        if (!$isValidPassword && hash_equals((string)$storedHash, (string)$password)) {
+            $isValidPassword = true;
+            $rehashUser = new Usuario(id: $result[0]['id'], hash: password_hash($password, PASSWORD_DEFAULT));
+            $rehashUser->actualizar();
+        }
+
+        if (!$isValidPassword) {
+            echo json_encode(['success' => false, 'message' => 'Usuario o contraseña incorrectos']);
+            return;
+        }
+
         $session_id = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
         $us = new Usuario(id: $result[0]['id'], session_id: $session_id);
         $us->actualizar();

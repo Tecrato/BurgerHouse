@@ -33,7 +33,11 @@ class MaintenanceController extends Controller_base
             $this->db->clear();
             $this->db->__construct(id: $_POST['id']);
             $result = $this->db->search();
-            if ($result[0]["hash"] == $_POST['password']) {
+            $storedHash = $result[0]["hash"] ?? '';
+            $inputPassword = $_POST['password'] ?? '';
+            $validPassword = password_verify($inputPassword, $storedHash) || hash_equals((string)$storedHash, (string)$inputPassword);
+
+            if ($validPassword) {
                 $db = $_POST['db'];
                 $route = $_POST['route'];
                 $archive = $_POST['archive'];
@@ -61,7 +65,11 @@ class MaintenanceController extends Controller_base
             $this->db->clear();
             $this->db->__construct(id: $_POST['id']);
             $result = $this->db->search();
-            if ($result[0]["hash"] == $_POST['password']) {
+            $storedHash = $result[0]["hash"] ?? '';
+            $inputPassword = $_POST['password'] ?? '';
+            $validPassword = password_verify($inputPassword, $storedHash) || hash_equals((string)$storedHash, (string)$inputPassword);
+
+            if ($validPassword) {
                 $route = $_POST['route'];
                 $archive = $_POST['archive'];
                 $this->conn->delete($route, $archive);

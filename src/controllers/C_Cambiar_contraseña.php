@@ -75,3 +75,18 @@ function cambiar_contraseña_validateToken(...$args)
         echo json_encode(["success" => false, "mensaje" => "Codigo no valido."]);
     }
 }
+
+function cambiar_contraseña_update(...$args)
+{
+    if (empty($_POST['id']) || !array_key_exists('hash', $_POST) || trim((string)$_POST['hash']) === '') {
+        echo json_encode(["success" => false, "mensaje" => "Datos inválidos para actualizar contraseña."]);
+        return;
+    }
+
+    $_POST['hash'] = password_hash($_POST['hash'], PASSWORD_DEFAULT);
+    $usuario = new Usuario();
+    $usuario->__construct(id: $_POST['id'], hash: $_POST['hash'], token: null, token_expiracion: null);
+    $result = $usuario->actualizar();
+
+    echo json_encode(["success" => (bool)($result['success'] ?? false), "mensaje" => $result['message'] ?? null]);
+}
