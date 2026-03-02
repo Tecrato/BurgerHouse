@@ -14,9 +14,6 @@ function parse_post_parameters(parametros_post) {
   return postData;
 }
 
-function parse_post_parameters_json(parametros_post) {
-  return JSON.stringify(parametros_post);
-}
 
 function getCookies(name) {
   const value = `; ${document.cookie}`;
@@ -33,18 +30,20 @@ export function myfecth(url, parametros_get = {}, parametros_post = null, callba
 
   let postData = null;
 
+  // parse de los parametros post dependiendo del tipo de dato que se envie
   if (method === 'POST' && parametros_post !== null) {
     if (parametros_post instanceof FormData) {
       // Dejar que el navegador establezca el encabezado Content-Type para FormData
       postData = parametros_post;
     } else if (parametros_post instanceof Object && parseAsJson) {
-      postData = parse_post_parameters_json(parametros_post);
+      postData = JSON.stringify(parametros_post);
     } else if (parametros_post instanceof Object) {
       postData = parse_post_parameters(parametros_post);
     } else if (typeof parametros_post === 'string' && parametros_post.length > 0) {
       postData = parametros_post;
     }
   }
+
   // Agregar parámetros GET a la URL
   let url_with_params = url;
   if (parametros_get !== null && Object.keys(parametros_get).length > 0) {
@@ -59,12 +58,15 @@ export function myfecth(url, parametros_get = {}, parametros_post = null, callba
     }
   }
   request.open(method, url_with_params, async_call);
+
+  // Establecer encabezados según el tipo de datos enviados
   if (method === 'POST' && !(postData instanceof FormData)) {
       request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   } else if (method === 'POST' && postData instanceof Object) {
       request.setRequestHeader('Content-Type', 'application/json');
   }
 
+  // Agregar token de sesión si está disponible
   if (token) {
     request.setRequestHeader("PHPSESSID", `${token}`);
   }
@@ -84,12 +86,10 @@ export function myfecth(url, parametros_get = {}, parametros_post = null, callba
     request.send(postData);
     return;
   }
-  else {
-    request.send(postData);
-    const resp = new Response(request.status, request.response);
-    if (typeof callback === "function")  callback(resp);
-    return resp;
-  }
+  request.send(postData);
+  const resp = new Response(request.status, request.response);
+  if (typeof callback === "function")  callback(resp);
+  return resp;
 }
 
 export function nuevaBitacora(table, action, description) {

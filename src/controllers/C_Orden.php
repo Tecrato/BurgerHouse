@@ -42,28 +42,29 @@ function orden_count(...$args) {
 function orden_add(...$args)
 {
     try {
-        // the original logic from OrderController::add
+        $l = $_POST;
         $result_detalle_preparado = true;
         $result_detalle_procesado = true;
 
         $message_error_detalle_preparado = null;
         $message_error_detalle_procesado = null;
 
-        unset($_POST['lista_detalle_preparado'], $_POST['lista_detalle_procesado']);
-        $clase_detalle_preparado = new DetalleOrdenProductoPreparado();
-        $clase_detalle_procesado = new DetalleOrdenProductoProcesado();
+        unset($l['lista_detalle_preparado']);
+        unset($l['lista_detalle_procesado']);
+        $clase_detalle_producto_preparado = new DetalleOrdenProductoPreparado();
+        $clase_detalle_producto_procesado = new DetalleOrdenProductoProcesado();
 
         $detalles_receta = [];
         $detalles_productos = [];
 
-        if (in_array($_POST['tipo'] ?? '', ['delivery','llevar','local'])) {
-            if (!empty($_POST['lista_detalle_preparado'])) {
+        if (in_array($_POST['tipo'], ["delivery", "llevar", "local"])) {
+            if (isset($_POST['lista_detalle_preparado'])) {
                 $receta = new Receta();
                 $detalle_receta = new Detalle_receta();
 
-                foreach ($_POST['lista_detalle_preparado'] as $item) {
-                    $idProducto = $item['id_producto'];
-                    $cantidadPedido = $item['cantidad'];
+                for ($i = 0; $i < count($_POST['lista_detalle_preparado']); $i++) {
+                    $idProducto = $_POST['lista_detalle_preparado'][$i]['id_producto'];
+                    $cantidadPedido = $_POST['lista_detalle_preparado'][$i]['cantidad'];
                     $receta->__construct(id_producto: $idProducto);
                     foreach ($receta->search() as $key) {
                         $detalle_receta->__construct(id_receta: $key['id']);
@@ -73,30 +74,63 @@ function orden_add(...$args)
                         }
                     }
                 }
-                // verify stock preparadas
-                // ... (convert VerifyPrepared here) ...
+                $result = orden_verify_prepared($detalles_receta);
+                $result_detalle_preparado = $result["success"];
+                $message_error_detalle_preparado = $result["faltantes"];
             }
-            if (!empty($_POST['lista_detalle_procesado'])) {
+            if (isset($_POST['lista_detalle_procesado'])) {
                 $productos = new ProductoProcesado();
                 foreach ($_POST['lista_detalle_procesado'] as $detalle) {
-                    $idProducto = $detalle['id_producto'];
-                    foreach ($productos->search(0,1000) as $producto) {
-                        if ($producto['id'] == $idProducto) {
+                    foreach ($productos->search(0, 1000) as $producto) {
+                        if ($producto['id'] == $detalle['id_producto']) {
                             $detalle['producto'] = $producto['nombre'];
                             $detalles_productos[] = $detalle;
                         }
                     }
                 }
-                // verify stock procesados
-                // ... (convert VeryfyProcess here) ...
+                $result = orden_veryfy_process($detalles_productos);
+                $result_detalle_procesado = $result["success"];
+                $message_error_detalle_procesado = $result["faltantes"];
             }
 
-            // continue original logic: insert order and details
-            $db = new Orden();
-            $db->__construct(tipo: $_POST['tipo'], id_cliente: $_POST['id_cliente'] ?? null, status: $_POST['status'], nro_orden: $_POST['nro_orden']);
-            $last_id = $db->agregar();
-            // ... add detalles y actualizar stock ...
-            echo json_encode(['success' => true, 'last_id' => $last_id]);
+            $ok = false;
+            if (isset($_POST['lista_detalle_preparado']) && isset($_POST['lista_detalle_procesado'])) {
+                $ok = ($result_detalle_preparado && $result_detalle_procesado);
+            } elseif (isset($_POST['lista_detalle_preparado'])) {
+                $ok = $result_detalle_preparado;
+            } elseif (isset($_POST['lista_detalle_procesado'])) {
+                $ok = $result_detalle_procesado;
+            }
+
+            if ($ok) {
+                $db = new Orden();
+                $db->__construct(tipo: $_POST['tipo'], id_cliente: $_POST['id_cliente'] ?? null, status: $_POST['status'], nro_orden: $_POST['nro_orden']);
+                $last_id = $db->agregar();
+
+                if (isset($_POST['lista_detalle_preparado'])) {
+                    for ($i = 0; $i < count($_POST['lista_detalle_preparado']); $i++) {
+                        $clase_detalle_producto_preparado->__construct(...['id_orden' => $last_id, ...$_POST['lista_detalle_preparado'][$i]]);
+                        $clase_detalle_producto_preparado->agregar();
+                    }
+                    orden_descount_prepared($detalles_receta);
+                    orden_verify_stock_prepared($detalles_receta);
+                }
+
+                if (isset($_POST['lista_detalle_procesado'])) {
+                    for ($i = 0; $i < count($_POST['lista_detalle_procesado']); $i++) {
+                        $clase_detalle_producto_procesado->__construct(...['id_orden' => $last_id, ...$_POST['lista_detalle_procesado'][$i]]);
+                        $clase_detalle_producto_procesado->agregar();
+                    }
+                    orden_descount_process($detalles_productos);
+                    orden_verify_stock_process($detalles_productos);
+                }
+                echo json_encode(['success' => true, 'last_id' => $last_id]);
+            } else {
+                echo json_encode(['success' => false, 'message' => [
+                    "detalle_preparado" => $message_error_detalle_preparado,
+                    "detalle_procesado" => $message_error_detalle_procesado
+                ]]);
+            }
         } else {
             $db = new Orden();
             $db->__construct(tipo: $_POST['tipo'], id_cliente: $_POST['id_cliente'] ?? null, status: $_POST['status'], nro_orden: $_POST['nro_orden']);
@@ -111,25 +145,27 @@ function orden_add(...$args)
 function orden_add_process_and_prepared(...$args)
 {
     try {
+        $l = $_POST;
         $result_detalle_preparado = true;
         $result_detalle_procesado = true;
 
         $message_error_detalle_preparado = null;
         $message_error_detalle_procesado = null;
-        unset($_POST['lista_detalle_preparado'], $_POST['lista_detalle_procesado']);
+        unset($l['lista_detalle_preparado']);
+        unset($l['lista_detalle_procesado']);
         $clase_detalle_producto_preparado = new DetalleOrdenProductoPreparado();
         $clase_detalle_producto_procesado = new DetalleOrdenProductoProcesado();
 
         $detalles_receta = [];
         $detalles_productos = [];
 
-        if (!empty($_POST['lista_detalle_preparado'])) {
+        if (isset($_POST['lista_detalle_preparado'])) {
             $receta = new Receta();
             $detalle_receta = new Detalle_receta();
 
-            foreach ($_POST['lista_detalle_preparado'] as $item) {
-                $idProducto = $item['id_producto'];
-                $cantidadPedido = $item['cantidad'];
+            for ($i = 0; $i < count($_POST['lista_detalle_preparado']); $i++) {
+                $idProducto = $_POST['lista_detalle_preparado'][$i]['id_producto'];
+                $cantidadPedido = $_POST['lista_detalle_preparado'][$i]['cantidad'];
                 $receta->__construct(id_producto: $idProducto);
                 foreach ($receta->search() as $key) {
                     $detalle_receta->__construct(id_receta: $key['id']);
@@ -144,13 +180,12 @@ function orden_add_process_and_prepared(...$args)
             $message_error_detalle_preparado = $result['faltantes'];
         }
 
-        if (!empty($_POST['lista_detalle_procesado'])) {
+        if (isset($_POST['lista_detalle_procesado'])) {
             $productos = new ProductoProcesado();
 
             foreach ($_POST['lista_detalle_procesado'] as $detalle) {
-                $idProducto = $detalle['id_producto'];
                 foreach ($productos->search(0, 1000) as $producto) {
-                    if ($producto['id'] == $idProducto) {
+                    if ($producto['id'] == $detalle['id_producto']) {
                         $detalle['producto'] = $producto['nombre'];
                         $detalles_productos[] = $detalle;
                     }
@@ -162,26 +197,26 @@ function orden_add_process_and_prepared(...$args)
         }
 
         $ok = false;
-        if (!empty($_POST['lista_detalle_preparado']) && !empty($_POST['lista_detalle_procesado'])) {
+        if (isset($_POST['lista_detalle_preparado']) && isset($_POST['lista_detalle_procesado'])) {
             $ok = ($result_detalle_preparado && $result_detalle_procesado);
-        } elseif (!empty($_POST['lista_detalle_preparado'])) {
+        } elseif (isset($_POST['lista_detalle_preparado'])) {
             $ok = $result_detalle_preparado;
-        } elseif (!empty($_POST['lista_detalle_procesado'])) {
+        } elseif (isset($_POST['lista_detalle_procesado'])) {
             $ok = $result_detalle_procesado;
         }
 
         if ($ok) {
-            if (!empty($_POST['lista_detalle_preparado'])) {
-                foreach ($_POST['lista_detalle_preparado'] as $item) {
-                    $clase_detalle_producto_preparado->__construct(...$item);
+            if (isset($_POST['lista_detalle_preparado'])) {
+                for ($i = 0; $i < count($_POST['lista_detalle_preparado']); $i++) {
+                    $clase_detalle_producto_preparado->__construct(...$_POST['lista_detalle_preparado'][$i]);
                     $clase_detalle_producto_preparado->agregar();
                 }
                 orden_descount_prepared($detalles_receta);
                 orden_verify_stock_prepared($detalles_receta);
             }
-            if (!empty($_POST['lista_detalle_procesado'])) {
-                foreach ($_POST['lista_detalle_procesado'] as $item) {
-                    $clase_detalle_producto_procesado->__construct(...$item);
+            if (isset($_POST['lista_detalle_procesado'])) {
+                for ($i = 0; $i < count($_POST['lista_detalle_procesado']); $i++) {
+                    $clase_detalle_producto_procesado->__construct(...$_POST['lista_detalle_procesado'][$i]);
                     $clase_detalle_producto_procesado->agregar();
                 }
                 orden_descount_process($detalles_productos);
