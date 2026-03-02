@@ -63,7 +63,7 @@ export default function Templates() {
         return `
         <div class="col">
             <div class="card">
-                <img src="${objet.imagen ? "media/productPrepared/" + objet.imagen : "./assets/img/big/banner_login.png"}" class="card-img-top" alt="..." style="object-fit: cover; height: 140px">
+                <img src="${objet.imagen ? "media/producto_preparado/" + objet.imagen : "./assets/img/big/banner_login.png"}" class="card-img-top" alt="..." style="object-fit: cover; height: 140px">
                 <div class="card-body">
                     <h5 class="card-title">${objet.nombre}</h5>
                     <p class=" fs-6 truncate-3-lines">${objet.detalles}</p>
@@ -91,7 +91,7 @@ export default function Templates() {
         return `
         <div class="col">
             <div class="card">
-                <img src="${objet.imagen ? "media/productProcess/" + objet.imagen : "./assets/img/big/banner_login.png"}" class="card-img-top" alt="..." style="object-fit: cover; height: 140px">
+                <img src="${objet.imagen ? "media/producto_procesado/" + objet.imagen : "./assets/img/big/banner_login.png"}" class="card-img-top" alt="..." style="object-fit: cover; height: 140px">
                 <div class="card-body">
                     <h5 class="card-title">${objet.nombre}</h5>
                     <p class=" fs-6 truncate-3-lines">${objet.detalles}</p>
@@ -2022,7 +2022,7 @@ export default function Templates() {
     function targetDetailProductOrder(objet) {
         let src = ""
         if (objet.type == "" && objet.imagen) src = `src='./media/productProcess/${objet.imagen}'`
-        else if (objet.type == "producto" && objet.imagen) src = `src='./media/productPrepared/${objet.imagen}'`
+        else if (objet.type == "producto" && objet.imagen) src = `src='./media/producto_preparado/${objet.imagen}'`
         else if (objet.type == "adicional" && objet.imagen) src = `src='./media/additional/${objet.imagen}'`
         else src = `src='./assets/img/big/banner_login.png'`
         return `

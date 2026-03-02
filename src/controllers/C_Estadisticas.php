@@ -34,4 +34,5 @@ function estadisticas_ReservaHorarioAnio(...$args) { echo json_encode(estadistic
 function estadisticas_ReservasPorMetodoSemana(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasMetodoSemana($_POST['anio'], $_POST['semana'])); }
 function estadisticas_ReservasPorMetodoMes(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasMetodoMes($_POST['anio'], $_POST['mes'])); }
 function estadisticas_ReservasPorMetodoAnio(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasMetodoAnio($_POST['anio'])); }
+function estadisticas_stats_ordenes(...$args) { echo json_encode(estadisticas_conn()->stats_ordenes($_POST['tipo'])); }
 

@@ -9,8 +9,6 @@ vendor\bin\phpunit tests
 ## Por hacer:
 
 # Cambios:
- - hacer hash contraseña.
- - otro if elseif eterno en kitchen.js
  - en validar token del cambio de contraseña debe pedir tambien el correo
 
  - modulo permisos

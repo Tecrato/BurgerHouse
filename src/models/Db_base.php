@@ -66,7 +66,17 @@ abstract class Db_base extends Conexion
     public function add_variables(array $variables): void
     {
         foreach ($variables as $key => $value) {
-            $k = "validar_" . trim(explode(".", $key)[1]);
+            $fieldName = trim((string)$key);
+            if (str_contains($fieldName, '.')) {
+                $parts = explode('.', $fieldName);
+                $fieldName = trim((string)end($parts));
+            }
+
+            if ($fieldName === '') {
+                throw new Exception("Clave de variable invalida");
+            }
+
+            $k = "validar_" . $fieldName;
             if ($value == null) {
                 unset($this->variables[$key]);
                 continue;

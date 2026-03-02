@@ -1265,63 +1265,70 @@ const actionOrder = async (btn, status) => {
   }
 }
 const targetUpdate = async (type) => {
-  let dataNull = []
-  let dataVerify = []
-  let dataDelivery = []
-  let dataForDelivery = []
-  let dataDelivered = []
-  let dataKitchen = []
-  let dataDispatched = []
-  let dataPayed = []
+  
+ // tamos tontos o q?, 
+ 
+  // let dataNull = []
+  // let dataVerify = []
+  // let dataDelivery = []
+  // let dataForDelivery = []
+  // let dataDelivered = []
+  // let dataKitchen = []
+  // let dataDispatched = []
+  // let dataPayed = []
 
-  let perPayment = []
+  // let perPayment = []
 
-  let pet = await searchParam({ tipo: type }, "orden", 1000000000)
-  pet.forEach((order) => {
-    if (order.status == "anulada") dataNull.push(order)
-    else if (order.status == "por verificar" && order.tipo == type) dataVerify.push(order)
-    else if (order.status == "en cocina" || order.status == "en preparacion" && order.tipo == type) dataKitchen.push(order)
-    else if (order.status == "para despachar" && order.tipo == type) dataDelivery.push(order)
-    else if (order.status == "en camino" && order.tipo == type) dataForDelivery.push(order)
-    else if (order.status == "entregada" && order.tipo == type) dataDelivered.push(order)
-    else if (order.status == "pagado" && order.tipo == type) dataPayed.push(order)
-    else if (order.status == "en mesa" && order.tipo == type) perPayment.push(order)
-    else dataDispatched.push(order)
-  })
+  // let pet = await searchParam({ tipo: type }, "orden", 1000000000) // ya para cuando traia 7k de resultados ya no es gracioso
+  // pet.forEach((order) => {
+  //   if (order.status == "anulada") dataNull.push(order)
+  //   else if (order.status == "por verificar" && order.tipo == type) dataVerify.push(order)
+  //   else if (order.status == "en cocina" || order.status == "en preparacion" && order.tipo == type) dataKitchen.push(order)
+  //   else if (order.status == "para despachar" && order.tipo == type) dataDelivery.push(order)
+  //   else if (order.status == "en camino" && order.tipo == type) dataForDelivery.push(order)
+  //   else if (order.status == "entregada" && order.tipo == type) dataDelivered.push(order)
+  //   else if (order.status == "pagado" && order.tipo == type) dataPayed.push(order)
+  //   else if (order.status == "en mesa" && order.tipo == type) perPayment.push(order)
+  //   else dataDispatched.push(order)
+  // })
+
+
+  const resultado = myfecth("estadisticas/stats_ordenes", {}, {tipo: type }, null, "POST",false).json()[0]
+
+  console.log(resultado);
 
   if (document.querySelector(`.target_order_${type}_null`) || document.querySelector(`.target_order_${type}_verify`)) {
-    document.querySelector(`.target_order_${type}_null`).textContent = dataNull.length
-    document.querySelector(`.target_order_${type}_verify`).textContent = dataVerify.length
+    document.querySelector(`.target_order_${type}_null`).textContent = resultado.anulada
+    document.querySelector(`.target_order_${type}_verify`).textContent = resultado["por verificar"]
   }
-  document.querySelector(`.target_order_${type}_total`).textContent = pet.length
+  document.querySelector(`.target_order_${type}_total`).textContent = resultado.total
 
-  if (type == "llevar") document.querySelector(`.target_order_${type}_delivery`).textContent = dataDispatched.length
+  if (type == "llevar") document.querySelector(`.target_order_${type}_delivery`).textContent = resultado.terminada
   else if (document.querySelector(`.target_order_${type}_delivery`)) {
-    document.querySelector(`.target_order_${type}_delivery`).textContent = dataDelivery.length
+    document.querySelector(`.target_order_${type}_delivery`).textContent = resultado.entregada
   }
 
   if (document.querySelector(`.target_order_${type}_delivered`)) {
-    document.querySelector(`.target_order_${type}_delivered`).textContent = dataDelivered.length
+    document.querySelector(`.target_order_${type}_delivered`).textContent = resultado.entregada
   }
 
 
   if (document.querySelector(`.target_order_${type}_running`)) {
-    document.querySelector(`.target_order_delivery_running`).textContent = dataForDelivery.length
+    document.querySelector(`.target_order_${type}_running`).textContent = resultado["en camino"]
   }
 
-  document.querySelector(`.target_order_${type}_kitchen`).textContent = dataKitchen.length
+  document.querySelector(`.target_order_${type}_kitchen`).textContent = resultado["en cocina"]
 
   if (type == "local") {
-    document.querySelector(`.target_order_${type}_perpayment`).textContent = perPayment.length
-    document.querySelector(`.target_order_${type}_intable`).textContent = perPayment.length
-    document.querySelector(`.target_order_${type}_payed`).textContent = dataPayed.length
+    document.querySelector(`.target_order_${type}_perpayment`).textContent = resultado["en mesa"]
+    document.querySelector(`.target_order_${type}_intable`).textContent = resultado["en mesa"]
+    document.querySelector(`.target_order_${type}_payed`).textContent = resultado.pagado
   }
 
   if (type == "reserva") {
-    document.querySelector(`.target_order_${type}_intable`).textContent = perPayment.length
-    document.querySelector(`.target_order_${type}_payed`).textContent = dataPayed.length
+    document.querySelector(`.target_order_${type}_intable`).textContent = resultado["en mesa"]
+    document.querySelector(`.target_order_${type}_payed`).textContent = resultado.pagado
   }
-
 }
 
 targetUpdate("delivery")

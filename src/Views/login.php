@@ -1,3 +1,6 @@
+<?php
+$turnstileSiteKey = (string)($GLOBALS['turnstile']['site_key'] ?? '');
+?>
 <!DOCTYPE html>
 <html dir="ltr">
 
@@ -11,7 +14,7 @@
     <title>Iniciar Sesión</title>
     <link href="./assets/css/style.css" rel="stylesheet">
     <link href="./assets/css/stylesPerson.css" rel="stylesheet">
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
     <link rel="stylesheet" href="./assets/libs/libs/sweetalert/sweetalert2.min.css">
     <script src="./assets/libs/libs/sweetalert/sweetalert2.all.min.js"></script>
 </head>
@@ -19,7 +22,6 @@
 <body>
     <div class="main-wrapper">
         <?php include_once __DIR__ . '/../views/Components/preloader.php' ?>
-
 
         <div class="auth-wrapper d-flex no-block justify-content-center align-items-center position-relative overflow-hidden" style="background:url(./assets/img/big/auth-bg.jpg) no-repeat center center;">
             <div class="auth-box row login_page">
@@ -39,7 +41,6 @@
                                         <label class="form-label text-dark" for="uname">Correo</label>
                                         <input autocomplete="off" class="form-control" id="login-correo" type="email" placeholder="Ingrese su correo electronico" name="email">
                                         <div class="text-danger mt-1 fs-6" id="error-login-correo"></div>
-
                                     </div>
                                 </div>
                                 <div class="col-lg-12">
@@ -47,15 +48,14 @@
                                         <label class="form-label text-dark" for="pwd">Contraseña</label>
                                         <input autocomplete="new-password" class="form-control" id="login-password" type="password" placeholder="ingrese su contraseña" name="password">
                                         <div class="text-danger mt-1 fs-6" id="error-login-password"></div>
-
-
                                     </div>
                                 </div>
-                                <div class="col-lg-12 d-flex justify-content-center mb-3">
-                                    <div class="cf-turnstile" data-sitekey="0x4AAAAAABDYzFakhjOmzEUX" data-theme="light" data-lenguage="es" data-callback="captchaVerify"></div>
+                                <div class="col-lg-12 d-flex flex-column justify-content-center align-items-center mb-3 gap-2">
+                                    <div id="login-captcha" class="cf-turnstile" data-sitekey="<?php echo htmlspecialchars($turnstileSiteKey, ENT_QUOTES, 'UTF-8'); ?>"></div>
+                                    <div class="text-danger fs-6 text-center" id="error-login-captcha"></div>
                                 </div>
                                 <div class="col-lg-12 text-center">
-                                    <button type="submit" class="btn w-100 btn-dark d-flex justify-content-center align-items-center gap-2">
+                                    <button type="submit" class="btn w-100 btn-dark d-flex justify-content-center align-items-center gap-2" disabled>
                                         <div class="spinner-border text-primary d-none" role="status" style="width: 20px; height: 20px;">
                                             <span class="visually-hidden">Loading...</span>
                                         </div>
@@ -79,7 +79,6 @@
     <script src="./assets/libs/libs/bootstrap/dist/js/bootstrap.min.js "></script>
     <script src="./assets/libs/libs/validatejs/validate.min.js"></script>
     <script type="module" src="./assets/js/pages/login/login.js"></script>
-    </script>
 </body>
 
 </html>

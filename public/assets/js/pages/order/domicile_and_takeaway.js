@@ -255,7 +255,7 @@ export default async function domicile_and_takeaway(functions, templates, report
         document.querySelector(".loader_client_order").querySelector("h3").classList.add("d-none")
         document.querySelector(".target_client_order").classList.add("d-none")
         document.querySelector(".loader_client_order").querySelector(".loader").classList.remove("d-none")
-        let pet = await searchParam({ active: 1 }, "clients", 100000)
+        let pet = await searchParam({ active: 1 }, "clientes", 100000)
         let result = pet.find((client) => { return client.documento.includes(formClient.querySelector("input").value) })
         if (result != undefined) {
             let template = targetClienteOrder(result)
@@ -273,10 +273,10 @@ export default async function domicile_and_takeaway(functions, templates, report
                 data.append("nombre", res.message.primer_nombre);
                 data.append("apellido", res.message.primer_apellido);
                 data.append("documento", res.message.nacionalidad + "-" + res.message.cedula);
-                let pet2 = await fetch(`clients/add`, { method: "POST", body: data })
+                let pet2 = await fetch(`clientes/add`, { method: "POST", body: data })
                 let res2 = await pet2.json()
                 if (res2.success == true) {
-                    let pet3 = await searchParam({ active: 1, id: res2.last_id }, "clients", 1);
+                    let pet3 = await searchParam({ active: 1, id: res2.last_id }, "clientes", 1);
                     let template = targetClienteOrder(pet3[0])
                     document.querySelector(".loader_client_order").querySelector(".loader").classList.add("d-none")
                     document.querySelector(".target_client_order").innerHTML = template
@@ -659,7 +659,7 @@ export default async function domicile_and_takeaway(functions, templates, report
                 let DataTelClient = new FormData();
                 DataTelClient.append("id", clientData.id_cliente);
                 DataTelClient.append("telefono", clientData.telefonoClient);
-                let updateTelClient = await fetch("clients/update", { method: "POST", body: DataTelClient })
+                let updateTelClient = await fetch("clientes/update", { method: "POST", body: DataTelClient })
                 let responseTelClient = await updateTelClient.json()
                 console.log(responseTelClient);
                 let order = new FormData();

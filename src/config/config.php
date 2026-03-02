@@ -1,6 +1,49 @@
 <?php
+    $envPath = __DIR__ . '/../../.env';
+    if (is_readable($envPath)) {
+        $envLines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($envLines as $envLine) {
+            $envLine = trim($envLine);
+            if ($envLine === '' || $envLine[0] === '#') {
+                continue;
+            }
+
+            $parts = explode('=', $envLine, 2);
+            if (count($parts) !== 2) {
+                continue;
+            }
+
+            $envKey = trim($parts[0]);
+            $envValue = trim($parts[1]);
+            if ($envKey === '') {
+                continue;
+            }
+
+            $firstChar = substr($envValue, 0, 1);
+            $lastChar = substr($envValue, -1);
+            if ((($firstChar === '"') && ($lastChar === '"')) || (($firstChar === "'") && ($lastChar === "'"))) {
+                $envValue = substr($envValue, 1, -1);
+            }
+
+            if (getenv($envKey) === false) {
+                putenv($envKey . '=' . $envValue);
+                $_ENV[$envKey] = $envValue;
+                $_SERVER[$envKey] = $envValue;
+            }
+        }
+    }
+
     $GLOBALS['public_modules'] = ['login', 'recover_password', 'index', 'web'];
-    $GLOBALS['expresiones_regulares'] = [
+
+    $turnstileSiteKey = getenv('TURNSTILE_SITE_KEY');
+    $turnstileSecretKey = getenv('TURNSTILE_SECRET_KEY');
+    $turnstileBypass = strtolower(trim((string)(getenv('TURNSTILE_BYPASS') ?: '')));
+    $GLOBALS['turnstile'] = [
+        'site_key' => ($turnstileSiteKey !== false && $turnstileSiteKey !== '') ? $turnstileSiteKey : '1x00000000000000000000AA',
+        'secret_key' => ($turnstileSecretKey !== false && $turnstileSecretKey !== '') ? $turnstileSecretKey : '1x0000000000000000000000000000000AA',
+        'bypass' => in_array($turnstileBypass, ['1', 'true', 'yes', 'on'], true)
+    ];
+$GLOBALS['expresiones_regulares'] = [
         // id's
         'id' => '/^[0-9]*$/',
         'id_permiso' => '/^[0-9]+$/',
@@ -115,3 +158,4 @@
         'pass' => '1234'
     ];
 ?>
+

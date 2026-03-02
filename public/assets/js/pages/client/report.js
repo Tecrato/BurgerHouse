@@ -20,7 +20,7 @@ btn.addEventListener("click", async () => {
     });
     const columns = ['Nombre', 'Documento', 'Telefono', 'Direccion'];
     const rows = [];
-    let result = await searchAll("clients", 1);
+    let result = await searchAll("clientes", 1);
     result.forEach(element => {
         rows.push([element.nombre + " " + element.apellido, element.documento, element.telefono, element.direccion]);
     });

@@ -273,7 +273,7 @@ let clients = $(".table_clients").DataTable({
         {
             data: false, render: function (data, type, row) {
                 let productosHTML = row.productos.map(prod => {
-                    return `<img ${prod.imagen ? `src="media/productPrepared/${prod.imagen}"` : `src="./assets/img/big/banner_login.png"`} alt="${prod.nombre}" class="rounded-circle" width="60" height="60" data-bs-toggle="tooltip" data-bs-placement="top" title="${prod.nombre}">`;
+                    return `<img ${prod.imagen ? `src="media/producto_preparado/${prod.imagen}"` : `src="./assets/img/big/banner_login.png"`} alt="${prod.nombre}" class="rounded-circle" width="60" height="60" data-bs-toggle="tooltip" data-bs-placement="top" title="${prod.nombre}">`;
                 }).join('');
                 return `<div class="d-flex align-items-center gap-2">${productosHTML}</div>`;
             }

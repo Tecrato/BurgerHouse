@@ -305,7 +305,7 @@ function editData(response) {
   document.querySelector("#input-category-combo").value = response[0].nombre_categoria
   document.querySelector("#input-category-combo").setAttribute("data-id", response[0].id_categoria)
   document.querySelector("#input-details-combo").value = response[0].detalles
-  document.querySelector("#img-combo-response").src = `media/productPrepared/${response[0].imagen}`
+  document.querySelector("#img-combo-response").src = `media/producto preparado/${response[0].imagen}`
   let data = {
     nombre: document.querySelector(`#input-name-combo`).value,
     precio: document.querySelector(`#input-price-combo`).value.replace(/\./g, '').replace(',', '.'),

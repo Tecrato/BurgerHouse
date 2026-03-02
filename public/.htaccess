@@ -1,4 +1,8 @@
 RewriteEngine On
+
+# Servir archivos de /media desde ../src/media sin pasar por index.php
+RewriteRule ^media/(.*)$ ../src/media/$1 [L,NC]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [QSA]
+RewriteRule ^ index.php [QSA,L]

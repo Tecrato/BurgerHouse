@@ -47,7 +47,7 @@ export async function payReservation(functions, templates, calendar) {
             document.querySelector(".loader_client_reservation").querySelector("h3").classList.add("d-none")
             document.querySelector(".target_client_reservation").classList.add("d-none")
             document.querySelector(".loader_client_reservation").querySelector(".loader").classList.remove("d-none")
-            let pet = await searchParam({ active: 1 }, "clients", 100000)
+            let pet = await searchParam({ active: 1 }, "clientes", 100000)
             let result = pet.find((client) => { return client.documento.includes(formClient.querySelector("input").value) })
             if (result != undefined) {
                 let template = targetClienteOrder(result)
@@ -65,10 +65,10 @@ export async function payReservation(functions, templates, calendar) {
                     data.append("nombre", res.message.primer_nombre);
                     data.append("apellido", res.message.primer_apellido);
                     data.append("documento", res.message.nacionalidad + "-" + res.message.cedula);
-                    let pet2 = await fetch(`clients/add`, { method: "POST", body: data })
+                    let pet2 = await fetch(`clientes/add`, { method: "POST", body: data })
                     let res2 = await pet2.json()
                     if (res2.success == true) {
-                        let pet3 = await searchParam({ active: 1, id: res2.last_id }, "clients", 1);
+                        let pet3 = await searchParam({ active: 1, id: res2.last_id }, "clientes", 1);
                         let template = targetClienteOrder(pet3[0])
                         document.querySelector(".loader_client_reservation").querySelector(".loader").classList.add("d-none")
                         document.querySelector(".target_client_reservation").innerHTML = template

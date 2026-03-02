@@ -41,18 +41,19 @@
 
     session_start();
     $url = parseUrl();
-    // previous controller code expected a $usuario array but we now
-    // reference $_SESSION directly, so we no longer need to build this.
-
-    // authentication check: redirect to login unless request is for a public page
-    $module = !empty($url[0]) ? strtolower($url[0]) : 'index';
-    ensureAuthenticated($module);
 
     //validar si la url es un archivo de media
     if (strpos($url[0], 'media') === 0) {
-        $filePath = '../src/' . implode('/', $url);
+        $filePath = __DIR__ . '/../src/' . implode('/', $url);
         if (file_exists($filePath)) {
-            header('Content-Type: ' . mime_content_type($filePath));
+            // Limpia salida previa accidental (BOM/newlines) para no corromper binarios.
+            while (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+
+            $mimeType = mime_content_type($filePath) ?: 'application/octet-stream';
+            header('Content-Type: ' . $mimeType);
+            header('Content-Length: ' . filesize($filePath));
             readfile($filePath);
             exit;
         } else {
@@ -61,6 +62,14 @@
             exit;
         }
     }
+
+    // previous controller code expected a $usuario array but we now
+    // reference $_SESSION directly, so we no longer need to build this.
+
+    // authentication check: redirect to login unless request is for a public page
+    $module = !empty($url[0]) ? strtolower($url[0]) : 'index';
+    ensureAuthenticated($module);
+
 
     // determine module and action from url
     $action = isset($url[1]) ? strtolower($url[1]) : 'view';
@@ -88,3 +97,4 @@
 
     // invoke the procedural handler
     $func(...array_slice($url, 2), ...$_GET);
+    

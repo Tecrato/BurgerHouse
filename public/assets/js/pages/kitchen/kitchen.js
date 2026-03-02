@@ -32,80 +32,84 @@ searchFilter("#searchKitchenInPrepared", (e) => {
 })
 const preparedKitchen = () => {
     document.querySelectorAll(".btn_prepared").forEach(item => {
-        if (!item.dataset.listenerAttached) {
-            item.addEventListener("click", async () => {
-                let action = item.getAttribute("action")
-                Swal.fire({
-                    title: action == "en cocina" ? "¿Deseas preparar la orden?" : "¿La orden ya se encuentra lista?",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Si, estoy seguro",
-                    cancelButtonText: "Cancelar",
-                    confirmButtonColor: "#FF4B00",
-                }).then(async (result) => {
-                    if (result.isConfirmed) {
-                        let id = item.getAttribute("id_order")
-                        let type = item.getAttribute("type_order")
-                        let data = new FormData();
-                        let verify = await searchParam({ id: id }, "orden")
-                        if (verify[0].status == "en preparacion" && action == "en cocina") {
-                            Swal.fire({
-                                title: `Error!`,
-                                text: "La orden ya se encuentra en preparacion",
-                                icon: "error",
-                            });
-                        } else {
-                            data.append("id", id)
-                            if (action == "en cocina") data.append("status", "en preparacion")
-                            else data.append("status", "para despachar")
-                            let pet = await fetch('orden/update', { method: "POST", body: data })
-                            let res = await pet.json()
-                            if (res.success == true) {
-                                Swal.fire({
-                                    title: `Exito!`,
-                                    text: action == "en cocina" ? "Se ha enviado a preparar la orden" : "Se ha enviado a despachar la orden",
-                                    icon: "success",
-                                });
-                                print(config)
-                                print({ ...config, search: () => searchParam({ status: "en preparacion" }, "orden"), container: ".kitchen-cont-inprepared" })
-                                print({ ...config, search: () => searchParam({ status: "para despachar" }, "orden"), container: ".kitchen-cont-prepared-off" })
-                                binnacle(session.message.id, 'Orden de cocina', action == "en cocina" ? "La orden se encuentra en preparacion" : 'La orden se encuentra para despachar', action == "en cocina" ? 'Se envio una orden a preparar' : 'Se envio una orden a despachar')
-                                notification({
-                                    id_usuario: session.message.id,
-                                    titulo: `${action == "en cocina" ? "La orden se encuentra en preparacion" : 'La orden se encuentra para despachar'}`,
-                                    mensaje: `${action == "en cocina" ? 'Se envio una orden a preparar' : 'Se envio una orden a despachar'} con el nro ${id.toString().padStart(4, '0')}`,
-                                })
-                                notificationAlert({
-                                    channel: "orden",
-                                    message: `${action == "en cocina" ? "Se ha enviado a preparar la orden" : "Se ha enviado a despachar la orden"} con el nro ${id.toString().padStart(4, '0')}`,
-                                    event: "orden"
-                                })
-                                notificationAlert({
-                                    channel: "General",
-                                    message: `${action == "en cocina" ? "Se ha enviado a preparar la orden" : "Se ha enviado a despachar la orden"} con el nro ${id.toString().padStart(4, '0')}`,
-                                    event: "notificaciones"
-                                })
-                                if (action != "en cocina") {
-                                    notificationAlert({
-                                        channel: "Delivery",
-                                        message: `Nueva orden para despachar con el nro ${id.toString().padStart(4, '0')}`,
-                                        event: "delivery"
-                                    })
-                                }
-
-                            } else {
-                                Swal.fire({
-                                    title: `Error!`,
-                                    text: "No se pudo preparar la orden",
-                                    icon: "error",
-                                });
-                            }
-                        }
-                    }
-                });
-            })
-            item.dataset.listenerAttached = "true"
+        if (item.dataset.listenerAttached) {
+            return
         }
+        item.addEventListener("click", async () => {
+            let action = item.getAttribute("action")
+            Swal.fire({
+                title: action == "en cocina" ? "¿Deseas preparar la orden?" : "¿La orden ya se encuentra lista?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Si, estoy seguro",
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: "#FF4B00",
+            }).then(async (result) => {
+                if (!result.isConfirmed) {
+                    return
+                }
+                let id = item.getAttribute("id_order")
+                let type = item.getAttribute("type_order")
+                let data = new FormData();
+                let verify = await searchParam({ id: id }, "orden")
+                if (verify[0].status == "en preparacion" && action == "en cocina") {
+                    Swal.fire({
+                        title: `Error!`,
+                        text: "La orden ya se encuentra en preparacion",
+                        icon: "error",
+                    });
+                    return
+                }
+                data.append("id", id)
+                if (action == "en cocina") data.append("status", "en preparacion")
+                else data.append("status", "para despachar")
+                let pet = await fetch('orden/update', { method: "POST", body: data })
+                let res = await pet.json()
+                if (res.success !== true) {
+                    Swal.fire({
+                        title: `Error!`,
+                        text: "No se pudo preparar la orden",
+                        icon: "error",
+                    });
+                    return
+                }
+                Swal.fire({
+                    title: `Exito!`,
+                    text: action == "en cocina" ? "Se ha enviado a preparar la orden" : "Se ha enviado a despachar la orden",
+                    icon: "success",
+                });
+                print(config)
+                print({ ...config, search: () => searchParam({ status: "en preparacion" }, "orden"), container: ".kitchen-cont-inprepared" })
+                print({ ...config, search: () => searchParam({ status: "para despachar" }, "orden"), container: ".kitchen-cont-prepared-off" })
+                binnacle(session.message.id, 'Orden de cocina', action == "en cocina" ? "La orden se encuentra en preparacion" : 'La orden se encuentra para despachar', action == "en cocina" ? 'Se envio una orden a preparar' : 'Se envio una orden a despachar')
+                notification({
+                    id_usuario: session.message.id,
+                    titulo: `${action == "en cocina" ? "La orden se encuentra en preparacion" : 'La orden se encuentra para despachar'}`,
+                    mensaje: `${action == "en cocina" ? 'Se envio una orden a preparar' : 'Se envio una orden a despachar'} con el nro ${id.toString().padStart(4, '0')}`,
+                })
+                notificationAlert({
+                    channel: "orden",
+                    message: `${action == "en cocina" ? "Se ha enviado a preparar la orden" : "Se ha enviado a despachar la orden"} con el nro ${id.toString().padStart(4, '0')}`,
+                    event: "orden"
+                })
+                notificationAlert({
+                    channel: "General",
+                    message: `${action == "en cocina" ? "Se ha enviado a preparar la orden" : "Se ha enviado a despachar la orden"} con el nro ${id.toString().padStart(4, '0')}`,
+                    event: "notificaciones"
+                })
+                if (action != "en cocina") {
+                    notificationAlert({
+                        channel: "Delivery",
+                        message: `Nueva orden para despachar con el nro ${id.toString().padStart(4, '0')}`,
+                        event: "delivery"
+                    })
+                }
+                
+                
+            });
+        })
+        item.dataset.listenerAttached = "true"
+        
     })
 }
 //filtro

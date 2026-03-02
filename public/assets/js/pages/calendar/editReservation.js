@@ -79,10 +79,10 @@ export const editReservationClient = async (functionGeneral, Templates) => {
                     data.append("nombre", res.message.primer_nombre);
                     data.append("apellido", res.message.primer_apellido);
                     data.append("documento", res.message.nacionalidad + "-" + res.message.cedula);
-                    let pet2 = await fetch(`clients/add`, { method: "POST", body: data })
+                    let pet2 = await fetch(`clientes/add`, { method: "POST", body: data })
                     let res2 = await pet2.json()
                     if (res2.success == true) {
-                        let pet3 = await searchParam({ active: 1, id: res2.last_id }, "clients", 1);
+                        let pet3 = await searchParam({ active: 1, id: res2.last_id }, "clientes", 1);
                         let template = targetClienteOrder(pet3[0])
                         document.querySelector(".loader_client_reservation-edit").querySelector(".loader").classList.add("d-none")
                         document.querySelector(".target_client_reservation-edit").innerHTML = template

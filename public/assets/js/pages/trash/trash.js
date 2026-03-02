@@ -38,7 +38,7 @@ const modulesConfig = {
             }
         },
         columns: [
-            { title: '', data: null, render: (data) => `<img src='${data.imagen ? "media/productPrepared/" + data.imagen : "./assets/img/big/banner_login.png"}' width='50px' height='50px'>` },
+            { title: '', data: null, render: (data) => `<img src='${data.imagen ? "media/producto preparado/" + data.imagen : "./assets/img/big/banner_login.png"}' width='50px' height='50px'>` },
             { title: 'Nombre', data: 'nombre' },
             { title: 'Precio', data: null, render: (data) => { return (data.precio).toString().replace(".", ",") + " $" } },
             {
@@ -106,7 +106,7 @@ const modulesConfig = {
     },
     Clientes: {
         ajax: {
-            url: 'clients/get_all/0/10000000/id/asc',
+            url: 'clientes/get_all/0/10000000/id/asc',
             dataSrc: '',
             type: 'POST',
             data: {

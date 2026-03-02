@@ -6,7 +6,7 @@ let session = await sessionInfo();
 permission('clientes')
 const tooltip = new bootstrap.Tooltip(document.querySelector(".btn-add-tooltip"))
 const config = {
-    search: () => searchParam({ active: 1 }, "clients"),
+    search: () => searchParam({ active: 1 }, "clientes"),
     template: targetClient,
     container: ".container_clients",
     funtions: () => {
@@ -18,7 +18,7 @@ const config = {
 }
 searchFilter("#SearchClients", (e) => {
     if (e.target.value == "") print(config)
-    else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value }, "clients") })
+    else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value }, "clientes") })
 })
 selectOptionAll(".select_options_td", null, null)
 let iti = window.intlTelInput(document.querySelector("#input-tel-client-1"), { initialCountry: "ve", separateDialCode: true, utilsScript: "./assets/libs/libs/intl-tel-input/js/utils.js" });
@@ -247,7 +247,7 @@ if (!form.dataset.listenerAttached) {
                 dataFinal.append(`lista[${index}][telefono]`, client.telefono);
                 // dataFinal.append(`lista[${index}][direccion]`, client.direccion);
             })
-            add(config, "clients", dataFinal, () => binnacle(session.message.id, "Clientes", "Agregar", "Se agrego un nuevo cliente"));
+            add(config, "clientes", dataFinal, () => binnacle(session.message.id, "Clientes", "Agregar", "Se agrego un nuevo cliente"));
             resetForm("#clients-container .clients", form)
             bootstrap.Modal.getOrCreateInstance('#register-client').hide()
         }
@@ -304,7 +304,7 @@ const editData = (response) => {
                 dataFinal.append(`telefono`, data.telefono);
                 // dataFinal.append(`direccion`, data.direccion);
                 dataFinal.append(`id`, document.querySelector("#input-id-client").value);
-                update(config, "clients", dataFinal, () => binnacle(session.message.id, "Clientes", "Actualizacion", "Se actualizo un cliente"))
+                update(config, "clientes", dataFinal, () => binnacle(session.message.id, "Clientes", "Actualizacion", "Se actualizo un cliente"))
                 bootstrap.Modal.getOrCreateInstance('#edit-client').hide()
             }
         });

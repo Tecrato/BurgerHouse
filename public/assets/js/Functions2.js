@@ -14,6 +14,10 @@ function parse_post_parameters(parametros_post) {
   return postData;
 }
 
+function parse_post_parameters_json(parametros_post) {
+  return JSON.stringify(parametros_post);
+}
+
 function getCookies(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
@@ -22,7 +26,7 @@ function getCookies(name) {
 }
 
 // Utilidades generales
-export function myfecth(url, parametros_get = {}, parametros_post = null, callback = null, method = 'GET', async_call = false) {
+export function myfecth(url, parametros_get = {}, parametros_post = null, callback = null, method = 'GET', async_call = false, parseAsJson = false) {
   const request = new XMLHttpRequest();
   request.withCredentials = true;
   let token = getCookies("PHPSESSID") || "";
@@ -33,6 +37,8 @@ export function myfecth(url, parametros_get = {}, parametros_post = null, callba
     if (parametros_post instanceof FormData) {
       // Dejar que el navegador establezca el encabezado Content-Type para FormData
       postData = parametros_post;
+    } else if (parametros_post instanceof Object && parseAsJson) {
+      postData = parse_post_parameters_json(parametros_post);
     } else if (parametros_post instanceof Object) {
       postData = parse_post_parameters(parametros_post);
     } else if (typeof parametros_post === 'string' && parametros_post.length > 0) {
@@ -55,6 +61,8 @@ export function myfecth(url, parametros_get = {}, parametros_post = null, callba
   request.open(method, url_with_params, async_call);
   if (method === 'POST' && !(postData instanceof FormData)) {
       request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  } else if (method === 'POST' && postData instanceof Object) {
+      request.setRequestHeader('Content-Type', 'application/json');
   }
 
   if (token) {

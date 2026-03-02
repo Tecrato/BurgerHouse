@@ -264,4 +264,16 @@ class Estadisticas extends Db_base
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+
+    public function stats_ordenes(string $tipo)
+    {
+        try {
+            $query = $this->conn->prepare("select count(`burgerhouse`.`orden`.`id`) AS `total`,sum((`burgerhouse`.`orden`.`status` = 'por verificar')) AS `por verificar`,sum((`burgerhouse`.`orden`.`status` = 'en cocina')) AS `en cocina`,sum((`burgerhouse`.`orden`.`status` = 'para despachar')) AS `para despachar`,sum((`burgerhouse`.`orden`.`status` = 'en camino')) AS `en camino`,sum((`burgerhouse`.`orden`.`status` = 'entregada')) AS `entregada`,sum((`burgerhouse`.`orden`.`status` = 'pagado')) AS `pagado`,sum((`burgerhouse`.`orden`.`status` = 'en mesa')) AS `en mesa`,sum((`burgerhouse`.`orden`.`status` = 'anulada')) AS `anulada`,sum((`burgerhouse`.`orden`.`status` = '1')) AS `terminada` from `burgerhouse`.`orden` where `burgerhouse`.`orden`.`tipo` = :tipo");
+            $query->bindValue(':tipo', $tipo, PDO::PARAM_STR);
+            $query->execute();
+            return $query->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
 }
