@@ -1,9 +1,9 @@
 import functionGeneral from "../../Functions.js";
-import {myfecth} from "../../Functions2.js";
+import {myfecth, nuevaBitacora} from "../../Functions2.js";
 import introTooltip from "../../intro-tooltip.js"
 const { sessionInfo, binnacle, fecha, hora } = functionGeneral();
 const { binnacleIntro } = introTooltip()
-binnacle('navbarDropdown')
+binnacleIntro('navbarDropdown')
 let session = await sessionInfo();
 
 let table = $('.table_binnacle_user').DataTable({
@@ -25,10 +25,12 @@ let table = $('.table_binnacle_user').DataTable({
         } catch (e) {
             total = parseInt(totalRaw) || 0;
         }
+        const body = new FormData();
+        body.append('id_usuario', session.message.id);
         fetch(`bitacora/get_all/${page}/${size}/id/asc`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id_usuario: session.message.id }),
+            body: body,
         })
             .then(res => res.json())
             .then(resp => {

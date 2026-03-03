@@ -1,28 +1,68 @@
 <?php
-
-use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
+use Shtch\Burgerhouse\function\AuthSession;
 use Shtch\Burgerhouse\models\Bitacora;
 
-function bitacora_view()
-{
-    view('bitacora');
-}
-function bitacora_get_all(...$args) {
-    get_all(new Bitacora(), ...$args);
-}
-function bitacora_add(...$args) {
-    add(new Bitacora(), [
-        'id_usuario' => $_SESSION['id'],
-        'tabla' => $_POST['tabla'],
-        'accion' => $_POST['accion'],
-        'descripcion' => $_POST['descripcion']
-    ]);
+$session = new AuthSession();
+$resultado_final = '';
+
+if (!$session->usuario) {
+    make_url_error("No estas autenticado. Redirigiendo a login...", 401, ajax: $ajax);
 }
 
-function bitacora_update(...$args) {
-    $modelo = new Bitacora();
-    $modelo->actualizar($_SESSION['id']);
+
+if (count($url) < 2 || $url[1] === 'view') {
+    if (file_exists(__DIR__ . '/../views/V_bitacora.php')) {
+        include_once __DIR__ . '/../views/V_bitacora.php';
+    } else {
+        make_url_error("No se encontró la vista V_bitacora.php", 404);
+    }
+    exit;
 }
-function bitacora_count() {
-    total(new Bitacora());
+
+if ($url[1] === 'get_all') { // crear aqui 2 if mas para mi bitacora y la del sistema
+    if (!$session->has_permission('bitacora', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+    if (!$session->is_admin()) {
+        $_POST['id_usuario'] = $session->usuario['id'];
+    }
+    $modelo = new Bitacora(...$_POST);
+    $resultado_final = $modelo->search(...$parametros_paginacion);
+    $ajax = true;
+} else if ($url[1] === 'add') {
+    
+    try {
+        $_POST['id_usuario'] = $session->usuario['id'];
+        $modelo = new Bitacora(...$_POST);
+        $id = $modelo->agregar();
+        $resultado_final = ['success' => true, 'last_id' => $id];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+
+    $ajax = true;
+} else if ($url[1] === 'count' || $url[1] === 'total') {
+    if (!$session->has_permission('bitacora', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+    try {
+        if (!$session->is_admin()) {
+            $_POST['id_usuario'] = $session->usuario['id'];
+        }
+        $modelo = new Bitacora(...$_POST);
+        $resultado_final = $modelo->count();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else {
+    make_url_error("Accion no valida para bitacora.", 404, ajax: true);
 }
+
+if ($ajax) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($resultado_final);
+    exit;
+}
+
+print_r($resultado_final);
