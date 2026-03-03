@@ -131,7 +131,7 @@ export const editReservationClient = async (functionGeneral, Templates) => {
                         icon: "success",
                     })
                     bootstrap.Modal.getOrCreateInstance('#edit-client-reservation').hide()
-                    binnacle(session.message.id, "Reservas", "Edicion", "Se actualizo el cliente de la reserva" + window.dataClient.id_reserva)
+                    nuevaBitacora("Reservas", "Edicion", "Se actualizo el cliente de la reserva" + window.dataClient.id_reserva)
                 } else {
                     Swal.fire({
                         title: `Error!`,
@@ -238,7 +238,7 @@ export const editDateReservation = async (funtionGeneral, reload) => {
                     })
                     reload()
                     bootstrap.Modal.getOrCreateInstance('#edit-date-reservation').hide()
-                    binnacle(session.message.id, "Reservas", "Actualizacion", "Se actualizo la fecha de una reserva " + id)
+                    nuevaBitacora("Reservas", "Actualizacion", "Se actualizo la fecha de una reserva " + id)
                 } else {
                     Swal.fire({
                         title: `Error!`,
@@ -716,7 +716,7 @@ export const editPackageReservation = async (functionGeneral, Templates) => {
                     text: "El paquete fue actualizado correctamente",
                     icon: "success",
                 })
-                binnacle(session.message.id, "Reservas", "Actualizacion", "Se actualizo el paquete de la reserva " + id)
+                nuevaBitacora("Reservas", "Actualizacion", "Se actualizo el paquete de la reserva " + id)
                 bootstrap.Modal.getOrCreateInstance("#edit-packages-reservation").hide()
             } else {
                 Swal.close();
@@ -788,7 +788,7 @@ export const editPackageReservation = async (functionGeneral, Templates) => {
                     text: "El paquete fue actualizado correctamente",
                     icon: "success",
                 })
-                binnacle(session.message.id, "Reservas", "Actualizacion", "Se actualizo el paquete de la reserva " + id)
+                nuevaBitacora("Reservas", "Actualizacion", "Se actualizo el paquete de la reserva " + id)
                 bootstrap.Modal.getOrCreateInstance("#edit-packages-reservation").hide()
             } else {
                 Swal.close();

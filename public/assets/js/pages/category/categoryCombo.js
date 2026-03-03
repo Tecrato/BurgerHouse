@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js";
 import Templates from "../../templates.js";
 const { setValidationStyles, validateField, addDataTables, reindex, deleteDatatable, editDataTables, updateDataTables, resetForm, sessionInfo, binnacle, permission } = functionGeneral();
 const { elemenFormCategoryProduct } = Templates()
@@ -47,7 +48,7 @@ let n = $(".table_combo").DataTable({
     "info": true,
 })
 $('#searchCategoryProducts').on('keyup', function () { n.search(this.value).draw() });
-deleteDatatable(".table_combo", n, () => binnacle(session.message.id, "Categoria de Producto", "Eliminacion", "Se elimino una categoria de productos"))
+deleteDatatable(".table_combo", n, () => nuevaBitacora("Categoria de Producto", "Eliminacion", "Se elimino una categoria de productos"))
 
 let CategoryProductCount = 1;
 function addCategoryCombo() {
@@ -128,7 +129,7 @@ if (!form.dataset.listenerAttached) {
             dataCategoryCombos.forEach((category, index) => {
                 dataFinal.append(`lista[${index}][nombre]`, category.nombre)
             })
-            addDataTables(n, dataFinal, "categoryProducto", binnacle(session.message.id, "Categoria de Producto", "Agregar", "Se agrego una categoria de productos"))
+            addDataTables(n, dataFinal, "categoryProducto", nuevaBitacora("Categoria de Producto", "Agregar", "Se agrego una categoria de productos"))
             resetForm(".categoryCombos", form)
             bootstrap.Modal.getOrCreateInstance('#register-categoryCombo').hide()
         }
@@ -165,7 +166,7 @@ editDataTables(".table_combo", (response) => {
                 let dataFinal = new FormData()
                 dataFinal.append(`nombre`, document.querySelector(`#input-name-categoryProduct`).value)
                 dataFinal.append(`id`, document.querySelector("#input-id-categoryCombo").value)
-                updateDataTables(n, dataFinal, "categoryProducto", binnacle(session.message.id, "Categoria de Producto", "Actualizacion", "Se actualizo una categoria de productos"))
+                updateDataTables(n, dataFinal, "categoryProducto", nuevaBitacora("Categoria de Producto", "Actualizacion", "Se actualizo una categoria de productos"))
                 bootstrap.Modal.getOrCreateInstance('#edit-categoryCombo').hide()
             }
         })

@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 const { searchParam, validateField, setValidationStyles, sessionInfo, binnacle } = functionGeneral();
 $(".preloader").fadeOut();
 let session = await sessionInfo();
@@ -187,7 +188,7 @@ btnUpdateUser.addEventListener('click', async () => {
         let result = await send.json()
         if (result.success == true) {
             toas("success", "Contraseña actualizada");
-            binnacle(session.message.id, `Recuperar contraseña", "Actualizacion", "Se actualizo la contraseña del usuario ${idUser}`);
+            nuevaBitacora(`Recuperar contraseña", "Actualizacion", "Se actualizo la contraseña del usuario ${idUser}`);
             setTimeout(() => { window.location = "login" }, 2000)
         } else {
             toas("error", "Hubo un error al actualizar la contraseña");

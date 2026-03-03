@@ -1,4 +1,5 @@
 import funtionGeneral from "../../Functions.js";
+import { myfecth,nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import { report } from "./report.js"
 import introTooltip from "../../intro-tooltip.js"
@@ -102,7 +103,7 @@ form.addEventListener("submit", (e) => {
             'caja',
             data,
             () => {
-                binnacle(session.message.id, 'Caja', 'Agregar', 'Se abrio una caja')
+                nuevaBitacora('Caja', 'Agregar', 'Se abrio una caja')
                 document.querySelector(".cash_status").classList.add("bg-success")
                 document.querySelector(".cash_status").classList.remove("bg-danger")
                 const tooltip = bootstrap.Tooltip.getInstance(document.querySelector(".cash_status"));
@@ -210,7 +211,7 @@ const closeCash = () => {
                             title: 'Exito',
                             text: "Se ha cerrado la caja correctamente",
                         })
-                        binnacle(session.message.id, 'Caja', 'Cerrar', `Se cerro la caja ${id}`)
+                        nuevaBitacora('Caja', 'Cerrar', `Se cerro la caja ${id}`)
                         document.querySelector(".cash_status").classList.add("bg-danger")
                         document.querySelector(".cash_status").classList.remove("bg-success")
                         const tooltip = bootstrap.Tooltip.getInstance(document.querySelector(".cash_status"));

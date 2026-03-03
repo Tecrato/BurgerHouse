@@ -1,4 +1,5 @@
 import introTooltip from "../../intro-tooltip.js"
+import { myfecth,nuevaBitacora } from "../../Functions2.js"
 import functionGeneral from "../../Functions.js"
 const {capital} = introTooltip()
 const { fecha, hora, setValidationStyles, addDataTables, binnacle, sessionInfo, permission, InputPrice } = functionGeneral()
@@ -63,7 +64,7 @@ if (!form.dataset.listenerAttached) {
             dataFinal.append("lista[0][descripcion]", data.descripcion)
             dataFinal.append("lista[0][monto]", type_action == "Guardar Gasto" ? -data.monto : data.monto)
             addDataTables(n, dataFinal, "capital", () => {
-                binnacle(session.message.id, "capital", `Agregar`, `${type_action} en capital de ${data.monto} $`)
+                nuevaBitacora("capital", `Agregar`, `${type_action} en capital de ${data.monto} $`)
                 target()
             })
             form.reset()

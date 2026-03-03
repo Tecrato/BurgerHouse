@@ -2,6 +2,10 @@ import introTooltip from "../../intro-tooltip.js"
 import { payReservation } from "./addReservation.js"
 import { editReservationClient, editDateReservation, editPackageReservation } from "./editReservation.js"
 import functionGeneral from "../../Functions.js"
+import {
+    nuevaBitacora,
+    myfecth,
+} from "../../Functions2.js"
 import Templates from "../../templates.js"
 const { calendarIntro } = introTooltip()
 const { fecha, hora, binnacle, sessionInfo, permission } = functionGeneral()
@@ -261,7 +265,7 @@ document.querySelector(".btn-null-reservation").addEventListener("click", () => 
                     text: "La reserva fue anulada correctamente",
                     icon: "success",
                 });
-                binnacle(session.message.id, "Reservacion", "Anular", "Se anulo la reserva " + id_reserva)
+                nuevaBitacora("Reservacion", "Anular", "Se anulo la reserva " + id_reserva)
                 recargarEventos()
             } else {
                 Swal.fire({
@@ -311,7 +315,7 @@ document.querySelector(".btn-verify-reservation").addEventListener("click", () =
                     text: "La reserva fue verficada correctamente",
                     icon: "success",
                 });
-                binnacle(session.message.id, "Reservacion", "Verificacion", "Se verifico la reserva " + id_reserva)
+                nuevaBitacora("Reservacion", "Verificacion", "Se verifico la reserva " + id_reserva)
                 recargarEventos()
             } else {
                 Swal.fire({

@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import { report } from "./report.js"
 const { searchParam, binnacle, sessionInfo, print, searchFilter, permission, notification, notificationAlert } = functionGeneral();
@@ -9,7 +10,7 @@ const config = {
     template: targetDelivery,
     container: ".cont-delivery-pending",
     funtions: () => {
-        saleBTN(config, () => binnacle(session.message.id, 'Orden de delivery', 'Orden aceptada', 'Se acepto una orden de delivery'))
+        saleBTN(config, () => nuevaBitacora('Orden de delivery', 'Orden aceptada', 'Se acepto una orden de delivery'))
         modalDetails()
         permission("delivery")
     },

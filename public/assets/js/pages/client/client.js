@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 const { selectOptionAll, setValidationStyles, validateField, searchParam, searchFilter, print, add, update, reindex, resetForm, sessionInfo, binnacle, edit, Delete, permission } = functionGeneral();
 const { elemenFormClient, targetClient } = Templates()
@@ -10,7 +11,7 @@ const config = {
     template: targetClient,
     container: ".container_clients",
     funtions: () => {
-        Delete(config, () => binnacle(session.message.id, "Clientes", "Eliminacion", "Se elimino un cliente"));
+        Delete(config, () => nuevaBitacora("Clientes", "Eliminacion", "Se elimino un cliente"));
         edit((response) => editData(response));
         document.querySelectorAll(".edit_btn, .trash_btn").forEach((element) => { let tooltip = new bootstrap.Tooltip(element) });
         permission('clientes')
@@ -247,7 +248,7 @@ if (!form.dataset.listenerAttached) {
                 dataFinal.append(`lista[${index}][telefono]`, client.telefono);
                 // dataFinal.append(`lista[${index}][direccion]`, client.direccion);
             })
-            add(config, "clientes", dataFinal, () => binnacle(session.message.id, "Clientes", "Agregar", "Se agrego un nuevo cliente"));
+            add(config, "clientes", dataFinal, () => nuevaBitacora("Clientes", "Agregar", "Se agrego un nuevo cliente"));
             resetForm("#clients-container .clients", form)
             bootstrap.Modal.getOrCreateInstance('#register-client').hide()
         }
@@ -304,7 +305,7 @@ const editData = (response) => {
                 dataFinal.append(`telefono`, data.telefono);
                 // dataFinal.append(`direccion`, data.direccion);
                 dataFinal.append(`id`, document.querySelector("#input-id-client").value);
-                update(config, "clientes", dataFinal, () => binnacle(session.message.id, "Clientes", "Actualizacion", "Se actualizo un cliente"))
+                update(config, "clientes", dataFinal, () => nuevaBitacora("Clientes", "Actualizacion", "Se actualizo un cliente"))
                 bootstrap.Modal.getOrCreateInstance('#edit-client').hide()
             }
         });

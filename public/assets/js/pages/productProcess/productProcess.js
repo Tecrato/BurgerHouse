@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
 const { productProcessIntro } = introTooltip()
@@ -16,7 +17,7 @@ const config = {
   template: targetProductProcess,
   container: ".cont-product",
   funtions: () => {
-    Delete(config, () => binnacle(session.message.id, 'Productos Procesado', 'Eliminacion', 'Se elimino un producto procesado'));
+    Delete(config, () => nuevaBitacora('Productos Procesado', 'Eliminacion', 'Se elimino un producto procesado'));
     edit((response) => editData(response));
     document.querySelectorAll(".edit_btn, .trash_btn").forEach((element) => { let tooltip = new bootstrap.Tooltip(element) });
     permission("Producto procesado")
@@ -419,7 +420,7 @@ if (!form.dataset.listenerAttached) {
         data.append(`lista[${index}][stock_max]`, combo.max);
       })
       resetForm("#products-container .product", form)
-      add(config, 'productProcess', data, () => binnacle(session.message.id, 'Producto procesado', 'Agregar', 'Se agrego un producto procesado'))
+      add(config, 'productProcess', data, () => nuevaBitacora('Producto procesado', 'Agregar', 'Se agrego un producto procesado'))
       bootstrap.Modal.getOrCreateInstance('#register-product').hide()
     }
   });
@@ -493,7 +494,7 @@ if (!formEdit.dataset.listenerAttached) {
         datafinal.append("imagen_name", document.querySelector("#input-image-combo").files[0].name)
         datafinal.append("imagen", document.querySelector("#input-image-combo").files[0])
       }
-      update(config, 'productProcess', datafinal, () => binnacle(session.message.id, 'Producto procesado', 'Actualizacion', 'Se agrego un producto procesado')
+      update(config, 'productProcess', datafinal, () => nuevaBitacora('Producto procesado', 'Actualizacion', 'Se agrego un producto procesado')
       )
       bootstrap.Modal.getOrCreateInstance('#edit-product').hide()
     }

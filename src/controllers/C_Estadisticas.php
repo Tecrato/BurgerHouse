@@ -1,38 +1,190 @@
 <?php
-use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
-
+use Shtch\Burgerhouse\function\AuthSession;
 use Shtch\Burgerhouse\models\Estadisticas;
 
-function estadisticas_view(...$args)
-{
-    view('estadisticas');
+$session = new AuthSession();
+$resultado_final = '';
+
+if (!$session->usuario) {
+    make_url_error("No estas autenticado. Redirigiendo a login...", 401, ajax: $ajax);
 }
 
-function estadisticas_conn()
-{
-    return new Estadisticas();
+if (count($url) < 2 || $url[1] === 'view') {
+    if (file_exists(__DIR__ . '/../views/V_estadisticas.php')) {
+        include_once __DIR__ . '/../views/V_estadisticas.php';
+    } else if (file_exists(__DIR__ . '/../views/estadisticas.php')) {
+        include_once __DIR__ . '/../views/estadisticas.php';
+    } else {
+        make_url_error("No se encontro una vista para estadisticas.", 404, ajax: $ajax);
+    }
+    exit;
 }
 
-function estadisticas_gastoClienteSemana(...$args) { echo json_encode(estadisticas_conn()->GastoClienteSemana($_POST['anio'], $_POST['semana'])); }
-function estadisticas_gastoClienteMes(...$args) { echo json_encode(estadisticas_conn()->gastoClienteMes($_POST['anio'], $_POST['mes'])); }
-function estadisticas_gastoClienteAnual(...$args) { echo json_encode(estadisticas_conn()->gastoClienteAnio($_POST['anio'])); }
-function estadisticas_productosMasVendidoSemana(...$args) { echo json_encode(estadisticas_conn()->productosMasVendidoSemana($_POST['anio'], $_POST['semana'])); }
-function estadisticas_productosVendidosMes(...$args) { echo json_encode(estadisticas_conn()->productosMasVendidosMes($_POST['anio'], $_POST['mes'])); }
-function estadisticas_productosVendidosAnual(...$args) { echo json_encode(estadisticas_conn()->productosMasVendidosAnio($_POST['anio'])); }
-function estadisticas_productosMenosVendidosSemana(...$args) { echo json_encode(estadisticas_conn()->productosMenosVendidoSemana($_POST['anio'], $_POST['semana'])); }
-function estadisticas_productosMenosVendidosMes(...$args) { echo json_encode(estadisticas_conn()->productosMenosVendidosMes($_POST['anio'], $_POST['mes'])); }
-function estadisticas_productosMenosVendidosAnual(...$args) { echo json_encode(estadisticas_conn()->productosMenosVendidosAnio($_POST['anio'])); }
-function estadisticas_totalVentaSemana(...$args) { echo json_encode(estadisticas_conn()->totalVentaSemana($_POST['anio'], $_POST['semana'])); }
-function estadisticas_totalVentaMes(...$args) { echo json_encode(estadisticas_conn()->totalVentaMes($_POST['anio'], $_POST['mes'])); }
-function estadisticas_totalVentaAnio(...$args) { echo json_encode(estadisticas_conn()->totalVentaAnio($_POST['anio'])); }
-function estadisticas_utilidadNetaSemana(...$args) { echo json_encode(estadisticas_conn()->utilidadNetaSemana($_POST['anio'], $_POST['semana'])); }
-function estadisticas_utilidadNetaMes(...$args) { echo json_encode(estadisticas_conn()->utilidadNetaMes($_POST['anio'], $_POST['mes'])); }
-function estadisticas_utilidadNetaAnio(...$args) { echo json_encode(estadisticas_conn()->utilidadNetaAnio($_POST['anio'])); }
-function estadisticas_ReservaHorarioSemana(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasSemana($_POST['anio'], $_POST['semana'])); }
-function estadisticas_ReservaHorarioMes(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasMes($_POST['anio'], $_POST['mes'])); }
-function estadisticas_ReservaHorarioAnio(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasAnio($_POST['anio'])); }
-function estadisticas_ReservasPorMetodoSemana(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasMetodoSemana($_POST['anio'], $_POST['semana'])); }
-function estadisticas_ReservasPorMetodoMes(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasMetodoMes($_POST['anio'], $_POST['mes'])); }
-function estadisticas_ReservasPorMetodoAnio(...$args) { echo json_encode(estadisticas_conn()->porcentajeReservasMetodoAnio($_POST['anio'])); }
-function estadisticas_stats_ordenes(...$args) { echo json_encode(estadisticas_conn()->stats_ordenes($_POST['tipo'])); }
+$accion = strtolower($url[1]);
+$estadisticas = new Estadisticas();
 
+if ($accion === 'gastoclientesemana') {
+    try {
+        $resultado_final = $estadisticas->GastoClienteSemana((int)($_POST['anio'] ?? 0), (int)($_POST['semana'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'gastoclientemes') {
+    try {
+        $resultado_final = $estadisticas->GastoClienteMes((int)($_POST['anio'] ?? 0), (int)($_POST['mes'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'gastoclienteanual' || $accion === 'gastoclienteanio') {
+    try {
+        $resultado_final = $estadisticas->GastoClienteAnio((int)($_POST['anio'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'productosmasvendidosemana') {
+    try {
+        $resultado_final = $estadisticas->productosMasVendidoSemana((int)($_POST['anio'] ?? 0), (int)($_POST['semana'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'productosvendidosmes') {
+    try {
+        $resultado_final = $estadisticas->productosMasVendidosMes((int)($_POST['anio'] ?? 0), (int)($_POST['mes'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'productosvendidosanual' || $accion === 'productosvendidosanio') {
+    try {
+        $resultado_final = $estadisticas->productosMasVendidosAnio((int)($_POST['anio'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'productosmenosvendidossemana') {
+    try {
+        $resultado_final = $estadisticas->productosMenosVendidoSemana((int)($_POST['anio'] ?? 0), (int)($_POST['semana'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'productosmenosvendidosmes') {
+    try {
+        $resultado_final = $estadisticas->productosMenosVendidosMes((int)($_POST['anio'] ?? 0), (int)($_POST['mes'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'productosmenosvendidosanual' || $accion === 'productosmenosvendidosanio') {
+    try {
+        $resultado_final = $estadisticas->productosMenosVendidosAnio((int)($_POST['anio'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'totalventasemana') {
+    try {
+        $resultado_final = $estadisticas->totalVentaSemana((int)($_POST['anio'] ?? 0), (int)($_POST['semana'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'totalventames') {
+    try {
+        $resultado_final = $estadisticas->totalVentaMes((int)($_POST['anio'] ?? 0), (int)($_POST['mes'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'totalventaanio' || $accion === 'totalventaanual') {
+    try {
+        $resultado_final = $estadisticas->totalVentaAnio((int)($_POST['anio'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'utilidadnetasemana') {
+    try {
+        $resultado_final = $estadisticas->utilidadNetaSemana((int)($_POST['anio'] ?? 0), (int)($_POST['semana'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'utilidadnetames') {
+    try {
+        $resultado_final = $estadisticas->utilidadNetaMes((int)($_POST['anio'] ?? 0), (int)($_POST['mes'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'utilidadnetaanio' || $accion === 'utilidadnetaanual') {
+    try {
+        $resultado_final = $estadisticas->utilidadNetaAnio((int)($_POST['anio'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'reservahorariosemana') {
+    try {
+        $resultado_final = $estadisticas->porcentajeReservasSemana((int)($_POST['anio'] ?? 0), (int)($_POST['semana'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'reservahorariomes') {
+    try {
+        $resultado_final = $estadisticas->porcentajeReservasMes((int)($_POST['anio'] ?? 0), (int)($_POST['mes'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'reservahorarioanio' || $accion === 'reservahorarioanual') {
+    try {
+        $resultado_final = $estadisticas->porcentajeReservasAnio((int)($_POST['anio'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'reservaspormetodosemana') {
+    try {
+        $resultado_final = $estadisticas->porcentajeReservasMetodoSemana((int)($_POST['anio'] ?? 0), (int)($_POST['semana'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'reservaspormetodomes') {
+    try {
+        $resultado_final = $estadisticas->porcentajeReservasMetodoMes((int)($_POST['anio'] ?? 0), (int)($_POST['mes'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'reservaspormetodoanio' || $accion === 'reservaspormetodoanual') {
+    try {
+        $resultado_final = $estadisticas->porcentajeReservasMetodoAnio((int)($_POST['anio'] ?? 0));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'stats_ordenes') {
+    try {
+        $resultado_final = $estadisticas->stats_ordenes((string)($_POST['tipo'] ?? ''));
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else {
+    make_url_error("Accion no valida para estadisticas.", 404, ajax: true);
+}
+
+if ($ajax) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($resultado_final);
+    exit;
+}
+
+print_r($resultado_final);

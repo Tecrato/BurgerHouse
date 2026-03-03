@@ -1,45 +1,146 @@
 <?php
-use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
+use Shtch\Burgerhouse\function\AuthSession;
 use Shtch\Burgerhouse\models\Pago_entrada_materia_prima;
 
+$session = new AuthSession();
+$resultado_final = '';
 
-function entrada_materia_prima_pago_get_all(...$args)
-{
-    get_all(new Pago_entrada_materia_prima(), ...$args);
+if (!$session->usuario) {
+    make_url_error("No estas autenticado. Redirigiendo a login...", 401, ajax: $ajax);
 }
 
-function entrada_materia_prima_pago_add(...$args)
-{
-    add(new Pago_entrada_materia_prima(), $_POST);
+if (count($url) < 2) {
+    make_url_error("Accion no valida para entrada_materia_prima_pago.", 404, ajax: true);
 }
 
-function entrada_materia_prima_pago_add_many(...$args)
-{
-    add_many(new Pago_entrada_materia_prima(), $_POST);
+$accion = strtolower($url[1]);
+
+if ($accion === 'get_all') {
+    try {
+        $modelo = new Pago_entrada_materia_prima(...$_POST);
+        $resultado_final = $modelo->search(...$parametros_paginacion);
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'add') {
+    try {
+        $modelo = new Pago_entrada_materia_prima(...$_POST);
+        $id = $modelo->agregar();
+        $resultado_final = ['success' => true, 'last_id' => $id];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'add_many') {
+    if (!isset($_POST['lista']) || !is_array($_POST['lista']) || count($_POST['lista']) === 0) {
+        make_url_error("No se recibio una lista valida para agregar.", 400, ajax: true);
+    }
+
+    try {
+        foreach ($_POST['lista'] as $item) {
+            if (!is_array($item)) {
+                make_url_error("Cada item de la lista debe ser un arreglo valido.", 400, ajax: true);
+            }
+            $itemModel = new Pago_entrada_materia_prima(...$item);
+            $itemModel->agregar();
+        }
+        $resultado_final = ['success' => true];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'update') {
+    try {
+        $modelo = new Pago_entrada_materia_prima(...$_POST);
+        $resultado_final = $modelo->actualizar();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'updatemany' || $accion === 'update_many') {
+    if (!isset($_POST['lista']) || !is_array($_POST['lista']) || count($_POST['lista']) === 0) {
+        make_url_error("No se recibio una lista valida para actualizar.", 400, ajax: true);
+    }
+
+    $ok = true;
+    foreach ($_POST['lista'] as $item) {
+        if (!is_array($item)) {
+            make_url_error("Cada item de la lista debe ser un arreglo valido.", 400, ajax: true);
+        }
+
+        $itemModel = new Pago_entrada_materia_prima(...$item);
+        $res = $itemModel->actualizar();
+        if (($res['success'] ?? false) !== true) {
+            $ok = false;
+        }
+    }
+
+    $resultado_final = ['success' => $ok];
+    $ajax = true;
+} else if ($accion === 'delete') {
+    if (!isset($_POST['id'])) {
+        make_url_error("No se recibio el id para eliminar.", 400, ajax: true);
+    }
+
+    try {
+        $modelo = new Pago_entrada_materia_prima(id: $_POST['id']);
+        $resultado_final = ['success' => $modelo->borrar()];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'deletemany' || $accion === 'delete_many' || $accion === 'check') {
+    $lista = null;
+    if (isset($_POST['lista']) && is_array($_POST['lista'])) {
+        $lista = $_POST['lista'];
+    } else if (isset($_POST['ids']) && is_array($_POST['ids'])) {
+        $lista = $_POST['ids'];
+    }
+
+    if (!is_array($lista) || count($lista) === 0) {
+        make_url_error("No se recibio una lista valida para eliminar.", 400, ajax: true);
+    }
+
+    $ok = true;
+    foreach ($lista as $item) {
+        $id = null;
+        if (is_array($item)) {
+            $id = $item['id'] ?? null;
+        } else if (is_numeric($item)) {
+            $id = $item;
+        }
+
+        if ($id === null) {
+            make_url_error("Cada item debe incluir un id valido.", 400, ajax: true);
+        }
+
+        $itemModel = new Pago_entrada_materia_prima(id: $id);
+        $deleted = $itemModel->borrar();
+        if ($deleted === 0 || $deleted === false) {
+            $ok = false;
+        }
+    }
+
+    $resultado_final = ['success' => $ok];
+    $ajax = true;
+} else if ($accion === 'count' || $accion === 'total') {
+    try {
+        $modelo = new Pago_entrada_materia_prima(...$_POST);
+        $resultado_final = $modelo->count();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else {
+    make_url_error("Accion no valida para entrada_materia_prima_pago.", 404, ajax: true);
 }
 
-function entrada_materia_prima_pago_update(...$args)
-{
-    update(new Pago_entrada_materia_prima(), $_POST);
+if ($ajax) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($resultado_final);
+    exit;
 }
 
-function entrada_materia_prima_pago_delete(...$args)
-{
-    delete(new Pago_entrada_materia_prima(), $_POST['id']);
-}
-
-function entrada_materia_prima_pago_delete_many(...$args)
-{
-    delete_many(new Pago_entrada_materia_prima(), $_POST['ids']);
-}
-
-function entrada_materia_prima_pago_check(...$args)
-{
-    check(new Pago_entrada_materia_prima(), $_POST['id']);
-}
-
-function entrada_materia_prima_pago_total(...$args)
-{
-    total(new Pago_entrada_materia_prima(), ...$args);
-}
+print_r($resultado_final);
 

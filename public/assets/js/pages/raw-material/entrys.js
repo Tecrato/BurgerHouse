@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import { tableRawMaterial } from "./raw_material.js"
 
@@ -394,7 +395,7 @@ $('#searchEntrysActive').on('keyup', function () { tableActive.search(this.value
 $('#searchEntrysPorVencer').on('keyup', function () { tablePorVencer.search(this.value).draw() });
 $('#searchEntrysVencidos').on('keyup', function () { tableVencidas.search(this.value).draw() });
 $('#searchEntrysSinStock').on('keyup', function () { tableSinStock.search(this.value).draw() });
-deleteDatatable(".table_entrys_active", tableActive, () => binnacle(session.message.id, "Entrada de Materia Prima", "Eliminacion", "Se ha eliminado una Entrada de Materia Prima"))
+deleteDatatable(".table_entrys_active", tableActive, () => nuevaBitacora("Entrada de Materia Prima", "Eliminacion", "Se ha eliminado una Entrada de Materia Prima"))
 
 let entrysCount = 1;
 let paymentCount = 1;
@@ -883,7 +884,7 @@ if (!form.dataset.listenerAttached) {
                     tableVencidas.ajax.reload();
                     tableSinStock.ajax.reload();
                     cardEntrys()
-                    binnacle(session.message.id, "Entradas", "Agregado", "Se agrego una entrada de materia prima")
+                    nuevaBitacora("Entradas", "Agregado", "Se agrego una entrada de materia prima")
                     tableRawMaterial.ajax.reload();
                 } else {
                     Swal.fire({
@@ -1262,7 +1263,7 @@ if (!formEdit.dataset.listenerAttached) {
                 tableVencidas.ajax.reload();
                 tableSinStock.ajax.reload();
                 cardEntrys()
-                binnacle(session.message.id, "Entradas", "Actualizado", "Se actualizo una entrada de materia prima")
+                nuevaBitacora("Entradas", "Actualizado", "Se actualizo una entrada de materia prima")
                 tableRawMaterial.ajax.reload();
                 tableActive.ajax.reload();
                 bootstrap.Modal.getOrCreateInstance('#edit-entrys').hide()

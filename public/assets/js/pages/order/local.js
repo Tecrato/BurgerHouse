@@ -402,7 +402,7 @@ export async function local(functions, templates, reload) {
                             text: "Se creo la orden con exito",
                             icon: "success",
                         });
-                        binnacle(session.message.id, 'Orden local', 'Creacion', `Se creo una orden local`)
+                        nuevaBitacora('Orden local', 'Creacion', `Se creo una orden local`)
                         reload()
                     } else {
                         Swal.close()
@@ -1299,7 +1299,7 @@ export async function payOrder(functions, templates, invoice, reload) {
                                             text: "Se pago la orden",
                                             icon: "success",
                                         });
-                                        binnacle(session.message.id, 'Orden local', 'Pago', `Se pago la orden ${window.IdOrderPaymentLocal}`);
+                                        nuevaBitacora('Orden local', 'Pago', `Se pago la orden ${window.IdOrderPaymentLocal}`);
                                         resetFormModal()
                                         reload()
                                         notification({

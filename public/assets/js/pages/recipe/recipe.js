@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
 import { recipe_detail, recipe_detail_all } from "./report.js"
@@ -141,7 +142,7 @@ if (!form.dataset.listenerAttached) {
                         text: "El elemento fue agregado correctamente",
                         icon: "success",
                     });
-                    binnacle(session.message.id, "Recetas", "Agregar", "Se agrego una nueva receta")
+                    nuevaBitacora("Recetas", "Agregar", "Se agrego una nueva receta")
                 } else {
                     Swal.fire({
                         title: `Error!`,
@@ -342,7 +343,7 @@ let n = $(".table_recipe").DataTable({
                                 icon: "success",
                             })
                             n.ajax.reload();
-                            binnacle(session.message.id, "Recetas", "Actualizar", "Se actualizo una receta")
+                            nuevaBitacora("Recetas", "Actualizar", "Se actualizo una receta")
                             bootstrap.Modal.getOrCreateInstance('#edit-recipe').hide()
                         } else {
                             Swal.fire({

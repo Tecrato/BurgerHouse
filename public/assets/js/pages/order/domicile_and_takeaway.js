@@ -751,7 +751,7 @@ export default async function domicile_and_takeaway(functions, templates, report
                             text: "Se creo la orden de domicilio",
                             icon: "success",
                         });
-                        binnacle(session.message.id, 'Orden de domicilio', 'Creacion', `Se creo una orden de ${window.type_order}`)
+                        nuevaBitacora('Orden de domicilio', 'Creacion', `Se creo una orden de ${window.type_order}`)
                         resetFormModal()
                         targetUpdate()
                         notification({

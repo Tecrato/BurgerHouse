@@ -363,7 +363,7 @@ export async function payOrderReservation(functions, templates, invoice, reload)
                                             text: "Se pago la orden",
                                             icon: "success",
                                         });
-                                        binnacle(session.message.id, 'Orden Reservacion', 'Pago', `Se pago la orden ${window.IdOrderPaymentLocal}`);
+                                        nuevaBitacora('Orden Reservacion', 'Pago', `Se pago la orden ${window.IdOrderPaymentLocal}`);
                                         resetForm(".payments-local-reservation", document.getElementById("form-submit-payment-local-reservation"))
                                         reload()
                                         notification({

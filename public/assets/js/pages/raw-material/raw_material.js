@@ -1,8 +1,9 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
 const { rawMaterial } = introTooltip()
-const { validateField, setValidationStyles, selectOptionAll, reindex, resetForm, addDataTables, deleteDatatable, editDataTables, updateDataTables, sessionInfo, binnacle, permission } = functionGeneral();
+const { validateField, setValidationStyles, selectOptionAll, reindex, resetForm, addDataTables, deleteDatatable, editDataTables, updateDataTables, sessionInfo, permission } = functionGeneral();
 const { elemenFormRawMaterial, optionsRol } = Templates()
 let session = await sessionInfo()
 rawMaterial('navbarDropdown')
@@ -68,7 +69,7 @@ let n = $(".table_rawmaterial").DataTable({
 })
 export const tableRawMaterial = n
 $('#searchRawmaterial').on('keyup', function () { n.search(this.value).draw() });
-deleteDatatable(".table_rawmaterial", n, () => binnacle(session.message.id, "Materia Prima", "Eliminacion", "Se ha eliminado una Materia Prima"))
+deleteDatatable(".table_rawmaterial", n, () => nuevaBitacora("Materia Prima", "Eliminacion", "Se ha eliminado una Materia Prima"))
 // ------------------Funcion de select de categoria y receta---------------------------
 
 // ------------------Validaciones---------------------------
@@ -278,7 +279,7 @@ if (!form.dataset.listenerAttached) {
                 datafinal.append(`lista[${index}][stock_min]`, material.min)
                 datafinal.append(`lista[${index}][stock_max]`, material.max)
             })
-            addDataTables(n, datafinal, "materia_prima", () => binnacle(session.message.id, "Materia Prima", "Agregar", "Se creo un nueva materia prima"))
+            addDataTables(n, datafinal, "materia_prima", () => nuevaBitacora("Materia Prima", "Agregar", "Se creo un nueva materia prima"))
             bootstrap.Modal.getOrCreateInstance('#register-rawMaterial').hide()
             resetForm("#rawmaterial-container .rawmaterial", form)
 
@@ -337,7 +338,7 @@ editDataTables(".table_rawmaterial", (response) => {
                 datafinal.append("id_unidad", data.id_unidad)
                 datafinal.append("stock_min", data.min)
                 datafinal.append("stock_max", data.max)
-                updateDataTables(n, datafinal, "materia_prima", binnacle(session.message.id, "Materia Prima", "Actualizacion", "Se actualizo una materia prima"))
+                updateDataTables(n, datafinal, "materia_prima", nuevaBitacora("Materia Prima", "Actualizacion", "Se actualizo una materia prima"))
                 bootstrap.Modal.getOrCreateInstance('#edit-rawMaterial').hide()
             }
         })

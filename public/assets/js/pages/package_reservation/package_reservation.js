@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 const { setValidationStyles, validateField, reindex, resetForm, searchParam, print, add, update, permission, searchFilter, sessionInfo, binnacle, edit, Delete, pagination, InputPrice } = functionGeneral();
 const { targetPackage } = Templates()
@@ -14,7 +15,7 @@ const config = {
     container: ".cont_packages",
     funtions: () => {
         permission("paquetes")
-        Delete(config, () => binnacle(session.message.id, 'paquetes', 'Eliminacion', 'Se elimino un paquete de reserva'));
+        Delete(config, () => nuevaBitacora('paquetes', 'Eliminacion', 'Se elimino un paquete de reserva'));
         edit((response) => editData(response));
         document.querySelectorAll(".edit_btn, .trash_btn").forEach((element) => { let tooltip = new bootstrap.Tooltip(element) });
     },
@@ -165,7 +166,7 @@ if (!form.dataset.listenerAttached) {
                     tablesData.append(`lista[${index}][id_mesa]`, table.id)
                 })
                 add(config, "paquete_mesa", tablesData, () => {
-                    binnacle(session.message.id, "paquete", "Paquete creado", `Se agrego un nuevo paquete`)
+                    nuevaBitacora("paquete", "Paquete creado", `Se agrego un nuevo paquete`)
                 })
                 form.reset()
                 form.querySelector("#input-name-package-1").classList.remove("is-invalid", "is-valid")
@@ -264,7 +265,7 @@ async function editData(response) {
                 dataUpdate.append("nombre", data.nombre)
                 dataUpdate.append("precio", (data.precio))
                 update(config, "paquete_reservacion", dataUpdate, () => {
-                    binnacle(session.message.id, "paquete", "Actualizacion", `Se actualizo el paquete ${document.getElementById("id_package").value}`);
+                    nuevaBitacora("paquete", "Actualizacion", `Se actualizo el paquete ${document.getElementById("id_package").value}`);
                 })
             }
         })

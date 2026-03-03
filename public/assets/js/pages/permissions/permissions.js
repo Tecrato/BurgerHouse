@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 const { setValidationStyles, validateField, print, searchParam, searchFilter, Delete, edit, sessionInfo, binnacle, update, add, permission } = functionGeneral();
 const { targetPermission } = Templates()
@@ -9,7 +10,7 @@ const config = {
     template: targetPermission,
     container: ".cont_permission",
     funtions: () => {
-        Delete(config, () => binnacle(session.message.id, 'Rol', 'Eliminacion', 'Se elimino un rol'));
+        Delete(config, () => nuevaBitacora('Rol', 'Eliminacion', 'Se elimino un rol'));
         edit((response) => editData(response));
         permission("roles y permisos")
     }
@@ -351,7 +352,7 @@ if (!form.dataset.listenerAttached) {
             let data = new FormData(form)
             data.append("lista[0][nombre]", form.querySelector("#input-name-permission").value)
             data.append("lista[0][descripcion]", form.querySelector("#input-description-permission").value)
-            add(config, "rol", data, () => binnacle(session.message.id, 'Rol', 'Agregar', 'Se creo un rol'));
+            add(config, "rol", data, () => nuevaBitacora('Rol', 'Agregar', 'Se creo un rol'));
             bootstrap.Modal.getOrCreateInstance('#register-rol').hide()
             SelectRol(select)
         }
@@ -394,7 +395,7 @@ const editData = async (response) => {
                 data.append("id", document.querySelector("#input-id-permission").value)
                 data.append("nombre", document.querySelector("#input-name-permission-edit").value)
                 data.append("descripcion", document.querySelector("#input-description-permission-edit").value)
-                update(config, "rol", data, () => binnacle(session.message.id, 'Rol', 'Editar', 'Se actualizo un rol'));
+                update(config, "rol", data, () => nuevaBitacora('Rol', 'Editar', 'Se actualizo un rol'));
                 bootstrap.Modal.getOrCreateInstance('#edit-rol').hide()
             }
         })

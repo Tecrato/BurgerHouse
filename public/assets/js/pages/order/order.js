@@ -1,6 +1,6 @@
 import functionGeneral from "../../Functions.js";
 import Templates from "../../templates.js"
-import { myfecth } from "../../Functions2.js"
+import { myfecth, nuevaBitacora } from "../../Functions2.js"
 import domicile_and_takeaway from "./domicile_and_takeaway.js";
 import { local, more_product_local_order, payOrder } from "./local.js";
 import { payOrderReservation } from "./reservationOrder.js"
@@ -103,15 +103,6 @@ const parseDataRows = (response) => {
   return [];
 };
 
-const encodePostData = (data = {}) => {
-  const params = new URLSearchParams();
-  Object.entries(data).forEach(([key, value]) => {
-    if (value === undefined || value === null || value === "") return;
-    params.append(key, value);
-  });
-  return params.toString();
-};
-
 const countEndpointByModule = {};
 
 const resolveServerTotal = (module, filters = {}) => {
@@ -178,36 +169,33 @@ const buildServerSideAjax = ({
       : defaultOrderBy;
     const orderType = dtOrder?.dir || defaultOrderType;
 
-    fetch(`${module}/get_all/${page}/${size}/${orderBy}/${orderType}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
-      body: encodePostData(requestFilters),
-    })
-      .then((res) => res.json())
-      .then((resp) => {
-        const rows = parseDataRows(resp);
-        const filteredRows = typeof clientFilter === "function" ? rows.filter(clientFilter) : rows;
+    let request = myfecth(`${module}/get_all/${page}/${size}/${orderBy}/${orderType}`, {}, requestFilters, null, "POST");
 
-        const inferredTotal = total
-          ?? parseDataTableTotal(resp)
-          ?? (data.start + filteredRows.length + (filteredRows.length === size ? 1 : 0));
-
-        callback({
-          draw: data.draw,
-          data: filteredRows,
-          recordsTotal: inferredTotal,
-          recordsFiltered: inferredTotal,
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-        callback({
-          draw: data.draw,
-          data: [],
-          recordsTotal: total || 0,
-          recordsFiltered: total || 0,
-        });
+    if (request.status !== 200) {
+      callback({
+        draw: data.draw,
+        data: [],
+        recordsTotal: 0,
+        recordsFiltered: 0,
       });
+      return;
+    }
+
+    let response = request.json();
+
+    const rows = parseDataRows(response);
+    const filteredRows = typeof clientFilter === "function" ? rows.filter(clientFilter) : rows;
+
+    const inferredTotal = total
+      ?? parseDataTableTotal(response)
+      ?? (data.start + filteredRows.length + (filteredRows.length === size ? 1 : 0));
+
+    callback({
+      draw: data.draw,
+      data: filteredRows,
+      recordsTotal: inferredTotal,
+      recordsFiltered: inferredTotal,
+    });
   };
 };
 //tables de domicilio 
@@ -966,7 +954,7 @@ const actionOrder = async (btn, status) => {
               text: "La orden fue verificada correctamente",
               icon: "success",
             });
-            binnacle(session.message.id, "orden", "Actualizacion", `Se verifico la orden ${btn.getAttribute("nro_orden")}`);
+            nuevaBitacora("orden", "Actualizacion", `Se verifico la orden ${btn.getAttribute("nro_orden")}`);
             tableOrderParaLlevarNull.ajax.reload();
             tableOrderParaLlevarPendingsVeryfy.ajax.reload();
             tableOrderParaLlevarPorDespachar.ajax.reload();
@@ -1020,9 +1008,9 @@ const actionOrder = async (btn, status) => {
               icon: "success",
             });
             if (btn.getAttribute("type") == "mesa") {
-              binnacle(session.message.id, "orden", "Actualizacion", `Se envio la orden ${id_order.toString().padStart(5, "0")} a su mesa`);
+              nuevaBitacora("orden", "Actualizacion", `Se envio la orden ${id_order.toString().padStart(5, "0")} a su mesa`);
             } else {
-              binnacle(session.message.id, "orden", "Actualizacion", `Se despacho la orden ${id_order.toString().padStart(5, "0")}`);
+              nuevaBitacora("orden", "Actualizacion", `Se despacho la orden ${id_order.toString().padStart(5, "0")}`);
             }
             tableOrderParaLlevarNull.ajax.reload();
             tableOrderParaLlevarPendingsVeryfy.ajax.reload();
@@ -1120,7 +1108,7 @@ const actionOrder = async (btn, status) => {
               text: "La orden fue anulada correctamente",
               icon: "success",
             });
-            binnacle(session.message.id, "orden", "Actualizacion", `Se anulo la orden ${btn.getAttribute("nro_orden")}`);
+            nuevaBitacora("orden", "Actualizacion", `Se anulo la orden ${btn.getAttribute("nro_orden")}`);
             tableOrderParaLlevarNull.ajax.reload();
             tableOrderParaLlevarPendingsVeryfy.ajax.reload();
             tableOrderParaLlevarPorDespachar.ajax.reload();
@@ -1232,7 +1220,7 @@ const actionOrder = async (btn, status) => {
                 text: "La orden fue pagada correctamente",
                 icon: "success",
               });
-              binnacle(session.message.id, "orden", "Actualizacion", `Se pago la orden ${id.toString().padStart(8, "0")}`);
+              nuevaBitacora("orden", "Actualizacion", `Se pago la orden ${id.toString().padStart(8, "0")}`);
               tableOrderResPendingsVeryfy.ajax.reload();
               tableOrderResProcessVeryfy.ajax.reload();
               targetUpdate("reserva")

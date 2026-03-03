@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
 const { productPrepared } = introTooltip()
@@ -17,7 +18,7 @@ const config = {
   container: ".cont-product",
   funtions: () => {
     permission("Producto preparado")
-    Delete(config, () => binnacle(session.message.id, 'Productos Preparados', 'Eliminacion', 'Se elimino un producto preparado'));
+    Delete(config, () => nuevaBitacora('Productos Preparados', 'Eliminacion', 'Se elimino un producto preparado'));
     edit((response) => editData(response));
     document.querySelectorAll(".edit_btn, .trash_btn").forEach((element) => { let tooltip = new bootstrap.Tooltip(element) });
   },
@@ -288,7 +289,7 @@ if (!form.dataset.listenerAttached) {
         data.append(`lista[${index}][tipo]`, "producto");
       })
       resetForm("#products-container .product", form)
-      add(config, 'productPrepared', data, () => binnacle(session.message.id, "Productos Preparados", "Agregar", "Se agrego un producto preparado")
+      add(config, 'productPrepared', data, () => nuevaBitacora("Productos Preparados", "Agregar", "Se agrego un producto preparado")
       )
       bootstrap.Modal.getOrCreateInstance('#register-product').hide()
     }
@@ -351,7 +352,7 @@ if (!formEdit.dataset.listenerAttached) {
         datafinal.append("imagen_name", document.querySelector("#input-image-combo").files[0].name)
         datafinal.append("imagen", document.querySelector("#input-image-combo").files[0])
       }
-      update(config, 'productPrepared', datafinal, () => binnacle(session.message.id, "Productos Preparados", "Actualizacion", "Se actualizo un producto preparado")
+      update(config, 'productPrepared', datafinal, () => nuevaBitacora("Productos Preparados", "Actualizacion", "Se actualizo un producto preparado")
       )
       bootstrap.Modal.getOrCreateInstance('#edit-product').hide()
     }

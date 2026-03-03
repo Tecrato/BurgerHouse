@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
 const {supplier} = introTooltip()
@@ -12,7 +13,7 @@ const config = {
     template: targetSupplier,
     container: ".cont_suppliers",
     funtions: () => {
-        Delete(config, () => binnacle(session.message.id, 'Proveedores', 'Eliminacion', 'Se Elimino un proveedor'));
+        Delete(config, () => nuevaBitacora('Proveedores', 'Eliminacion', 'Se Elimino un proveedor'));
         edit((response) => editData(response));
         document.querySelectorAll(".edit_btn, .trash_btn").forEach((element) => { let tooltip = new bootstrap.Tooltip(element) });
         permission("proveedores")
@@ -278,7 +279,7 @@ if (!form.dataset.listenerAttached) {
                 data.append(`lista[${index}][n_telefono2]`, sup.n_telefono2);
                 data.append(`lista[${index}][direccion]`, sup.direccion);
             })
-            add(config, 'supplier', data, () => binnacle(session.message.id, "Proveedores", "Agregar", "Se Agrego un proveedor"))
+            add(config, 'supplier', data, () => nuevaBitacora("Proveedores", "Agregar", "Se Agrego un proveedor"))
             bootstrap.Modal.getOrCreateInstance('#register-supplier').hide()
             resetForm("#suppliers-container .suppliers", form)
         }
@@ -347,7 +348,7 @@ function editData(response) {
                 data.append(`n_telefono1`, window.intlTelInput(document.querySelector("#input-num1-supplier"), { initialCountry: "ve", separateDialCode: true, utilsScript: "./assets/libs/libs/intl-tel-input/js/utils.js" }).getNumber())
                 data.append(`n_telefono2`, window.intlTelInput(document.querySelector("#input-num2-supplier"), { initialCountry: "ve", separateDialCode: true, utilsScript: "./assets/libs/libs/intl-tel-input/js/utils.js" }).getNumber())
                 data.append(`direccion`, document.querySelector("#input-direction-supplier").value)
-                update(config, 'supplier', data, () => binnacle(session.message.id, "Proveedores", "Actualizacion", "Se Actualizo un proveedor"))
+                update(config, 'supplier', data, () => nuevaBitacora("Proveedores", "Actualizacion", "Se Actualizo un proveedor"))
                 bootstrap.Modal.getOrCreateInstance('#edit-supplier').hide()
             }
         });

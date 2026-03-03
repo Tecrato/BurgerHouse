@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 import introTooltip from "../../intro-tooltip.js"
 const {trash} = introTooltip()
 const { sessionInfo, binnacle, fecha, permission } = functionGeneral();
@@ -445,7 +446,7 @@ function initTable(moduleKey) {
                                 icon: "success",
                             });
                             table.ajax.reload();
-                            binnacle(session.message.id, "Papelera", "Restaurar", "Se ha restaurado un elemento de la papelera")
+                            nuevaBitacora("Papelera", "Restaurar", "Se ha restaurado un elemento de la papelera")
                         } else {
                             Swal.fire({
                                 title: `Error!`,

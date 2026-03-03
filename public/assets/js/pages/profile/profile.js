@@ -1,5 +1,6 @@
 import functionGeneral from "../../Functions.js"
-const { searchParam, setValidationStyles, validateField, sessionInfo, binnacle } = functionGeneral()
+import { nuevaBitacora } from "../../Functions2.js"
+const { searchParam, setValidationStyles, validateField, sessionInfo } = functionGeneral()
 dayjs.extend(window.dayjs_plugin_relativeTime);
 dayjs.locale('es');
 const session = await sessionInfo();
@@ -91,7 +92,7 @@ document.querySelector('input[type="file"]').addEventListener('change', async fu
     if (res.success == true) {
         let user2 = await searchParam({ id: session.message.id }, "users")
         document.getElementById("img_profile_header").src = `media/users/${user2[0].imagen}`
-        binnacle(session.message.id, "Perfil", "Actualizacion", "Se actualizo la imagen de perfil")
+        nuevaBitacora("Perfil", "Actualizacion", "Se actualizo la imagen de perfil")
         activity()
         const Toast = Swal.mixin({
             toast: true,
@@ -304,7 +305,7 @@ if (!formEditProfile.dataset.listenerAttached) {
                     let res = await send.json();
                     if (res.success == true) {
                         let session2 = await sessionInfo();
-                        binnacle(session.message.id, 'Perfil', 'Perfil actualizado', 'Se actualizo el perfil');
+                        nuevaBitacora('Perfil', 'Perfil actualizado', 'Se actualizo el perfil');
                         activity()
                         document.getElementById("name_profile_header").textContent = (session2.message.nombre + " " + session2.message.apellido)
                         Swal.close();
@@ -398,7 +399,7 @@ if (!formEditPassword.dataset.listenerAttached) {
                             let send = await fetch(`changepass/update`, { method: "POST", body: data });
                             let res = await send.json();
                             if (res.success == true) {
-                                binnacle(session.message.id, 'Usuario', 'Perfil actualizado', 'Se actualizo la contraseña de su perfil');
+                                nuevaBitacora('Usuario', 'Perfil actualizado', 'Se actualizo la contraseña de su perfil');
                                 activity()
                                 Swal.close();
                                 Swal.fire({

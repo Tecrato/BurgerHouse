@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
 const { table } = introTooltip()
@@ -12,7 +13,7 @@ const config = {
     template: targetTable,
     container: ".cont_tables_free",
     funtions: () => {
-        Delete(config, () => binnacle(session.message.id, "Mesas", "Eliminacion", "Se Elimino un mesa"));
+        Delete(config, () => nuevaBitacora("Mesas", "Eliminacion", "Se Elimino un mesa"));
         edit((response) => editData(response));
         document.querySelectorAll(".edit_btn, .trash_btn").forEach((element) => { let tooltip = new bootstrap.Tooltip(element) });
         permission("mesas");
@@ -213,7 +214,7 @@ if (!form.dataset.listenerAttached) {
                 data.append(`lista[${index}][vip]`, table.vip == true ? 1 : 0);
             })
             resetForm("#tables-container .tables", form)
-            add(config, "table", data, () => binnacle(session.message.id, "Mesas", "Agregar", "Se agrego una mesa"))
+            add(config, "table", data, () => nuevaBitacora("Mesas", "Agregar", "Se agrego una mesa"))
             bootstrap.Modal.getOrCreateInstance('#register-table').hide()
         }
     });
@@ -263,7 +264,7 @@ if (!formEdit.dataset.listenerAttached) {
                 dataFinal.append(`imagen`, data.imagen);
                 dataFinal.append(`imagen_name`, data.imagen.name);
             }
-            update(config, "table", dataFinal, () => binnacle(session.message.id, "Mesas", "Edicion", "Se Edito un mesa"))
+            update(config, "table", dataFinal, () => nuevaBitacora("Mesas", "Edicion", "Se Edito un mesa"))
             bootstrap.Modal.getOrCreateInstance('#edit-table').hide()
         }
     })

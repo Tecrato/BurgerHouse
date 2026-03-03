@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import { report } from "./report.js"
 const { print, searchParam, binnacle, sessionInfo, searchFilter, permission, pagination, notification, notificationAlert } = functionGeneral();
@@ -81,7 +82,7 @@ const preparedKitchen = () => {
                 print(config)
                 print({ ...config, search: () => searchParam({ status: "en preparacion" }, "orden"), container: ".kitchen-cont-inprepared" })
                 print({ ...config, search: () => searchParam({ status: "para despachar" }, "orden"), container: ".kitchen-cont-prepared-off" })
-                binnacle(session.message.id, 'Orden de cocina', action == "en cocina" ? "La orden se encuentra en preparacion" : 'La orden se encuentra para despachar', action == "en cocina" ? 'Se envio una orden a preparar' : 'Se envio una orden a despachar')
+                nuevaBitacora('Orden de cocina', action == "en cocina" ? "La orden se encuentra en preparacion" : 'La orden se encuentra para despachar', action == "en cocina" ? 'Se envio una orden a preparar' : 'Se envio una orden a despachar')
                 notification({
                     id_usuario: session.message.id,
                     titulo: `${action == "en cocina" ? "La orden se encuentra en preparacion" : 'La orden se encuentra para despachar'}`,

@@ -1,5 +1,5 @@
 import Templates, {targetPermission} from "../../templates.js";
-import { sessionInfo, imprimir, myfecth, funcs_btn_editar, funcs_btn_eliminar, searchFilter, setValidationStyles } from "../../Functions2.js";
+import { sessionInfo, imprimir, myfecth, funcs_btn_editar, funcs_btn_eliminar, searchFilter, setValidationStyles, nuevaBitacora } from "../../Functions2.js";
 
 var [session, permisos] = sessionInfo('roles y permisos');
 permisos = permisos[0] || {permisos: ''}

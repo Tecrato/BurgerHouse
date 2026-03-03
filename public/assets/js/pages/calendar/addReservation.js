@@ -1,5 +1,5 @@
 export async function payReservation(functions, templates, calendar) {
-    const { searchParam, amountDolar, viewImage, InputPrice, selectOptionAll, validateField, setValidationStyles, reindex, CheckCash, sessionInfo, binnacle, resetForm, hora, fecha } = functions()
+    const { searchParam, amountDolar, viewImage, InputPrice, selectOptionAll, validateField, setValidationStyles, reindex, CheckCash, sessionInfo, resetForm, hora, fecha } = functions()
     const { tagPackage, targetClienteOrder, optionsRol, elemenFormPaymentReservation, selectTable } = templates()
     viewImage(".input-image")
     InputPrice("[input_price]");
@@ -426,7 +426,7 @@ export async function payReservation(functions, templates, calendar) {
                             title: "Reserva creada",
                             text: "Reserva creada con exito",
                         })
-                        binnacle(session.message.id, "reserva", "Creacion", `Se agrego una reserva para el ${fecha(dateReservation.fecha_inicio)}`);
+                        nuevaBitacora("reserva", "Creacion", `Se agrego una reserva para el ${fecha(dateReservation.fecha_inicio)}`);
                         calendar()
                         resetFormModal()
                     } else {

@@ -1,4 +1,5 @@
 import functionGeneral from "../../Functions.js";
+import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 const { selectOptionAll, setValidationStyles, validateField, searchParam, searchFilter, print, add, update, reindex, resetForm, binnacle, sessionInfo, Delete, edit, permission } = functionGeneral();
 const { elemenFormUser, optionsRol, targetUser } = Templates()
@@ -14,7 +15,7 @@ const config = {
     template: targetUser,
     container: ".container_users",
     funtions: () => {
-        Delete(config, () => binnacle(session.message.id, "Usuario", "Eliminacion", "Se elimino un usuario"));
+        Delete(config, () => nuevaBitacora("Usuario", "Eliminacion", "Se elimino un usuario"));
         edit((response) => editData(response));
         document.querySelectorAll(".edit_btn, .trash_btn").forEach((element) => { let tooltip = new bootstrap.Tooltip(element) });
         permission("usuarios")
@@ -291,7 +292,7 @@ if (!form.dataset.listenerAttached) {
                 dataFinal.append(`lista[${index}][hash]`, user.hash)
             })
             resetForm("#users-container .users", form)
-            add(config, "users", dataFinal, () => binnacle(session.message.id, "Usuarios", "Agregar", "Se agrego un usuario"))
+            add(config, "users", dataFinal, () => nuevaBitacora("Usuarios", "Agregar", "Se agrego un usuario"))
             bootstrap.Modal.getOrCreateInstance('#register-user').hide()
         }
     })
@@ -364,7 +365,7 @@ function editData(response) {
                 dataFinal.append('id_rol', data.id_rol)
                 // dataFinal.append('hash', data.hash)
                 dataFinal.append('id', formEdit.querySelector(`input[name="id_user"]`).value)
-                update(config, "users", dataFinal, () => binnacle(session.message.id, "Usuarios", "Actualizacion", "Se actualizo un usuario"))
+                update(config, "users", dataFinal, () => nuevaBitacora("Usuarios", "Actualizacion", "Se actualizo un usuario"))
                 bootstrap.Modal.getOrCreateInstance('#edit-user').hide()
             }
         })

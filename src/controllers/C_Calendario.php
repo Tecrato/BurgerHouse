@@ -1,60 +1,157 @@
 <?php
-use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
+use Shtch\Burgerhouse\function\AuthSession;
 use Shtch\Burgerhouse\models\Reservacion;
 
-function calendario_view(...$args)
-{
-    view('calendar');
+$session = new AuthSession();
+$resultado_final = '';
+
+if (!$session->usuario) {
+    make_url_error("No estas autenticado. Redirigiendo a login...", 401, ajax: $ajax);
 }
 
-function calendario_get_all(...$args)
-{
-    get_all(new Reservacion(), ...$args);
+if (count($url) < 2 || $url[1] === 'view') {
+    if (file_exists(__DIR__ . '/../views/calendar.php')) {
+        include_once __DIR__ . '/../views/calendar.php';
+    } else if (file_exists(__DIR__ . '/../views/V_calendar.php')) {
+        include_once __DIR__ . '/../views/V_calendar.php';
+    } else {
+        make_url_error("No se encontro la vista calendar.php", 404);
+    }
+    exit;
 }
 
-function calendario_add(...$args)
-{
-    add(new Reservacion(), $_POST);
+$accion = strtolower($url[1]);
+
+if ($accion === 'get_all') {
+    try {
+        $modelo = new Reservacion(...$_POST);
+        $resultado_final = $modelo->search(...$parametros_paginacion);
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'add') {
+    try {
+        $modelo = new Reservacion(...$_POST);
+        $id = $modelo->agregar();
+        $resultado_final = ['success' => true, 'last_id' => $id];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'add_many') {
+    if (!isset($_POST['lista']) || !is_array($_POST['lista']) || count($_POST['lista']) === 0) {
+        make_url_error("No se recibio una lista valida para agregar.", 400, ajax: true);
+    }
+
+    try {
+        $ids = [];
+        foreach ($_POST['lista'] as $item) {
+            if (!is_array($item)) {
+                make_url_error("Cada item de la lista debe ser un arreglo valido.", 400, ajax: true);
+            }
+            $itemModel = new Reservacion(...$item);
+            $ids[] = $itemModel->agregar();
+        }
+        $resultado_final = ['success' => true, 'lista' => $ids];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'update') {
+    try {
+        $modelo = new Reservacion(...$_POST);
+        $resultado_final = $modelo->actualizar();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'updatemany' || $accion === 'update_many') {
+    if (!isset($_POST['lista']) || !is_array($_POST['lista']) || count($_POST['lista']) === 0) {
+        make_url_error("No se recibio una lista valida para actualizar.", 400, ajax: true);
+    }
+
+    $ok = true;
+    try {
+        foreach ($_POST['lista'] as $item) {
+            if (!is_array($item)) {
+                make_url_error("Cada item de la lista debe ser un arreglo valido.", 400, ajax: true);
+            }
+            $itemModel = new Reservacion(...$item);
+            $res = $itemModel->actualizar();
+            if (($res['success'] ?? false) !== true) {
+                $ok = false;
+            }
+        }
+        $resultado_final = ['success' => $ok];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'delete') {
+    if (!isset($_POST['id'])) {
+        make_url_error("No se recibio el id para eliminar.", 400, ajax: true);
+    }
+
+    try {
+        $modelo = new Reservacion(id: $_POST['id']);
+        $resultado_final = ['success' => $modelo->borrar()];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($accion === 'deletemany' || $accion === 'delete_many' || $accion === 'check') {
+    $lista = null;
+    if (isset($_POST['lista']) && is_array($_POST['lista'])) {
+        $lista = $_POST['lista'];
+    } else if (isset($_POST['ids']) && is_array($_POST['ids'])) {
+        $lista = $_POST['ids'];
+    }
+
+    if (!is_array($lista) || count($lista) === 0) {
+        make_url_error("No se recibio una lista valida para eliminar.", 400, ajax: true);
+    }
+
+    $ok = true;
+    foreach ($lista as $item) {
+        $id = null;
+        if (is_array($item)) {
+            $id = $item['id'] ?? null;
+        } else if (is_numeric($item)) {
+            $id = $item;
+        }
+
+        if ($id === null) {
+            make_url_error("Cada item debe incluir un id valido.", 400, ajax: true);
+        }
+
+        $itemModel = new Reservacion(id: $id);
+        $deleted = $itemModel->borrar();
+        if ($deleted === 0 || $deleted === false) {
+            $ok = false;
+        }
+    }
+
+    $resultado_final = ['success' => $ok];
+    $ajax = true;
+} else if ($accion === 'count' || $accion === 'total') {
+    try {
+        $modelo = new Reservacion(...$_POST);
+        $resultado_final = $modelo->count();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else {
+    make_url_error("Accion no valida para calendario.", 404, ajax: true);
 }
 
-function calendario_add_many(...$args)
-{
-    add_many(new Reservacion(), $_POST);
+if ($ajax) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($resultado_final);
+    exit;
 }
 
-function calendario_update(...$args)
-{
-    update(new Reservacion(), $_POST);
-}
-
-function calendario_update_many(...$args)
-{
-    update_many(new Reservacion(), $_POST);
-}
-
-function calendario_delete(...$args)
-{
-    delete(new Reservacion(), $_POST['id']);
-}
-
-function calendario_delete_many(...$args)
-{
-    delete_many(new Reservacion(), $_POST['ids']);
-}
-
-function calendario_check(...$args)
-{
-    check(new Reservacion(), $_POST['id']);
-}
-
-function calendario_total(...$args)
-{
-    total(new Reservacion());
-}
-
-function calendario_count(...$args)
-{
-    total(new Reservacion());
-}
+print_r($resultado_final);
 
 
