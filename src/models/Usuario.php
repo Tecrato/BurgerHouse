@@ -53,7 +53,7 @@ class Usuario extends Db_base
                 a.nombre,
                 a.hash,
                 roles.nombre rol,
-                roles.id rol_id,
+                roles.id id_rol,
                 a.active,
                 a.session_id,
                 a.email,

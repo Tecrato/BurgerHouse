@@ -187,7 +187,7 @@ abstract class Db_base extends Conexion
             return 0;
         }
     }
-    public function search($n = 0, $limite = 9, string $order_by = 'id', string $order_type = 'ASC'): array
+    public function search( int $n = 0, int $limite = 9, string $order_by = 'id', string $order_type = 'ASC'): array
     {
         $query = "SELECT $this->select_query FROM $this->tabla AS a $this->joins WHERE 1";
 

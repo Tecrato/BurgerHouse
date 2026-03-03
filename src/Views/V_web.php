@@ -64,7 +64,7 @@
             <div class="container position-relative d-flex align-items-center justify-content-between">
                 <a href="index.html" class="logo d-flex align-items-center me-auto me-xl-0">
                     <!-- Uncomment the line below if you also wish to use an image logo -->
-                    <img src="./assets/img/favicon.png">
+                    <img src="./assets/img/favicon.png" alt="Logo Burger House">
                     <h1 class="sitename">Burger House</h1>
                 </a>
 

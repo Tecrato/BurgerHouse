@@ -63,7 +63,7 @@ export default function Templates() {
         return `
         <div class="col">
             <div class="card">
-                <img src="${objet.imagen ? "media/producto_preparado/" + objet.imagen : "./assets/img/big/banner_login.png"}" class="card-img-top" alt="..." style="object-fit: cover; height: 140px">
+                <img src="${objet.imagen ? "media/producto_preparado/" + objet.imagen : "./assets/img/big/banner_login.png"}" class="card-img-top" alt="${objet.nombre ? 'Imagen de ' + objet.nombre : 'Imagen del producto preparado'}" style="object-fit: cover; height: 140px">
                 <div class="card-body">
                     <h5 class="card-title">${objet.nombre}</h5>
                     <p class=" fs-6 truncate-3-lines">${objet.detalles}</p>
@@ -91,7 +91,7 @@ export default function Templates() {
         return `
         <div class="col">
             <div class="card">
-                <img src="${objet.imagen ? "media/producto_procesado/" + objet.imagen : "./assets/img/big/banner_login.png"}" class="card-img-top" alt="..." style="object-fit: cover; height: 140px">
+                <img src="${objet.imagen ? "media/producto_procesado/" + objet.imagen : "./assets/img/big/banner_login.png"}" class="card-img-top" alt="${objet.nombre ? 'Imagen de ' + objet.nombre : 'Imagen del producto procesado'}" style="object-fit: cover; height: 140px">
                 <div class="card-body">
                     <h5 class="card-title">${objet.nombre}</h5>
                     <p class=" fs-6 truncate-3-lines">${objet.detalles}</p>
@@ -599,7 +599,7 @@ export default function Templates() {
         return `
         <div class="col-md-3 mb-5">
             <div class="card h-100">
-                <img src="media/table/${objet.imagen}" class="card-img-top" style="object-fit: cover; height: 200px;" alt="...">
+                <img src="media/table/${objet.imagen}" class="card-img-top" style="object-fit: cover; height: 200px;" alt="${objet.nombre ? 'Imagen de la mesa ' + objet.nombre : 'Imagen de mesa'}">
                 <div class="card-body p-1">
                     <div class="d-flex justify-content-center align-items-center gap-4 h-100">
                         <h5 class="card-title m-0">${objet.nombre}</h5>
@@ -2006,7 +2006,7 @@ export default function Templates() {
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4 align-items-center d-flex justify-content-center">
-                            <img ${objet.imagen ? `src='./media/${typeProduct}/${objet.imagen}'` : `src='./assets/img/big/banner_login.png'`} class="rounded-full" width="100" height="100" alt="">
+                            <img ${objet.imagen ? `src='./media/${typeProduct}/${objet.imagen}'` : `src='./assets/img/big/banner_login.png'`} class="rounded-full" width="100" height="100" alt="${objet.nombre ? 'Imagen de ' + objet.nombre : 'Imagen del producto'}">
                         </div>
                         <div class="col-md-8">
                             <h4>${objet.nombre}</h4>
@@ -2031,7 +2031,7 @@ export default function Templates() {
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6 col-lg-6 d-flex flex-column align-items-center justify-content-center gap-2">
-                            <img ${src} width="100" height="90" style="object-fit: cover;" alt="">
+                            <img ${src} width="100" height="90" style="object-fit: cover;" alt="${objet.nombre ? 'Imagen de ' + objet.nombre : 'Imagen del producto'}">
                             <h5 class="text-truncate w-100 text-center" data-id="${objet.id}">${objet.nombre}</h5>
                             <h4 class="border text-center rounded-pill p-1 fs-6 w-100">Precio: ${objet.precio}$</h4>
                             <textarea class="form-control details" placeholder="detalles" rows="3"></textarea>
@@ -2070,7 +2070,7 @@ export default function Templates() {
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12 col-lg-12 d-flex flex-column align-items-center justify-content-center gap-2">
-                            <img ${src} width="100" height="90" style="object-fit: cover;" alt="">
+                            <img ${src} width="100" height="90" style="object-fit: cover;" alt="${objet.nombre ? 'Imagen de ' + objet.nombre : 'Imagen del producto'}">
                             <h5 data-id="${objet.id}">${objet.nombre}</h5>
                             <h4 class="border text-center rounded-pill p-1 fs-6 w-100">Precio: ${objet.precio}$</h4>
                             <div class="counter-container mb-2">
@@ -2107,7 +2107,7 @@ export default function Templates() {
                             <p class="text-muted fs-6 document_client">${objet.documento}</p>
                         </div>
                         <div class="col-lg-6 col-md-6 d-flex justify-content-center align-items-center">
-                            <img src="./assets/img/users/1.jpg" class="rounded-circle" width="100" alt="">
+                            <img src="./assets/img/users/1.jpg" class="rounded-circle" width="100" alt="Avatar del cliente">
                         </div>
                     </div>
                 </div>
@@ -2228,7 +2228,7 @@ export default function Templates() {
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4 align-items-center d-flex justify-content-center">
-                            <img src="${objet.imagen ? "media/table/" + objet.imagen : "./assets/img/big/banner_login.png"}" class="rounded-full" width="100" height="100" alt="">
+                            <img src="${objet.imagen ? "media/table/" + objet.imagen : "./assets/img/big/banner_login.png"}" class="rounded-full" width="100" height="100" alt="${objet.nombre ? 'Imagen de la mesa ' + objet.nombre : 'Imagen de mesa'}">
                         </div>
                         <div class="col-md-8 d-flex flex-column justify-content-center">
                             <h4>${objet.nombre}</h4>

@@ -5,7 +5,7 @@ use Shtch\Burgerhouse\models\Bitacora;
 
 function bitacora_view()
 {
-    view('binnacle');
+    view('bitacora');
 }
 function bitacora_get_all(...$args) {
     get_all(new Bitacora(), ...$args);

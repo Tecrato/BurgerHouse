@@ -1,3 +1,7 @@
 /vendor/
-/src/media
+/src/media/**
+!/src/media/**/
+!/src/media/**/banner_*
+!/src/media/**/ImgThumb.*
+!/src/media/**/modelo_caja.*
 /.env

@@ -14,7 +14,7 @@ const modulesConfig = {
         },
         columns: [
             { title: 'ID', data: 'id' },
-            { title: 'Imagen', data: null, render: (data) => `<img src='${"media/table/" + data.imagen}' width='50px' height='50px'>` },
+            { title: 'Imagen', data: null, render: (data) => `<img src='${"media/table/" + data.imagen}' width='50px' height='50px' alt='Imagen de la mesa'>` },
             { title: 'Nombre', data: 'nombre' },
             { title: 'Sillas', data: 'sillas' },
             {
@@ -38,7 +38,7 @@ const modulesConfig = {
             }
         },
         columns: [
-            { title: '', data: null, render: (data) => `<img src='${data.imagen ? "media/producto preparado/" + data.imagen : "./assets/img/big/banner_login.png"}' width='50px' height='50px'>` },
+            { title: '', data: null, render: (data) => `<img src='${data.imagen ? "media/producto preparado/" + data.imagen : "./assets/img/big/banner_login.png"}' width='50px' height='50px' alt='Imagen del producto preparado'>` },
             { title: 'Nombre', data: 'nombre' },
             { title: 'Precio', data: null, render: (data) => { return (data.precio).toString().replace(".", ",") + " $" } },
             {
@@ -63,7 +63,7 @@ const modulesConfig = {
             }
         },
         columns: [
-            { title: '', data: null, render: (data) => `<img src='${data.imagen ? "media/productProcess/" + data.imagen : "./assets/img/big/banner_login.png"}' width='50px' height='50px'>` },
+            { title: '', data: null, render: (data) => `<img src='${data.imagen ? "media/productProcess/" + data.imagen : "./assets/img/big/banner_login.png"}' width='50px' height='50px' alt='Imagen del producto procesado'>` },
             { title: 'Nombre', data: 'nombre' },
             { title: 'Precio', data: null, render: (data) => { return (data.precio).toString().replace(".", ",") + " $" } },
 
@@ -315,7 +315,7 @@ const modulesConfig = {
             data: { active: 0, tipo: "adicional" }
         },
         columns: [
-            { title: '', data: null, render: (data) => { return `<img style="object-fit: cover" src='media/adicionales/${data.imagen}' width='50px' height='50px'>` } },
+            { title: '', data: null, render: (data) => { return `<img style="object-fit: cover" src='media/adicionales/${data.imagen}' width='50px' height='50px' alt='Imagen del adicional'>` } },
             { title: 'Nombre', data: 'nombre' },
             { title: 'Precio', data: null, render: (data) => { return (data.precio).toString().replace(".", ",") + " $" } },
             {

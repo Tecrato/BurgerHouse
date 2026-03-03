@@ -1,3 +1,4 @@
+import { myfecth } from "./Functions2.js";
 export default function functionGeneral() {
 
   async function permission(module = null, funtion = null) {
@@ -67,7 +68,8 @@ export default function functionGeneral() {
   }
   const CheckCash = async () => {
     let id_cash = null
-    let caja = await searchParam({}, "caja")
+    let caja = myfecth("caja/get_all").json()
+    console.log(caja);
     if (caja.length > 0) {
       caja.forEach((e) => {
         /// (fecha(e.fecha_apertura) == fecha(new Date())) && 
@@ -88,8 +90,8 @@ export default function functionGeneral() {
     return horaFormateada;
   }
   const amountDolar = async () => {
-    let search = await fetch("https://ve.dolarapi.com/v1/dolares")
-    let response = await search.json()
+    let search = myfecth("https://ve.dolarapi.com/v1/dolares")
+    let response = search.json()
     return parseFloat(response[0].promedio).toFixed(2);
   }
   function fecha(f) {
@@ -340,11 +342,8 @@ export default function functionGeneral() {
         let module = element.getAttribute("data-module");
         let data = new FormData();
         data.append("id", id);
-        let pet = await fetch(`${module}/get_all`, {
-          method: "POST",
-          body: data,
-        });
-        let response = await pet.json();
+        let pet = myfecth(`${module}/get_all`, {}, {id: id}, null, "POST");
+        let response = pet.json();
         let img = response[0].comprobante;
         modalCont.querySelector(".view_comprobante").src = `media/${carpeta}/${img}`;
       });
@@ -367,8 +366,8 @@ export default function functionGeneral() {
     });
   }
   const sessionInfo = async () => {
-    let pet = await fetch("login/SessionInfo")
-    let response = await pet.json()
+    let pet = myfecth("login/SessionInfo")
+    let response = pet.json()
     return response
   }
   //--------------funciones para el manejo de peticiones ajax para las tarjetas------------------
@@ -388,7 +387,7 @@ export default function functionGeneral() {
     data.append("tabla", table);
     data.append("accion", action);
     data.append("descripcion", description);
-    let search = await fetch("bitacora/add", { method: "POST", body: data });
+    let search = myfecth("bitacora/add", {}, data, null, "POST");
   }
   const print = async (config) => {
     const { search, template, container, funtions } = config;

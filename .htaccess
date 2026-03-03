@@ -1,5 +1,7 @@
-    RewriteEngine On
-    # RewriteBase /hola/
+RewriteEngine On
+# RewriteBase /hola/
+
+# RewriteRule ^media/(.*)$ src/media/$1 [L,NC]
     
-    RewriteCond %{REQUEST_URI} !^/BurgerHouse/public/
-    RewriteRule ^(.*)$ public/$1 [QSA,L]
+RewriteCond %{REQUEST_URI} !^/BurgerHouse/public/
+RewriteRule ^(.*)$ public/$1 [QSA,L]

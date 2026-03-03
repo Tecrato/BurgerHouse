@@ -1,42 +1,39 @@
 <?php
-// C_Adicionales.php will become a plain procedural controller.  it no longer
-// uses a namespace so that its functions are global and visible from
-// public/index.php.
-use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, delete, check};
+use Shtch\Burgerhouse\models\ProductoProcesado;
+use Shtch\Burgerhouse\function\AuthSession;
 
-use Shtch\Burgerhouse\models\ProductoPreparado as Adicional;
+$session = new AuthSession();
+$adicionalModel = new ProductoProcesado();
+$resultado_final = '';
 
-
-function adicionales_view()
-{
-    view('adicionales');
+if (!$session->usuario) {
+    make_url_error("No estás autenticado. Redirigiendo a login...", 401, ajax: $ajax);
 }
 
-function adicionales_get_all(...$args)
-{
-    $modelo = new Adicional();
-    get_all($modelo, ...$args);
-}
-function adicionales_add() {
-    add(new Adicional(), $_POST);
-}
+// if (!$session->is_admin()) {
+//     make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: $ajax);
+// }
 
-function adicionales_add_many(...$args) {
-    $adicionales = json_decode($_POST['adicionales'], true);
-    foreach ($adicionales as $adicional) {
-        add(new Adicional(), $adicional);
+if (count($url) < 2) {
+    if (file_exists(__DIR__ . '/../views/adicionales.php')) {
+        include_once __DIR__ . '/../views/adicionales.php';
+    } else {
+        make_url_error("No se encontró la vista adicionales.php", 404);
     }
+    exit;
 }
 
-function adicionales_update(...$args) {
-    $modelo = new Adicional(...$_POST);
-    $modelo->actualizar();
+if ($url[1] === 'get_all') {
+    if (!$session->has_permission('Adicionales', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: $ajax);
+    }
+    $resultado_final = $adicionalModel->search(...$parametros_paginacion);
+    $ajax = true;
 }
 
-function adicionales_delete(...$args) {
-    delete(new Adicional(), $_POST['id']);
-}
 
-function adicionales_check(...$args) {
-    check();
+if ($ajax) {
+    header('Content-Type: application/json; charset=utf-8');
+    $resultado_final = json_encode($resultado_final);
 }
+print_r($resultado_final);

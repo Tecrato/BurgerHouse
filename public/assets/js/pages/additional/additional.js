@@ -3,7 +3,8 @@ import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
 import { 
     nuevaBitacora,
-    InputPriceFormat
+    InputPriceFormat,
+    myfecth
  } from "../../Functions2.js";
 const { resetForm, setValidationStyles, validateField, addDataTables, reindex, deleteDatatable, editDataTables, updateDataTables, InputPrice, sessionInfo, viewImage, permission } = functionGeneral();
 const { elemenFormAdditional } = Templates()
@@ -26,7 +27,7 @@ let n = $(".table_additional").DataTable({
     },
     columns: [
         { data: 'nombre' },
-        { data: null, render: (data, type, row, meta) => { return `<img style="object-fit: cover" src='${data.imagen ? "media/additional/" + data.imagen : "./assets/img/big/banner_login.png"}' width='50px' height='50px'>` } },
+        { data: null, render: (data, type, row, meta) => { return `<img style="object-fit: cover" src='${data.imagen ? "media/additional/" + data.imagen : "./assets/img/big/banner_login.png"}' width='50px' height='50px' alt='Imagen del adicional'>` } },
         { data: null, render: (data, type, row, meta) => { return data.precio + " $" } },
         {
             data: null,

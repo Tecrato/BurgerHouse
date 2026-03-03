@@ -1,43 +1,96 @@
 <?php
+use Shtch\Burgerhouse\function\AuthSession;
 use Shtch\Burgerhouse\models\Caja;
-use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 
+$session = new AuthSession();
+$resultado_final = '';
 
-function caja_view()
-{
-    view('cash');
-}
-function caja_get_all(...$args) {
-    get_all(new Caja(), ...$args);
-}
-function caja_detailCash(...$args)
-{
-    header('Content-Type: application/json');
-     $modelo = new Caja();
-     echo json_encode($modelo->cajaDetails($_SESSION['id'] ?? null));
+if (!$session->usuario) {
+    make_url_error("No estas autenticado. Redirigiendo a login...", 401, ajax: $ajax);
 }
 
-function caja_add(...$args)
-{
-    add(new Caja(), $_POST);
-}
-function caja_add_many(...$args)
-{
-    add_many(new Caja(), $_POST['lista']);
-}
-function caja_update(...$args)
-{
-    update(new Caja(), $_POST);
-}
-
-function caja_closeCash(...$args)
-{
-    try {
-        $id = $_POST['id'];
-        $modelo = new Caja();
-        $modelo->closeCash($id);
-        echo json_encode(['success' => true]);
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+if (count($url) < 2) {
+    if (file_exists(__DIR__ . '/../Views/cash.php')) {
+        include_once __DIR__ . '/../Views/cash.php';
+    } else {
+        make_url_error("No se encontro la vista cash.php", 404);
     }
+    exit;
 }
+
+$modelo = new Caja(...$_POST);
+
+if ($url[1] === 'get_all') {
+    if (!$session->has_permission('Caja', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    $n = (int)($parametros_paginacion['nro_page'] ?? 0);
+    $limite = (int)($parametros_paginacion['limite_registros'] ?? 9);
+    $orderBy = (string)($parametros_paginacion['columna_orden'] ?? 'id');
+    $orderType = strtoupper((string)($parametros_paginacion['orden_direccion'] ?? 'ASC'));
+
+    $resultado_final = $modelo->search($n, $limite, $orderBy, $orderType);
+    $ajax = true;
+} else if ($url[1] === 'add') {
+    if (!$session->has_permission('Caja', 'agregar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    $id = $modelo->agregar();
+    $resultado_final = ['success' => true, 'last_id' => $id];
+    $ajax = true;
+} else if ($url[1] === 'add_many') {
+    if (!$session->has_permission('Caja', 'agregar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    if (!isset($_POST['lista']) || !is_array($_POST['lista']) || count($_POST['lista']) === 0) {
+        make_url_error("No se recibio una lista valida para agregar.", 400, ajax: true);
+    }
+
+    $lastIds = [];
+    foreach ($_POST['lista'] as $item) {
+        if (!is_array($item)) {
+            make_url_error("Cada item de la lista debe ser un arreglo valido.", 400, ajax: true);
+        }
+
+        $itemModel = new Caja(...$item);
+        $lastIds[] = $itemModel->agregar();
+    }
+
+    $resultado_final = ['success' => true, 'last_ids' => $lastIds];
+    $ajax = true;
+} else if ($url[1] === 'update') {
+    if (!$session->has_permission('Caja', 'modificar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    $resultado_final = $modelo->actualizar();
+    $ajax = true;
+} else if ($url[1] === 'detailCash') {
+    if (!$session->has_permission('Caja', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    $resultado_final = $modelo->cajaDetails((int)($_SESSION['id'] ?? 0));
+    $ajax = true;
+} else if ($url[1] === 'closeCash') {
+    if (!$session->has_permission('Caja', 'cerrar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    $modelo->closeCash((int)($_POST['id'] ?? 0));
+    $resultado_final = ['success' => true, 'message' => 'Caja cerrada'];
+    $ajax = true;
+} else {
+    make_url_error("Accion no valida para caja.", 404, ajax: true);
+}
+
+if ($ajax) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($resultado_final);
+    exit;
+}
+
+print_r($resultado_final);

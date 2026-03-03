@@ -1,160 +1,196 @@
 <?php
-    $envPath = __DIR__ . '/../../.env';
-    if (is_readable($envPath)) {
-        $envLines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        foreach ($envLines as $envLine) {
-            $envLine = trim($envLine);
-            if ($envLine === '' || $envLine[0] === '#') {
-                continue;
-            }
 
-            $parts = explode('=', $envLine, 2);
-            if (count($parts) !== 2) {
-                continue;
-            }
 
-            $envKey = trim($parts[0]);
-            $envValue = trim($parts[1]);
-            if ($envKey === '') {
-                continue;
-            }
+// ENVIRONMENT VARIABLES
+$envPath = __DIR__ . '/../../.env';
+if (is_readable($envPath)) {
+    $envLines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($envLines as $envLine) {
+        $envLine = trim($envLine);
+        if ($envLine === '' || $envLine[0] === '#') {
+            continue;
+        }
 
-            $firstChar = substr($envValue, 0, 1);
-            $lastChar = substr($envValue, -1);
-            if ((($firstChar === '"') && ($lastChar === '"')) || (($firstChar === "'") && ($lastChar === "'"))) {
-                $envValue = substr($envValue, 1, -1);
-            }
+        $parts = explode('=', $envLine, 2);
+        if (count($parts) !== 2) {
+            continue;
+        }
 
-            if (getenv($envKey) === false) {
-                putenv($envKey . '=' . $envValue);
-                $_ENV[$envKey] = $envValue;
-                $_SERVER[$envKey] = $envValue;
-            }
+        $envKey = trim($parts[0]);
+        $envValue = trim($parts[1]);
+        if ($envKey === '') {
+            continue;
+        }
+
+        $firstChar = substr($envValue, 0, 1);
+        $lastChar = substr($envValue, -1);
+        if ((($firstChar === '"') && ($lastChar === '"')) || (($firstChar === "'") && ($lastChar === "'"))) {
+            $envValue = substr($envValue, 1, -1);
+        }
+
+        if (getenv($envKey) === false) {
+            putenv($envKey . '=' . $envValue);
+            $_ENV[$envKey] = $envValue;
+            $_SERVER[$envKey] = $envValue;
         }
     }
+}
 
-    $GLOBALS['public_modules'] = ['login', 'recover_password', 'index', 'web'];
 
-    $turnstileSiteKey = getenv('TURNSTILE_SITE_KEY');
-    $turnstileSecretKey = getenv('TURNSTILE_SECRET_KEY');
-    $turnstileBypass = strtolower(trim((string)(getenv('TURNSTILE_BYPASS') ?: '')));
-    $GLOBALS['turnstile'] = [
-        'site_key' => ($turnstileSiteKey !== false && $turnstileSiteKey !== '') ? $turnstileSiteKey : '1x00000000000000000000AA',
-        'secret_key' => ($turnstileSecretKey !== false && $turnstileSecretKey !== '') ? $turnstileSecretKey : '1x0000000000000000000000000000000AA',
-        'bypass' => in_array($turnstileBypass, ['1', 'true', 'yes', 'on'], true)
-    ];
+
+
+// URL
+define("__URL__", "http://localhost/BurgerHouse/");
+
+// ERROR DICTIONARY
+define("ERROR_DICT", [
+    // 200
+    200 => "OK: La solicitud se ha procesado correctamente.",
+    // 400
+    400 => "Bad Request: La solicitud no se pudo entender o es inválida.",
+    401 => "Unauthorized: No tienes permiso para acceder a este recurso.",
+    403 => "Forbidden: No tienes permiso para acceder a este recurso.",
+    404 => "Not Found: El recurso solicitado no se pudo encontrar.",
+    405 => "Method Not Allowed: El método HTTP no está permitido para este recurso.",
+    // 500
+    500 => "Internal Server Error: Ocurrió un error en el servidor al procesar la solicitud.",
+    501 => "Not Implemented: El servidor no soporta la funcionalidad requerida para procesar la solicitud.",
+    502 => "Bad Gateway: El servidor recibió una respuesta inválida del servidor upstream.",
+]);
+
+
+// CEDULA API
+define('APPID_CEDULA', getenv('APPID_CEDULA'));
+define('TOKEN_CEDULA', getenv('TOKEN_CEDULA'));
+
+// PUBLIC MODULES
+$GLOBALS['public_modules'] = ['login', 'recover_password', 'index', 'web'];
+
+// TURNSTILE API CAPTCHA
+$turnstileSiteKey = getenv('TURNSTILE_SITE_KEY');
+$turnstileSecretKey = getenv('TURNSTILE_SECRET_KEY');
+$turnstileBypass = strtolower(trim((string)(getenv('TURNSTILE_BYPASS') ?: '')));
+$GLOBALS['turnstile'] = [
+    'site_key' => ($turnstileSiteKey !== false && $turnstileSiteKey !== '') ? $turnstileSiteKey : '1x00000000000000000000AA',
+    'secret_key' => ($turnstileSecretKey !== false && $turnstileSecretKey !== '') ? $turnstileSecretKey : '1x0000000000000000000000000000000AA',
+    'bypass' => in_array($turnstileBypass, ['1', 'true', 'yes', 'on'], true)
+];
+
+// EXPRESIONES REGULARES
 $GLOBALS['expresiones_regulares'] = [
-        // id's
-        'id' => '/^[0-9]*$/',
-        'id_permiso' => '/^[0-9]+$/',
-        'id_metodo_pago' => '/^[0-9]+$/',
-        'id_rol' => '/^[0-9]+$/',
-        'id_usuario' => '/^[0-9]+$/',
-        'id_usuario_delivery' => '/^[0-9]+$/',
-        'id_venta' => '/^[0-9]+$/',
-        'id_materia_prima' => '/^[0-9]+$/',
-        'id_entrada' => '/^[0-9]+$/',
-        'id_receta' => '/^[0-9]+$/',
-        'id_producto' => '/^[0-9]+$/',
-        'id_orden' => '/^[0-9]+$/',
-        'id_producto_preparado' => '/^[0-9]+$/',
-        'id_entrada_materia_prima' => '/^[0-9]+$/',
-        'id_detalle_entrada_materia_prima' => '/^[0-9]+$/',
-        'id_proveedor' => '/^[0-9]+$/',
-        'id_unidad' => '/^[0-9]+$/',
-        'id_categoria' => '/^[0-9]+$/',
-        'id_mesa' => '/^[0-9]+$/',
-        'id_reserva' => '/^[0-9]+$/',
-        'id_pago' => '/^[0-9]+$/',
-        'id_paquete' => '/^[0-9]+$/',
-        'id_caja' => '/^[0-9]+$/',
-        'id_cliente' => '/^[0-9]+$/',
+    // id's
+    'id' => '/^[0-9]*$/',
+    'id_permiso' => '/^[0-9]+$/',
+    'id_metodo_pago' => '/^[0-9]+$/',
+    'id_rol' => '/^[0-9]+$/',
+    'id_usuario' => '/^[0-9]+$/',
+    'id_usuario_delivery' => '/^[0-9]+$/',
+    'id_venta' => '/^[0-9]+$/',
+    'id_materia_prima' => '/^[0-9]+$/',
+    'id_entrada' => '/^[0-9]+$/',
+    'id_receta' => '/^[0-9]+$/',
+    'id_producto' => '/^[0-9]+$/',
+    'id_orden' => '/^[0-9]+$/',
+    'id_producto_preparado' => '/^[0-9]+$/',
+    'id_entrada_materia_prima' => '/^[0-9]+$/',
+    'id_detalle_entrada_materia_prima' => '/^[0-9]+$/',
+    'id_proveedor' => '/^[0-9]+$/',
+    'id_unidad' => '/^[0-9]+$/',
+    'id_categoria' => '/^[0-9]+$/',
+    'id_mesa' => '/^[0-9]+$/',
+    'id_reserva' => '/^[0-9]+$/',
+    'id_pago' => '/^[0-9]+$/',
+    'id_paquete' => '/^[0-9]+$/',
+    'id_caja' => '/^[0-9]+$/',
+    'id_cliente' => '/^[0-9]+$/',
 
 
-        //fechas
-        'fecha' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
-        'fecha_compra' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
-        'fecha_inicio' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
-        'fecha_final' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
-        'fecha_apertura' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
-        'fecha_cierre' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
-        'fecha_vencimiento' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
-        'fecha_bloqueo' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
+    //fechas
+    'fecha' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
+    'fecha_compra' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
+    'fecha_inicio' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
+    'fecha_final' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
+    'fecha_apertura' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
+    'fecha_cierre' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
+    'fecha_vencimiento' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
+    'fecha_bloqueo' => '/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[ T](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,3})?)?$/',
 
 
-        //textos
-        'total_ventas' => '/^[0-9]+$/',
-        'nombre' => '/^[a-zA-Zá-ú ]+$/',
-        'apellido' => '/^[a-zA-Z ]+$/',
-        'telefono' => '/^(?:0[0-9]{10}|\+[1-9][0-9]{9,14})$/',
-        'email' => '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
-        'password' => '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
-        'active' => '/^[0-1]+$/',
-        'session_id' => '/^[a-zA-Z0-9]+$/',
-        'token' => '/^[a-zA-Z0-9]+$/',
-        'token_expiracion' => '/^[0-9]+$/',
-        'imagen' => '/^[a-zA-Z0-9\.\- á-úÁ-Ú\(\)\s\']+$/',
-        'hash' => '/^(?:\$2[ayb]\$\d{2}\$[.\/A-Za-z0-9]{53}|\$argon2(?:i|id)\$v=\d+\$m=\d+,t=\d+,p=\d+\$[A-Za-z0-9+\/]+={0,2}\$[A-Za-z0-9+\/]+={0,2})$/',
-        'nombre_like' => '/^[a-zA-Z ]+$/',
-        'modulo' => '/^[a-zA-Z ]+$/',
-        'accion' => '/^[a-zA-Z ]+$/',
-        'permiso' => '/^[a-zA-Z ]+$/',
-        'monto' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-        'referencia' => '//',
-        'comprobante' => '/^[\w,\s-]+\.(jpg|jpeg|png)$/i',
-        'estado' => '/^[a-zA-Z0-9]+$/',
-        'stock' => '/^[0-9]+$/',
-        'stock_min' => '/^[0-9]+$/',
-        'stock_max' => '/^[0-9]+$/',
-        'tabla_str' => '/^[a-zA-Z ]+$/',
-        'monto_inicial_dolar' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-        'monto_inicial_bs' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-        'monto_final_dolar' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-        'monto_final_bs' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-        'key' => '/^[a-zA-Z ]+$/',
-        'value' => '/^[a-zA-Z ]+$/',
-        'codigo' => '/^[a-zA-Z0-9 ]+$/',
-        'existencia' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-        'cantidad' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-        'broken' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-        'descripcion' => '/^[a-zA-Z0-9á-ú\. ]+$/',
-        'adicionales' => '/^[a-zA-Z0-9 ]+$/',
-        'vip' => '/^[0-1]+$/',
-        'sillas' => '/^[0-9]+$/',
-        'imagen_name' => '/^[a-zA-Z0-9\.\- á-úÁ-Ú\(\)\s\']+$/',
-        'status' => '/^[a-zA-Z0-9 ]+$/',
-        'titulo' => '/^[a-zA-Z ]+$/',
-        'mensaje' => '/^[\p{L}\p{N}\s.,;:¡!¿?\\"\'()\-]+$/u',
-        'nro_orden' => '/^[0-9]+$/',
-        'tipo' => '/^[a-zA-Z0-9 ]+$/',
-        'tasa' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-        'permisos' => '/^[a-zA-Z_ ]+$/',
-        'precio' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-        'precio_compra' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-        'detalles' => '/^[a-zA-Z0-9 ]+$/',
-        'razon_social' => '/^[a-zA-Zá-ú ]+$/',
-        'documento' => '/^(?:[VE]-?[0-9]{7,8}|[J]-?[0-9]{9})$/i',
-        'n_telefono1' => '/^(?:0[0-9]{10}|\+[1-9][0-9]{9,14})$/',
-        'n_telefono2' => '/^(?:0[0-9]{10}|\+[1-9][0-9]{9,14})$/',
-        'direccion' => '/^[a-zA-Z0-9á-ú\#\, ]+$/',
-        'metodo_pedido' => '/^[a-zA-Z ]+$/',
-        'alias' => '/^[a-zA-Z ]+$/',
-        'IVA' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-        'monto_final' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-        'tabla' => '/^[a-zA-Z_]+$/',
-        'valor' => '/^[a-zA-Z_ ]+$/',
-        'llave' => '/^[a-zA-Z_]+$/'
-    ];
-    $GLOBALS['db1'] = [
-        'host' => 'localhost',
-        'name' => 'burgerhouse',
-        'user' => 'root',
-        'pass' => '1234'
-    ];
-    $GLOBALS['db2'] = [
-        'host' => 'localhost',
-        'name' => 'usuarios_burgerhouse',
-        'user' => 'root',
-        'pass' => '1234'
-    ];
+    //textos
+    'total_ventas' => '/^[0-9]+$/',
+    'nombre' => '/^[a-zA-Zá-ú ]+$/',
+    'apellido' => '/^[a-zA-Z ]+$/',
+    'telefono' => '/^(?:0[0-9]{10}|\+[1-9][0-9]{9,14})$/',
+    'email' => '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+    'password' => '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
+    'active' => '/^[0-1]+$/',
+    'session_id' => '/^[a-zA-Z0-9]+$/',
+    'token' => '/^[a-zA-Z0-9]+$/',
+    'token_expiracion' => '/^[0-9]+$/',
+    'imagen' => '/^[a-zA-Z0-9\.\- á-úÁ-Ú\(\)\s\']+$/',
+    'hash' => '/^(?:\$2[ayb]\$\d{2}\$[.\/A-Za-z0-9]{53}|\$argon2(?:i|id)\$v=\d+\$m=\d+,t=\d+,p=\d+\$[A-Za-z0-9+\/]+={0,2}\$[A-Za-z0-9+\/]+={0,2})$/',
+    'nombre_like' => '/^[a-zA-Z ]+$/',
+    'modulo' => '/^[a-zA-Z ]+$/',
+    'accion' => '/^[a-zA-Z ]+$/',
+    'permiso' => '/^[a-zA-Z ]+$/',
+    'monto' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
+    'referencia' => '//',
+    'comprobante' => '/^[\w,\s-]+\.(jpg|jpeg|png)$/i',
+    'estado' => '/^[a-zA-Z0-9]+$/',
+    'stock' => '/^[0-9]+$/',
+    'stock_min' => '/^[0-9]+$/',
+    'stock_max' => '/^[0-9]+$/',
+    'tabla_str' => '/^[a-zA-Z ]+$/',
+    'monto_inicial_dolar' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
+    'monto_inicial_bs' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
+    'monto_final_dolar' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
+    'monto_final_bs' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
+    'key' => '/^[a-zA-Z ]+$/',
+    'value' => '/^[a-zA-Z ]+$/',
+    'codigo' => '/^[a-zA-Z0-9 ]+$/',
+    'existencia' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
+    'cantidad' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
+    'broken' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
+    'descripcion' => '/^[a-zA-Z0-9á-ú\. ]+$/',
+    'adicionales' => '/^[a-zA-Z0-9 ]+$/',
+    'vip' => '/^[0-1]+$/',
+    'sillas' => '/^[0-9]+$/',
+    'imagen_name' => '/^[a-zA-Z0-9\.\- á-úÁ-Ú\(\)\s\']+$/',
+    'status' => '/^[a-zA-Z0-9 ]+$/',
+    'titulo' => '/^[a-zA-Z ]+$/',
+    'mensaje' => '/^[\p{L}\p{N}\s.,;:¡!¿?\\"\'()\-]+$/u',
+    'nro_orden' => '/^[0-9]+$/',
+    'tipo' => '/^[a-zA-Z0-9 ]+$/',
+    'tasa' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
+    'permisos' => '/^[a-zA-Z_ ]+$/',
+    'precio' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
+    'precio_compra' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
+    'detalles' => '/^[a-zA-Z0-9 ]+$/',
+    'razon_social' => '/^[a-zA-Zá-ú ]+$/',
+    'documento' => '/^(?:[VE]-?[0-9]{7,8}|[J]-?[0-9]{9})$/i',
+    'n_telefono1' => '/^(?:0[0-9]{10}|\+[1-9][0-9]{9,14})$/',
+    'n_telefono2' => '/^(?:0[0-9]{10}|\+[1-9][0-9]{9,14})$/',
+    'direccion' => '/^[a-zA-Z0-9á-ú\#\, ]+$/',
+    'metodo_pedido' => '/^[a-zA-Z ]+$/',
+    'alias' => '/^[a-zA-Z ]+$/',
+    'IVA' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
+    'monto_final' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
+    'tabla' => '/^[a-zA-Z_]+$/',
+    'valor' => '/^[a-zA-Z_ ]+$/',
+    'llave' => '/^[a-zA-Z_]+$/'
+];
+
+// DATABASES
+$GLOBALS['db1'] = [
+    'host' => 'localhost',
+    'name' => 'burgerhouse',
+    'user' => 'root',
+    'pass' => '1234'
+];
+$GLOBALS['db2'] = [
+    'host' => 'localhost',
+    'name' => 'usuarios_burgerhouse',
+    'user' => 'root',
+    'pass' => '1234'
+];
 ?>
