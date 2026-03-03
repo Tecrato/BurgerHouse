@@ -11,8 +11,8 @@ if (!$session->usuario) {
 }
 
 if (count($url) < 2) {
-    if (file_exists(__DIR__ . '/../Views/notifications.php')) {
-        include_once __DIR__ . '/../Views/notifications.php';
+    if (file_exists(__DIR__ . '/../views/notifications.php')) {
+        include_once __DIR__ . '/../views/notifications.php';
     } else {
         make_url_error("No se encontro la vista notifications.php", 404);
     }

@@ -10,8 +10,8 @@ if (!$session->usuario) {
 }
 
 if (count($url) < 2) {
-    if (file_exists(__DIR__ . '/../Views/cash.php')) {
-        include_once __DIR__ . '/../Views/cash.php';
+    if (file_exists(__DIR__ . '/../views/cash.php')) {
+        include_once __DIR__ . '/../views/cash.php';
     } else {
         make_url_error("No se encontro la vista cash.php", 404);
     }

@@ -2,6 +2,7 @@ import graphicInstance from "../statistics/graphicInstance.js";
 import functionGeneral from "../../Functions.js"
 import { printPDF } from "../statistics/graphicPDF.js"
 import introTooltip from "../../intro-tooltip.js"
+import { myfecth } from "../../Functions2.js";
 const {dashboard} = introTooltip()
 const { searchParam } = functionGeneral();
 const { graphic2, graphicDashboard1, graphicDashboard2 } = graphicInstance()
@@ -196,21 +197,18 @@ const activity = async () => {
     feather.replace();
 }
 const targetItem = async () => {
-    let data = new FormData();
-    data.append("anio", new Date().getFullYear());
-    data.append("mes", new Date().getMonth() + 1);
-    let numeroClientes = await searchParam({ active: 1 }, "clientes", 1000000000);
-    let tablesAvaliable = await searchParam({ active: 1, estado: "LIBRE" }, "mesa", 1000000000);
-    let orders = await searchParam({ status: "entregada" }, "orden", 1000000000);
-    let orders2 = await searchParam({ status: "pagado" }, "orden", 1000000000);
-    let ganancias = await fetch("estadisticas/UtilidadNetaMes", { method: "POST", body: data });
-    let res = await ganancias.json();
+    let numeroClientes = myfecth("clientes/count", {}, { active: 1 }, null, "POST");
+    let tablesAvaliable = myfecth("mesa/count", {}, { active: 1, estado: "LIBRE" }, null, "POST");
+    let orders = myfecth("orden/count", {}, { status: "entregada" }, null, "POST");
+    let orders2 = myfecth("orden/count", {}, { status: "pagado" }, null, "POST");
+    let ganancias = myfecth("estadisticas/UtilidadNetaMes", {}, { anio: new Date().getFullYear(), mes: new Date().getMonth() + 1 }, null, "POST");
+    let res = ganancias.json();
     let gananciasMes = res.reduce((acc, item) => acc + (item.ingresos || 0), 0);
 
-    document.querySelector(".nro_clientes").textContent = numeroClientes.length;
+    document.querySelector(".nro_clientes").textContent = numeroClientes;
     document.querySelector(".ganancias").innerHTML = `<sup class="set-doller">$</sup>${gananciasMes.toFixed(2)}`;
-    document.querySelector(".order_completed").textContent = Number(orders.length) + Number(orders2.length);
-    document.querySelector(".table_available").textContent = tablesAvaliable.length;
+    document.querySelector(".order_completed").textContent = Number(orders) + Number(orders2);
+    document.querySelector(".table_available").textContent = tablesAvaliable;
 }
 let clients = $(".table_clients").DataTable({
     language: {

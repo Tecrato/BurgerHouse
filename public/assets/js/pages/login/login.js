@@ -1,4 +1,4 @@
-import { nuevaBitacora } from "../../Functions2.js";
+import { myfecth, nuevaBitacora } from "../../Functions2.js";
 import functionGeneral from "../../Functions.js";
 
 const { validateField, setValidationStyles, sessionInfo } = functionGeneral();
@@ -152,13 +152,13 @@ loginForm.addEventListener("submit", async (event) => {
   spinner.classList.remove("d-none");
 
   try {
-    const data = new FormData();
-    data.append("email", document.getElementById("login-correo").value);
-    data.append("password", document.getElementById("login-password").value);
-    data.append("token", captchaToken);
-
-    const request = await fetch("login/login", { method: "POST", body: data });
-    const result = await request.json();
+    const request = myfecth("login/login", {}, {
+      email:document.getElementById("login-correo").value,
+      password:document.getElementById("login-password").value,
+      token:captchaToken
+    }, null, 'POST');
+    console.log(request);
+    const result = request.json();
 
     if (result.success === true) {
       await sessionInfo();
@@ -204,6 +204,8 @@ loginForm.addEventListener("submit", async (event) => {
       icon: "error",
       title: "Error inesperado al validar el login"
     });
+
+    console.error(errorRequest);
 
     resetCaptcha({ showMessage: true });
   } finally {

@@ -308,7 +308,7 @@ function editData(response) {
     // document.querySelector(`#input-rif-user`).value = response[0].documento.split("-")[1];
     document.querySelector(`#input-email-user`).value = response[0].email;
     // document.querySelector(`#input-password-user`).value = response[0].hash;
-    document.querySelector(`#input-rol-user`).setAttribute("data-id", response[0].rol_id);
+    document.querySelector(`#input-rol-user`).setAttribute("data-id", response[0].id_rol);
     document.querySelector(`#input-rol-user`).value = response[0].rol;
 
     const data = {

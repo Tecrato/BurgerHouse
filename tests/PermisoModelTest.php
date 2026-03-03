@@ -13,9 +13,12 @@ class PermisoModelTest extends TestCase{
 
     public function testAgregarPermiso()
     {
-        $rol = new \Shtch\Burgerhouse\models\Rol();
-        $id_rol = $rol->search()[0]['id'];
-        $permiso = new \Shtch\Burgerhouse\models\Permiso(null, $id_rol, 'modulo', 'accion');
+        $permiso = new \Shtch\Burgerhouse\models\Permiso(
+            null,
+            'Permiso Test',
+            'Descripcion test de permiso',
+            1
+        );
         $permiso->conn->beginTransaction();
         $id = $permiso->agregar();
         $permiso->conn->rollBack();
@@ -27,7 +30,12 @@ class PermisoModelTest extends TestCase{
     {
         $c4 = new \Shtch\Burgerhouse\models\Permiso();
         $id_ultimo_permiso = $c4->search(order_type: 'DESC')[0]['id'];
-        $permiso = new \Shtch\Burgerhouse\models\Permiso($id_ultimo_permiso, modulo:'modulo', permisos:'accion_modificada');
+        $permiso = new \Shtch\Burgerhouse\models\Permiso(
+            $id_ultimo_permiso,
+            'Permiso Actualizado Test',
+            'Descripcion actualizada',
+            1
+        );
         $permiso->conn->beginTransaction();
         $result = $permiso->actualizar();
         $permiso->conn->rollBack();

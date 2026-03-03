@@ -11,9 +11,7 @@ function view($module_name)
 {
     $candidates = [
         __DIR__ . '/../views/V_' . $module_name . '.php',
-        __DIR__ . '/../Views/V_' . $module_name . '.php',
         __DIR__ . '/../views/' . $module_name . '.php',
-        __DIR__ . '/../Views/' . $module_name . '.php',
     ];
 
     foreach ($candidates as $file) {

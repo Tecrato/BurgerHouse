@@ -65,11 +65,11 @@ if ($url[1] === 'get_all') {
     $us = new Usuario(id: $result[0]['id'], session_id: $session_id);
     $us->actualizar();
 
-    $rol = new Rol(id: $result[0]['rol_id']);
+    $rol = new Rol(id: $result[0]['id_rol']);
     $permisos = $rol->obtener_permisos();
     $_SESSION['permisos'] = $permisos;
     $_SESSION['id'] = $result[0]['id'];
-    $_SESSION['id_rol'] = $result[0]['rol_id'];
+    $_SESSION['id_rol'] = $result[0]['id_rol'];
     $_SESSION['rol'] = $result[0]['rol'];
     $_SESSION['nombre'] = $result[0]['nombre'];
     $_SESSION['apellido'] = $result[0]['apellido'];
