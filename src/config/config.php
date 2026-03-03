@@ -158,4 +158,3 @@ $GLOBALS['expresiones_regulares'] = [
         'pass' => '1234'
     ];
 ?>
-

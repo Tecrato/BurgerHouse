@@ -912,7 +912,7 @@ const editEntrys = () => {
             let id = element.getAttribute("data-id");
             const data = new FormData();
             data.append("id_entrada", id);
-            const pet = await fetch('Entry_rawmaterial_details/get_all/0/1000', { method: "POST", body: data });
+            const pet = await fetch('entrada_materia_prima_detalles/get_all/0/1000', { method: "POST", body: data });
             const response = await pet.json();
 
             document.getElementById("input-supplier-entryEdit").value = response[0].nombre_proveedor;

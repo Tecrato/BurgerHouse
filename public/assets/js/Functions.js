@@ -70,7 +70,8 @@ export default function functionGeneral() {
     let caja = await searchParam({}, "caja")
     if (caja.length > 0) {
       caja.forEach((e) => {
-        if ((fecha(e.fecha_apertura) == fecha(new Date())) && e.estado == 1) {
+        /// (fecha(e.fecha_apertura) == fecha(new Date())) && 
+        if (e.estado == 1) {
           id_cash = e.id
         }
       })

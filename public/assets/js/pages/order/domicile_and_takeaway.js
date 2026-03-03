@@ -644,9 +644,11 @@ export default async function domicile_and_takeaway(functions, templates, report
     if (!btnSendOrder.dataset.listenerAttached) {
         btnSendOrder.addEventListener("click", async () => {
             const { productPreparedData, productProcessData, clientData, dataPayment, directionSale, amountTotal } = finalData()
+            let id_caja = await CheckCash()
             if (directionSale == "") {
                 toas("error", "Ingrese una direccion de entrega")
-            } else if (await CheckCash() == null) {
+            } else if (id_caja == null) {
+                console.error(id_caja);
                 toas("error", "No hay cajas abiertas")
             } else {
                 Swal.fire({

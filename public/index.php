@@ -15,17 +15,17 @@
 
     // ensure the current request is authenticated.  redirect to login if not.
     // bypasses a small whitelist of public modules.
-    function ensureAuthenticated(string $module): void
+    function ensureAuthenticated(string $module): bool
     {
         // modules that anyone can visit without being logged in
         $public = ['login','recover_password','index','web'];
         if (in_array(strtolower($module), $public, true)) {
-            return;
+            return true;
         }
 
         if (empty($_SESSION['id']) || empty($_SESSION['session_id'])) {
-            header('Location: login');
-            exit;
+            header('Location: /login/');
+            return false;
         }
 
         // verify session id against database
@@ -33,9 +33,10 @@
         $result = $usuario->search();
         if (empty($result) || $result[0]['session_id'] !== $_SESSION['session_id']) {
             session_destroy();
-            header('Location: login');
-            exit;
+            header('Location: /login/');
+            return false;
         }
+        return true;
     }
 
 
@@ -67,8 +68,10 @@
     // reference $_SESSION directly, so we no longer need to build this.
 
     // authentication check: redirect to login unless request is for a public page
-    $module = !empty($url[0]) ? strtolower($url[0]) : 'index';
-    ensureAuthenticated($module);
+    $module = !empty($url[0]) ? strtolower($url[0]) : 'home';
+    if (!ensureAuthenticated($module)) {
+        exit;
+    }
 
 
     // determine module and action from url

@@ -1261,7 +1261,7 @@ export default function Templates() {
             </div>
             <div class="col-md-4">
                 <label for="inputEmail4" class="form-label">Correo Electronico</label>
-                <input type="text" class="form-control" placeholder="Correo Electronico" id="input-email-user-${objet}" name="email" autocomplete="off">
+                <input type="text" class="form-control" placeholder="Correo Electronico" id="input-email-user-${objet}" name="email">
                 <div class="text-danger mt-1 fs-6" id="error-input-email-user-${objet}"></div>
             </div>
             <div class="col-md-4">

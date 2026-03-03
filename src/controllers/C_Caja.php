@@ -12,8 +12,9 @@ function caja_get_all(...$args) {
 }
 function caja_detailCash(...$args)
 {
-    $modelo = new Caja();
-    $modelo->cajaDetails($_SESSION['id']);
+    header('Content-Type: application/json');
+     $modelo = new Caja();
+     echo json_encode($modelo->cajaDetails($_SESSION['id'] ?? null));
 }
 
 function caja_add(...$args)
