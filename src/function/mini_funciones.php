@@ -16,7 +16,7 @@ function make_url_error($message, $code = 400, $ajax = false) {
         // echo "No estás autenticado. Redirigiendo a login...";
         // echo "<br>";
         // echo $message;
-        header('Location: ' . __URL__ . 'login/');
+        header('Location: ' . __URL__ . 'error404/');
         exit;
     }
     echo $message;

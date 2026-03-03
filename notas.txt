@@ -4,6 +4,7 @@ yolokratos903@gmail.com
 la contraseña es: (Tocuyo#123).
 
 vendor\bin\phpunit tests
+php vendor\bin\phpunit
 
 
 ## Por hacer:

@@ -1,30 +1,56 @@
 <?php
-use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 use Shtch\Burgerhouse\models\Metodo_pago;
+use Shtch\Burgerhouse\function\AuthSession;
 
-function metodo_pago_view(...$args)
-{
-    view('metodo_pago');
+$session = new AuthSession();
+$resultado_final = '';
+
+if (!$session->usuario) {
+    make_url_error("No estás autenticado. Redirigiendo a login...", 401, ajax: $ajax);
 }
 
-function metodo_pago_get_all(...$args)
-{
-    get_all(new Metodo_pago(), ...$args);
+if (count($url) < 2) {
+    if (file_exists(__DIR__ . '/../views/paymentMethod.php')) {
+        include_once __DIR__ . '/../views/paymentMethod.php';
+    } else {
+        make_url_error("No se encontró la vista metodo_pago.php", 404);
+    }
+    exit;
 }
 
-function metodo_pago_add(...$args)
-{
-    add(new Metodo_pago(), $_POST);
+$modelo = new Metodo_pago(...$_POST);
+
+if ($url[1] === 'get_all') {
+    if (!$session->has_permission('metodos_pago', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: $ajax);
+    }
+    $resultado_final = $modelo->search(...$parametros_paginacion);
+    $ajax = true;
+} else if ($url[1] === 'add') {
+    if (!$session->has_permission('metodos_pago', 'agregar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: $ajax);
+    }
+    $id = $modelo->agregar();
+    $resultado_final = ['success' => true, 'last_id' => $id];
+    $ajax = true;
+} else if ($url[1] === 'update') {
+    if (!$session->has_permission('metodos_pago', 'modificar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: $ajax);
+    }
+    $resultado_final = $modelo->actualizar();
+    $ajax = true;
+} else if ($url[1] === 'delete') {
+    if (!$session->has_permission('metodos_pago', 'borrar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: $ajax);
+    }
+    $resultado_final = $modelo->borrar();
+    $ajax = true;
+} else {
+    make_url_error("Accion no valida para metodo_pago.", 404, ajax: $ajax);
 }
 
-function metodo_pago_update(...$args)
-{
-    update(new Metodo_pago(), $_POST);
+if ($ajax) {
+    header('Content-Type: application/json; charset=utf-8');
+    $resultado_final = json_encode($resultado_final);
 }
-
-function metodo_pago_delete(...$args)
-{
-    delete(new Metodo_pago(), $_POST['id']);
-}
-
-
+print_r($resultado_final);

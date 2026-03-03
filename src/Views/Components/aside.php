@@ -147,7 +147,7 @@
 
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'papelera' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link sidebar-link" href="basura"
+                            <a class="sidebar-link sidebar-link" href="papelera"
                                 aria-expanded="false">
                                 <i data-feather="trash-2" class="feather-icon"></i>
                                 <span class="hide-menu">Papelera</span>

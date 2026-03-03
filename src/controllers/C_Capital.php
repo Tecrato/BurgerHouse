@@ -1,41 +1,64 @@
 <?php
-use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
 use Shtch\Burgerhouse\models\Movimiento_capital;
 use Shtch\Burgerhouse\models\Vista;
+use Shtch\Burgerhouse\function\AuthSession;
 
+$session = new AuthSession();
+$resultado_final = '';
 
-function capital_view(...$args)
-{
-    view('capital');
+if (!$session->usuario) {
+    make_url_error("No estás autenticado. Redirigiendo a login...", 401, ajax: $ajax);
 }
 
-function capital_get_all(...$args)
-{
-    get_all(new Movimiento_capital(), ...$args);
-}
-
-function capital_add(...$args)
-{
-    add(new Movimiento_capital(), $_POST);
-}
-
-function capital_update(...$args)
-{
-    update(new Movimiento_capital(), $_POST);
-}
-
-function capital_delete(...$args)
-{
-    delete(new Movimiento_capital(), $_POST['id']);
-}
-
-function capital_getCapital(...$args)
-{
-    header('Content-Type: application/json');
-    try {
-        $model = new Vista("vista_resumen_financiero");
-        echo json_encode($model->search());
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+if (count($url) < 2) {
+    if (file_exists(__DIR__ . '/../views/capital.php')) {
+        include_once __DIR__ . '/../views/capital.php';
+    } else {
+        make_url_error("No se encontró la vista capital.php", 404);
     }
+    exit;
 }
+
+$modelo = new Movimiento_capital(...$_POST);
+
+if ($url[1] === 'get_all') {
+    if (!$session->has_permission('capital', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: $ajax);
+    }
+    $resultado_final = $modelo->search(...$parametros_paginacion);
+    $ajax = true;
+} else if ($url[1] === 'add') {
+    if (!$session->has_permission('capital', 'agregar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: $ajax);
+    }
+    $id = $modelo->agregar();
+    $resultado_final = ['success' => true, 'last_id' => $id];
+    $ajax = true;
+} else if ($url[1] === 'update') {
+    if (!$session->has_permission('capital', 'modificar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: $ajax);
+    }
+    $resultado_final = $modelo->actualizar();
+    $ajax = true;
+} else if ($url[1] === 'delete') {
+    if (!$session->has_permission('capital', 'borrar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: $ajax);
+    }
+    $resultado_final = $modelo->borrar();
+    $ajax = true;
+} else if ($url[1] === 'getCapital') {
+    if (!$session->has_permission('capital', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: $ajax);
+    }
+    $model = new Vista("vista_resumen_financiero");
+    $resultado_final = $model->search();
+    $ajax = true;
+} else {
+    make_url_error("Accion no valida para capital.", 404, ajax: $ajax);
+}
+
+if ($ajax) {
+    header('Content-Type: application/json; charset=utf-8');
+    $resultado_final = json_encode($resultado_final);
+}
+print_r($resultado_final);
