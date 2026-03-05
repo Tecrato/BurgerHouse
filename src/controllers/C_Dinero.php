@@ -1,9 +1,20 @@
 <?php
-use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
+use Shtch\Burgerhouse\function\AuthSession;
 
-function dinero_view(...$args)
-{
-    view('dinero');
+$session = new AuthSession();
+$resultado_final = '';
+
+if (!$session->usuario) {
+    make_url_error("No estas autenticado. Redirigiendo a login...", 401, ajax: $ajax);
 }
 
+if (count($url) < 2 || $url[1] === 'view') {
+    if (file_exists(__DIR__ . '/../views/dinero.php')) {
+        include_once __DIR__ . '/../views/dinero.php';
+    } else {
+        make_url_error("No se encontró la vista dinero.php", 404);
+    }
+    exit;
+}
 
+make_url_error("Accion no valida para dinero.", 404, ajax: true);

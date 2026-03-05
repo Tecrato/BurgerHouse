@@ -23,7 +23,12 @@ function getCookies(name) {
 }
 
 // Utilidades generales
-export function myfecth(url, parametros_get = {}, parametros_post = null, callback = null, method = 'GET', async_call = false, parseAsJson = false) {
+export function myfecth(url, parametros_get = {}, parametros_post = null, callback = null, method = null, async_call = false, parseAsJson = false) {
+  // Auto-detectar método: si hay parametros_post, usar POST
+  if (method === null) {
+    method = (parametros_post !== null) ? 'POST' : 'GET';
+  }
+  
   const request = new XMLHttpRequest();
   request.withCredentials = true;
   let token = getCookies("PHPSESSID") || "";

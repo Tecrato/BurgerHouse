@@ -1,7 +1,16 @@
 <?php
-use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
+use Shtch\Burgerhouse\function\AuthSession;
 
-function web_view(...$args)
-{
-    view('web');
+$session = new AuthSession();
+$resultado_final = '';
+
+if (count($url) < 2 || $url[1] === 'view') {
+    if (file_exists(__DIR__ . '/../views/web.php')) {
+        include_once __DIR__ . '/../views/web.php';
+    } else {
+        make_url_error("No se encontró la vista web.php", 404);
+    }
+    exit;
 }
+
+make_url_error("Accion no valida para web.", 404, ajax: true);

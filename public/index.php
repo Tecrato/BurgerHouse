@@ -75,6 +75,11 @@
         'order_type' => $orden_direccion
     ]);
 
+    if (!isset($url[0]) || $url[0] == '') {
+        $url = [
+            0 => "home"
+        ];
+    }
 
     if (file_exists(__DIR__ . '/../src/controllers/C_' . ucfirst(strtolower($url[0])) . '.php')) {
         require_once __DIR__ . '/../src/controllers/C_' . ucfirst(strtolower($url[0])) . '.php';

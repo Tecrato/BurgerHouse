@@ -13,7 +13,7 @@ if (count($url) < 2 || $url[1] === 'view') {
     if (file_exists(__DIR__ . '/../views/V_unidades.php')) {
         include_once __DIR__ . '/../views/V_unidades.php';
     } else {
-        make_url_error("No se encontro la vista V_unidades.php", 404);
+        make_url_error("No se encontró la vista V_unidades.php", 404);
     }
     exit;
 }
@@ -23,8 +23,12 @@ if ($url[1] === 'get_all') {
         make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
     }
 
-    $modelo = new Unidad(...$_POST);
-    $resultado_final = $modelo->search(...$parametros_paginacion);
+    try {
+        $modelo = new Unidad(...$_POST);
+        $resultado_final = $modelo->search(...$parametros_paginacion);
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
     $ajax = true;
 } else if ($url[1] === 'add') {
     if (!$session->has_permission('unidades', 'agregar')) {
@@ -38,7 +42,6 @@ if ($url[1] === 'get_all') {
     } catch (Exception $e) {
         make_url_error($e->getMessage(), 400, ajax: true);
     }
-
     $ajax = true;
 } else if ($url[1] === 'add_many') {
     if (!$session->has_permission('unidades', 'agregar')) {
@@ -61,7 +64,6 @@ if ($url[1] === 'get_all') {
     } catch (Exception $e) {
         make_url_error($e->getMessage(), 400, ajax: true);
     }
-
     $ajax = true;
 } else if ($url[1] === 'update') {
     $active = $_POST['active'] ?? null;
@@ -87,7 +89,22 @@ if ($url[1] === 'get_all') {
     } catch (Exception $e) {
         make_url_error($e->getMessage(), 400, ajax: true);
     }
+    $ajax = true;
+} else if ($url[1] === 'delete') {
+    if (!$session->has_permission('unidades', 'eliminar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
 
+    if (!isset($_POST['id'])) {
+        make_url_error("No se recibio el id para eliminar.", 400, ajax: true);
+    }
+
+    try {
+        $modelo = new Unidad(id: $_POST['id']);
+        $resultado_final = ['success' => $modelo->borrar()];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
     $ajax = true;
 } else if ($url[1] === 'count' || $url[1] === 'total') {
     if (!$session->has_permission('unidades', 'consultar')) {
@@ -100,7 +117,6 @@ if ($url[1] === 'get_all') {
     } catch (Exception $e) {
         make_url_error($e->getMessage(), 400, ajax: true);
     }
-
     $ajax = true;
 } else {
     make_url_error("Accion no valida para unidades.", 404, ajax: true);

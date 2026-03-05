@@ -19,6 +19,7 @@ class AuthSession
             $this->usuario = $result;
             $modelo_rol = new Rol(id: $this->usuario['id_rol']);
             $this->permisos = $modelo_rol->obtener_permisos();
+            $_SESSION['permisos'] = $this->permisos;
         } else {
             $this->usuario = null;
         }

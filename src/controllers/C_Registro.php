@@ -1,7 +1,16 @@
 <?php
-use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
+use Shtch\Burgerhouse\function\AuthSession;
 
-function registro_view(...$args)
-{
-    view('registro');
+$session = new AuthSession();
+$resultado_final = '';
+
+if (count($url) < 2 || $url[1] === 'view') {
+    if (file_exists(__DIR__ . '/../views/registro.php')) {
+        include_once __DIR__ . '/../views/registro.php';
+    } else {
+        make_url_error("No se encontró la vista registro.php", 404);
+    }
+    exit;
 }
+
+make_url_error("Accion no valida para registro.", 404, ajax: true);

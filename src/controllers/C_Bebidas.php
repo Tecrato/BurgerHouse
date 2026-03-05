@@ -1,52 +1,109 @@
 <?php
-use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
-use Shtch\Burgerhouse\models\ProductoProcesado as Adicionales;
+use Shtch\Burgerhouse\function\AuthSession;
+use Shtch\Burgerhouse\models\ProductoProcesado;
 
-function bebidas_view(...$args)
-{
-    view('bebidas');
-}
+$session = new AuthSession();
+$resultado_final = '';
 
-function bebidas_add(...$args)
-{
-    add(new Adicionales(), $_POST);
+if (!$session->usuario) {
+    make_url_error("No estas autenticado. Redirigiendo a login...", 401, ajax: $ajax);
 }
 
-function bebidas_delete(...$args)
-{
-    delete(new Adicionales());
+if (count($url) < 2 || $url[1] === 'view') {
+    if (file_exists(__DIR__ . '/../views/bebidas.php')) {
+        include_once __DIR__ . '/../views/bebidas.php';
+    } else {
+        make_url_error("No se encontró la vista bebidas.php", 404);
+    }
+    exit;
 }
 
-function bebidas_delete_many(...$args)
-{
-    delete_many(new Adicionales());
+if ($url[1] === 'get_all') {
+    if (!$session->has_permission('bebidas', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    try {
+        $modelo = new ProductoProcesado(...$_POST);
+        $resultado_final = $modelo->search(...$parametros_paginacion);
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'add') {
+    if (!$session->has_permission('bebidas', 'agregar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    try {
+        $modelo = new ProductoProcesado(...$_POST);
+        $id = $modelo->agregar();
+        $resultado_final = ['success' => true, 'last_id' => $id];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'update') {
+    $active = $_POST['active'] ?? null;
+
+    if ($active !== null && (string)$active === '0') {
+        if (!$session->has_permission('bebidas', 'eliminar')) {
+            make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+        }
+    } else if ($active !== null && (string)$active === '1') {
+        if (
+            !$session->has_permission('Papelera', 'restaurar') &&
+            !$session->has_permission('bebidas', 'eliminar')
+        ) {
+            make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+        }
+    } else if (!$session->has_permission('bebidas', 'editar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    try {
+        $modelo = new ProductoProcesado(...$_POST);
+        $resultado_final = $modelo->actualizar();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'delete') {
+    if (!$session->has_permission('bebidas', 'eliminar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    if (!isset($_POST['id'])) {
+        make_url_error("No se recibio el id para eliminar.", 400, ajax: true);
+    }
+
+    try {
+        $modelo = new ProductoProcesado(id: $_POST['id']);
+        $resultado_final = ['success' => $modelo->borrar()];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'count' || $url[1] === 'total') {
+    if (!$session->has_permission('bebidas', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    try {
+        $modelo = new ProductoProcesado(...$_POST);
+        $resultado_final = $modelo->count();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else {
+    make_url_error("Accion no valida para bebidas.", 404, ajax: true);
 }
 
-function bebidas_add_many(...$args)
-{
-    add_many(new Adicionales());
+if ($ajax) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($resultado_final);
+    exit;
 }
 
-function bebidas_update(...$args)
-{
-    update(new Adicionales(), $_POST);
-}
-function bebidas_update_many(...$args)
-{
-    update_many(new Adicionales());
-}
-
-function bebidas_get_all(...$args)
-{
-    get_all(new Adicionales(), ...$args);
-}
-
-function bebidas_check(...$args)
-{
-    check();
-}
-
-function bebidas_total(...$args)
-{
-    total(new Adicionales(), ...$args);
-}
+print_r($resultado_final);

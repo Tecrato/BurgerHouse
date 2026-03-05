@@ -1,30 +1,109 @@
 <?php
-use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
+use Shtch\Burgerhouse\function\AuthSession;
 use Shtch\Burgerhouse\models\Credito;
 
-function credito_view(...$args)
-{
-    view('credito');
+$session = new AuthSession();
+$resultado_final = '';
+
+if (!$session->usuario) {
+    make_url_error("No estas autenticado. Redirigiendo a login...", 401, ajax: $ajax);
 }
 
-function credito_get_all(...$args)
-{
-    get_all(new Credito(), ...$args);
+if (count($url) < 2 || $url[1] === 'view') {
+    if (file_exists(__DIR__ . '/../views/credito.php')) {
+        include_once __DIR__ . '/../views/credito.php';
+    } else {
+        make_url_error("No se encontró la vista credito.php", 404);
+    }
+    exit;
 }
 
-function credito_add(...$args)
-{
-    add(new Credito(), $_POST);
+if ($url[1] === 'get_all') {
+    if (!$session->has_permission('creditos', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    try {
+        $modelo = new Credito(...$_POST);
+        $resultado_final = $modelo->search(...$parametros_paginacion);
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'add') {
+    if (!$session->has_permission('creditos', 'agregar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    try {
+        $modelo = new Credito(...$_POST);
+        $id = $modelo->agregar();
+        $resultado_final = ['success' => true, 'last_id' => $id];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'update') {
+    $active = $_POST['active'] ?? null;
+
+    if ($active !== null && (string)$active === '0') {
+        if (!$session->has_permission('creditos', 'eliminar')) {
+            make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+        }
+    } else if ($active !== null && (string)$active === '1') {
+        if (
+            !$session->has_permission('Papelera', 'restaurar') &&
+            !$session->has_permission('creditos', 'eliminar')
+        ) {
+            make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+        }
+    } else if (!$session->has_permission('creditos', 'editar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    try {
+        $modelo = new Credito(...$_POST);
+        $resultado_final = $modelo->actualizar();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'delete') {
+    if (!$session->has_permission('creditos', 'eliminar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    if (!isset($_POST['id'])) {
+        make_url_error("No se recibio el id para eliminar.", 400, ajax: true);
+    }
+
+    try {
+        $modelo = new Credito(id: $_POST['id']);
+        $resultado_final = ['success' => $modelo->borrar()];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'count' || $url[1] === 'total') {
+    if (!$session->has_permission('creditos', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    try {
+        $modelo = new Credito(...$_POST);
+        $resultado_final = $modelo->count();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else {
+    make_url_error("Accion no valida para credito.", 404, ajax: true);
 }
 
-function credito_update(...$args)
-{
-    update(new Credito(), $_POST);
+if ($ajax) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($resultado_final);
+    exit;
 }
 
-function credito_delete(...$args)
-{
-    delete(new Credito(), $_POST['id']);
-}
-
-
+print_r($resultado_final);

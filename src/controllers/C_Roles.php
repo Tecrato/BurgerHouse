@@ -1,38 +1,126 @@
 <?php
-
-use function Shtch\Burgerhouse\controllers\{view, add, add_many, get_all, update, update_many, delete, delete_many, check, guardar_imagen_mult, guardar_imagen_single, total};
+use Shtch\Burgerhouse\function\AuthSession;
 use Shtch\Burgerhouse\models\Rol;
 
+$session = new AuthSession();
+$resultado_final = '';
 
+if (!$session->usuario) {
+    make_url_error("No estas autenticado. Redirigiendo a login...", 401, ajax: $ajax);
+}
 
-function roles_view()
-{
-    view('roles');
-}
-function roles_get_all(...$args) {
-    get_all(new Rol(), ...$args);
-
-}
-function roles_add(...$args) {
-    add(new Rol(), $_POST);
-}
-function roles_update(...$args) {
-    $modelo = new Rol(...$_POST);
-    $modelo->actualizar();
-}
-function roles_obtener_permisos() {
-    $id_rol = intval($_POST['id_rol']) ?? null;
-    if ($id_rol) {
-        $rol = new Rol(id: $id_rol);
-        $permisos = $rol->obtener_permisos();
-        header('Content-Type: application/json');
-        echo json_encode($permisos);
+if (count($url) < 2 || $url[1] === 'view') {
+    if (file_exists(__DIR__ . '/../views/roles.php')) {
+        include_once __DIR__ . '/../views/roles.php';
     } else {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'ID de rol no proporcionado']);
+        make_url_error("No se encontró la vista roles.php", 404);
     }
+    exit;
 }
 
-function roles_check(...$args) {
-    check();
+if ($url[1] === 'get_all') {
+    if (!$session->has_permission('roles', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    try {
+        $modelo = new Rol(...$_POST);
+        $resultado_final = $modelo->search(...$parametros_paginacion);
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'add') {
+    if (!$session->has_permission('roles', 'agregar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    try {
+        $modelo = new Rol(...$_POST);
+        $id = $modelo->agregar();
+        $resultado_final = ['success' => true, 'last_id' => $id];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'update') {
+    $active = $_POST['active'] ?? null;
+
+    if ($active !== null && (string)$active === '0') {
+        if (!$session->has_permission('roles', 'eliminar')) {
+            make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+        }
+    } else if ($active !== null && (string)$active === '1') {
+        if (
+            !$session->has_permission('Papelera', 'restaurar') &&
+            !$session->has_permission('roles', 'eliminar')
+        ) {
+            make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+        }
+    } else if (!$session->has_permission('roles', 'editar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    try {
+        $modelo = new Rol(...$_POST);
+        $resultado_final = $modelo->actualizar();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'delete') {
+    if (!$session->has_permission('roles', 'eliminar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    if (!isset($_POST['id'])) {
+        make_url_error("No se recibio el id para eliminar.", 400, ajax: true);
+    }
+
+    try {
+        $modelo = new Rol(id: $_POST['id']);
+        $resultado_final = ['success' => $modelo->borrar()];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'obtener_permisos') {
+    if (!$session->has_permission('roles', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    $id_rol = intval($_POST['id_rol'] ?? 0);
+    if (!$id_rol) {
+        make_url_error("ID de rol no proporcionado.", 400, ajax: true);
+    }
+
+    try {
+        $rol = new Rol(id: $id_rol);
+        $resultado_final = $rol->obtener_permisos();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'count' || $url[1] === 'total') {
+    if (!$session->has_permission('roles', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    try {
+        $modelo = new Rol(...$_POST);
+        $resultado_final = $modelo->count();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else {
+    make_url_error("Accion no valida para roles.", 404, ajax: true);
 }
+
+if ($ajax) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($resultado_final);
+    exit;
+}
+
+print_r($resultado_final);

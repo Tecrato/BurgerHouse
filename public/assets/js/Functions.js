@@ -189,7 +189,7 @@ export default function functionGeneral() {
     let select = document.querySelector(selectItem);
     if (module != null) {
       let template = ""
-      let data = await searchAll('rol', 1)
+      let data = myfecth(`rol/get_all/0/6/id/desc`, {}, {active: 1}).json()
       if (data.length == 0) {
         select.querySelector(".options_search").innerHTML = `<a class="dropdown-item">No hay resultados</a>`;
       } else {
@@ -250,7 +250,7 @@ export default function functionGeneral() {
     let select = document.querySelectorAll(item);
     select.forEach(async (element) => {
       if (module != null) {
-        let data = await searchAll(module, 1)
+        let data = myfecth(`${module}/get_all/0/6/id/desc`, {}, {active: 1}).json()
         let cont = ""
         if (data.length == 0) {
           element.querySelector(".options_search").innerHTML = `<a class="dropdown-item">No hay resultados</a>`;
@@ -278,7 +278,7 @@ export default function functionGeneral() {
       if (module != null) {
         element.querySelector(".search_select").addEventListener("keyup", async (e) => {
           if (e.target.value != "") {
-            let res = await searchParam({ nombre_like: e.target.value, active: 1 }, module);
+            let res = myfecth(`${module}/get_all`, {},{nombre_like: e.target.value, active: 1}).json();
             let cont = "";
             if (res.length == 0) {
               cont = `<a class="dropdown-item">No hay resultados</a>`;
@@ -291,7 +291,7 @@ export default function functionGeneral() {
             element.querySelector(".options_search").innerHTML = cont;
             inputSet()
           } else {
-            let res = await searchParam({ active: 1 }, module);
+            let res = myfecth(`${module}/get_all`, {},{active: 1}).json()
             let cont = "";
             if (res.length == 0) {
               cont = `<a class="dropdown-item">No hay resultados</a>`;
@@ -371,17 +371,6 @@ export default function functionGeneral() {
     return response
   }
   //--------------funciones para el manejo de peticiones ajax para las tarjetas------------------
-  const searchAll = async (module, active) => {
-    let data = new FormData();
-    data.append("active", active);
-
-    let search = await fetch(`${module}/get_all/0/6/id/desc`, {
-      method: "POST",
-      body: data,
-    });
-    let response = await search.json();
-    return response;
-  };
   const binnacle = async (id_user, table, action, description) => {
     let data = new FormData();
     data.append("tabla", table);
@@ -789,7 +778,6 @@ export default function functionGeneral() {
     CheckCash,
     selectOptionAll,
     viewImage,
-    searchAll,
     searchParam,
     searchFilter,
     searchBetween,

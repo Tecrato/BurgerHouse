@@ -1,16 +1,17 @@
 import functionGeneral from "../../Functions.js"
-import { nuevaBitacora } from "../../Functions2.js"
-const { searchParam, setValidationStyles, validateField, sessionInfo } = functionGeneral()
+import { nuevaBitacora, myfecth, sessionInfo } from "../../Functions2.js"
+const { setValidationStyles, validateField } = functionGeneral()
 dayjs.extend(window.dayjs_plugin_relativeTime);
 dayjs.locale('es');
-const session = await sessionInfo();
+var [session, permisos] = sessionInfo();
 
 const activity = async () => {
     let color = ['bh_1', 'bh_2', 'bh_4', 'bh_5', 'bh_6'];
-    let pet = await searchParam({}, "binnacle", 5)
+    let pet = myfecth("bitacora/get_all").json()
     let template = ""
     let icon = ""
     let title = ""
+    
     pet.forEach((item, index) => {
         if (item.descripcion.includes("Se agrego ") || item.descripcion.includes("Se creo ")) icon = "plus"
         else if (item.descripcion.includes("Se elimino ") || item.descripcion.includes("Se Elimino ")) icon = "trash"
@@ -47,7 +48,7 @@ const activity = async () => {
 
         else if (item.descripcion.includes("Guardar Gasto") || item.descripcion.includes("Guardar Ingreso")) title = "Nuevo movimiento de dinero"
 
-
+        
         template += `
         <div class="d-flex align-items-start border-left-line pb-3">
             <div>
@@ -68,12 +69,11 @@ const activity = async () => {
     document.querySelector(".activity").innerHTML = template;
     feather.replace();
 }
-let user = await searchParam({ id: session.message.id }, "users")
-document.getElementById("input-name-user-profile").value = user[0].nombre
-document.getElementById("input-lastname-user-profile").value = user[0].apellido
-document.getElementById("input-email-user-profile").value = user[0].email
-document.getElementById("img_profile").src = user[0].imagen ? `media/users/${user[0].imagen}` : "./assets/img/users/1.jpg"
-document.getElementById("session_name_rol").textContent = user[0].rol
+document.getElementById("input-name-user-profile").value = session.message['nombre']
+document.getElementById("input-lastname-user-profile").value = session.message['apellido']
+document.getElementById("input-email-user-profile").value = session.message['correo']
+document.getElementById("img_profile").src = session.message['imagen'] ? `media/users/${session.message['imagen']}` : "./assets/img/users/1.jpg"
+document.getElementById("session_name_rol").textContent = session.message['rol']
 
 document.querySelector('input[type="file"]').addEventListener('change', async function () {
     const reader = new FileReader();
@@ -86,12 +86,12 @@ document.querySelector('input[type="file"]').addEventListener('change', async fu
     data.append('imagen', this.files[0]);
     data.append('imagen_name', this.files[0].name);
     data.append('id', session.message.id);
-    let send = await fetch(`users/update`, { method: "POST", body: data });
-    let sendImg = await fetch(`login/UpdateSession`, { method: "POST", body: data });
-    let res = await send.json();
+    // let sendImg = await fetch(`login/UpdateSession`, { method: "POST", body: data });
+    let res = myfecth("users/update", {}, data, null, "POST").json();
     if (res.success == true) {
-        let user2 = await searchParam({ id: session.message.id }, "users")
-        document.getElementById("img_profile_header").src = `media/users/${user2[0].imagen}`
+        [session, permisos] = sessionInfo();
+        // let user2 = myfecth("users/get_all", {}, {id:session.message.id}).json();
+        document.getElementById("img_profile_header").src = `media/users/${session.message["imagen"]}`
         nuevaBitacora("Perfil", "Actualizacion", "Se actualizo la imagen de perfil")
         activity()
         const Toast = Swal.mixin({
@@ -300,9 +300,7 @@ if (!formEditProfile.dataset.listenerAttached) {
                     data.append('apellido', document.querySelector(`#input-lastname-user-profile`).value);
                     data.append('email', document.querySelector(`#input-email-user-profile`).value);
                     data.append('id', session.message.id);
-                    let send = await fetch(`users/update`, { method: "POST", body: data });
-                    let updateSession = await fetch(`login/UpdateSession`, { method: "POST", body: data });
-                    let res = await send.json();
+                    let res = myfecth("users/update", {}, data).json();
                     if (res.success == true) {
                         let session2 = await sessionInfo();
                         nuevaBitacora('Perfil', 'Perfil actualizado', 'Se actualizo el perfil');
@@ -377,8 +375,7 @@ if (!formEditPassword.dataset.listenerAttached) {
                         let codigo = e
                         let data = new FormData();
                         data.append('token', codigo);
-                        let send = await fetch(`changepass/validateToken`, { method: "POST", body: data });
-                        let res = await send.json();
+                        let res = myfecth("changepass/validateToken", {}, data).json();
                         return res
                     },
                     allowOutsideClick: () => !Swal.isLoading(),
@@ -396,8 +393,7 @@ if (!formEditPassword.dataset.listenerAttached) {
                             let data = new FormData();
                             data.append('hash', document.querySelector(`#input-newPassword-user-profile`).value);
                             data.append('id', session.message.id);
-                            let send = await fetch(`changepass/update`, { method: "POST", body: data });
-                            let res = await send.json();
+                            let res = myfecth("changepass/update", {}, data).json();
                             if (res.success == true) {
                                 nuevaBitacora('Usuario', 'Perfil actualizado', 'Se actualizo la contraseña de su perfil');
                                 activity()

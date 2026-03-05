@@ -1,5 +1,4 @@
-import functionGeneral from "../../Functions.js";
-const { searchAll } = functionGeneral()
+import { myfecth } from "../../Functions2.js";
 const { jsPDF } = window.jspdf;
 
 const doc = new jsPDF();
@@ -20,7 +19,7 @@ btn.addEventListener("click", async () => {
     });
     const columns = ['Nombre', 'Documento', 'Telefono', 'Direccion'];
     const rows = [];
-    let result = await searchAll("clientes", 1);
+    let result = myfecth(`clientes/get_all/0/6/id/desc`, {}, {active: 1}).json()
     result.forEach(element => {
         rows.push([element.nombre + " " + element.apellido, element.documento, element.telefono, element.direccion]);
     });
