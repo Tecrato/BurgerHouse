@@ -236,7 +236,7 @@ if (!form.dataset.listenerAttached) {
             setValidationStyles(`input-doc-client-${index}`, errors?.documento ? errors.documento[0] : null);
             setValidationStyles(`input-tel-client-${index}`, errors?.telefono ? errors.telefono[0] : null);
             // setValidationStyles(`input-direction-client-${index}`, errors?.direccion ? errors.direccion[0] : null);
-            if (errors) formHasError = true;
+            if (errors.nombre || errors.apellido || errors.tipo_documento || errors.documento || errors.telefono) formHasError = true;
         });
 
         if (!formHasError) {
@@ -274,7 +274,7 @@ const editData = (response) => {
         // direccion: document.querySelector(`#input-direction-client`).value,
     };
     const errors = validate(data, rules2);
-    if (errors) hasError = true;
+    if (errors.nombre || errors.apellido || errors.tipo_documento || errors.documento || errors.telefono) hasError = true;
     setValidationStyles(`input-name-client`, errors?.nombre ? errors.nombre[0] : null);
     setValidationStyles(`input-lastname-client`, errors?.apellido ? errors.apellido[0] : null);
     setValidationStyles(`input-td-client`, errors?.tipo_documento ? errors.tipo_documento[0] : null);
@@ -295,7 +295,7 @@ const editData = (response) => {
                 // direccion: document.querySelector(`#input-direction-client`).value,
             };
             const errors = validate(data, rules2);
-            if (errors) hasError = true;
+            if (errors.nombre || errors.apellido || errors.tipo_documento || errors.documento || errors.telefono) hasError = true;
             else hasError = false
             if (!hasError) {
                 let dataFinal = new FormData();

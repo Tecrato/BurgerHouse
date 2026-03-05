@@ -67,7 +67,7 @@
 
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'mesas' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link" href="mesa"
+                            <a class="sidebar-link" href="mesas"
                                 aria-expanded="false">
                                 <i data-feather="grid" class="feather-icon"></i>
                                 <span class="hide-menu">Mesas</span>

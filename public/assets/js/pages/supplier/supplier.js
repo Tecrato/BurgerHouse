@@ -266,7 +266,7 @@ if (!form.dataset.listenerAttached) {
             setValidationStyles(`input-num1-supplier-${index}`, errors?.n_telefono1 ? errors.n_telefono1[0] : null);
             setValidationStyles(`input-num2-supplier-${index}`, errors?.n_telefono2 ? errors.n_telefono2[0] : null);
             setValidationStyles(`input-direction-supplier-${index}`, errors?.direccion ? errors.direccion[0] : null);
-            if (errors) formHasError = true;
+            if (errors.nombre || errors.razonSocial || errors.tipo_documento || errors.rif || errors.n_telefono1 || errors.n_telefono2 || errors.direccion) formHasError = true;
         });
 
         if (!formHasError) {
@@ -315,7 +315,7 @@ function editData(response) {
     setValidationStyles(`input-num1-supplier`, errors?.n_telefono1 ? errors.n_telefono1[0] : null);
     setValidationStyles(`input-num2-supplier`, errors?.n_telefono2 ? errors.n_telefono2[0] : null);
     setValidationStyles(`input-direction-supplier`, errors?.direccion ? errors.direccion[0] : null);
-    if (errors) hasError = true;
+    if (errors.nombre || errors.razonSocial || errors.tipo_documento || errors.rif || errors.n_telefono1 || errors.n_telefono2 || errors.direccion) hasError = true;
     let formEdit = document.getElementById("form-submit-edit-supplier")
     if (!formEdit.dataset.listenerAttached) {
         formEdit.addEventListener("submit", function (e) {
@@ -337,7 +337,7 @@ function editData(response) {
             setValidationStyles(`input-num1-supplier`, errors?.n_telefono1 ? errors.n_telefono1[0] : null);
             setValidationStyles(`input-num2-supplier`, errors?.n_telefono2 ? errors.n_telefono2[0] : null);
             setValidationStyles(`input-direction-supplier`, errors?.direccion ? errors.direccion[0] : null);
-            if (errors) hasError = true;
+            if (errors.nombre || errors.razonSocial || errors.tipo_documento || errors.rif || errors.n_telefono1 || errors.n_telefono2 || errors.direccion) hasError = true;
             else hasError = false
             if (!hasError) {
                 let data = new FormData()

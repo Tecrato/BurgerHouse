@@ -10,8 +10,8 @@ if (!$session->usuario) {
 }
 
 if (count($url) < 2 || $url[1] === 'view') {
-    if (file_exists(__DIR__ . '/../views/V_mesa.php')) {
-        include_once __DIR__ . '/../views/V_mesa.php';
+    if (file_exists(__DIR__ . '/../views/V_mesas.php')) {
+        include_once __DIR__ . '/../views/V_mesas.php';
     } else {
         make_url_error("No se encontró la vista V_mesa.php", 404);
     }

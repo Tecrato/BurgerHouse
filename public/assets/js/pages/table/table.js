@@ -2,6 +2,9 @@ import functionGeneral from "../../Functions.js";
 import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
+import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
+// Inicializar validators personalizados
+set_validaciones();
 const { table } = introTooltip()
 const { setValidationStyles, validateField, reindex, resetForm, viewImage, searchParam, print, add, update, permission, searchFilter, sessionInfo, binnacle, edit, Delete, pagination } = functionGeneral();
 const { elemenFormTables, targetTable } = Templates()
@@ -9,7 +12,7 @@ let session = await sessionInfo()
 table('navbarDropdown')
 permission("mesas")
 const config = {
-    search: () => searchParam({ active: 1, estado: "LIBRE" }, "mesa"),
+    search: () => searchParam({ active: 1, estado: "LIBRE" }, "mesas"),
     template: targetTable,
     container: ".cont_tables_free",
     funtions: () => {
@@ -57,125 +60,20 @@ function attachValidationListeners(index) {
 
 }
 document.getElementById("add-table-btn").addEventListener("click", () => { addTable(), reindex("#tables-container .tables", "tables", TableCount, "Mesas") });
-validate.validators.numero = function (value, options, key, attributes) {
-    if (!value) return;
-    const numberValue = parseFloat(value);
 
-    if (isNaN(numberValue)) {
-        return options.message || "no es un número válido";
-    }
-    if (numberValue <= 0) {
-        return options.message || "debe ser un número mayor a 0";
-    }
-};
-validate.validators.nombreValidator = function (value, options, key, attributes) {
-    if (!value) return;
-
-    if (!/^[A-Z]/.test(value)) {
-        return options.uppercaseMessage;
-    }
-
-    if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        return options.specialCharMessage;
-    }
-}
-validate.validators.fileType = function (value, options, key, attributes) {
-    if (!value) return
-    if (value.type) {
-        const typeFile = value.type.split("/")[1]
-        if (!options.types.includes(typeFile)) {
-            return `debe ser una imagen JPG, PNG o WEBP`;
-        }
-    } else {
-        const typeFile = value.split(".")[1]
-        if (!options.types.includes(typeFile)) {
-            return `debe ser una imagen JPG, PNG o WEBP`;
-        }
-    }
-
-};
 const rules = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 2,
-            message: "^debe tener al menos 2 caracteres"
-        },
-    },
-    sillas: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        numero: { message: "^debe ser un número mayor a 0" }
-    },
-    imagen: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        fileType: {
-            types: ['jpeg', 'png', 'webp', 'jpg']
-        }
-    },
+    nombre: reglas_validaciones.nombre,
+    sillas: reglas_validaciones.sillas,
+    imagen: reglas_validaciones.imagen,
 };
 const rules2 = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 2,
-            message: "^debe tener al menos 2 caracteres"
-        },
-    },
-    sillas: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        numero: { message: "^debe ser un número mayor a 0" }
-    },
+    nombre: reglas_validaciones.nombre,
+    sillas: reglas_validaciones.sillas,
 };
 const rules3 = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 2,
-            message: "^debe tener al menos 2 caracteres"
-        },
-    },
-    sillas: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        numero: { message: "^debe ser un número mayor a 0" }
-    },
-    imagen: {
-        fileType: {
-            types: ['jpeg', 'png', 'webp', 'jpg']
-        }
-    },
+    nombre: reglas_validaciones.nombre,
+    sillas: reglas_validaciones.sillas,
+    imagen: reglas_validaciones.imagen,
 };
 let form = document.getElementById("form-submit-tables")
 if (!form.dataset.listenerAttached) {
@@ -199,7 +97,7 @@ if (!form.dataset.listenerAttached) {
             setValidationStyles(`input-name-tables-${index}`, errors?.nombre ? errors.nombre[0] : null);
             setValidationStyles(`input-chair-tables-${index}`, errors?.sillas ? errors.sillas[0] : null);
             setValidationStyles(`input-image-tables-${index}`, errors?.imagen ? errors.imagen[0] : null);
-            if (errors) {
+            if (errors.nombre || errors.sillas || errors.imagen) {
                 formHasError = true;
             }
         });
@@ -236,7 +134,7 @@ const editData = (response) => {
     const errors = validate(data, rules2);
     setValidationStyles(`input-name-table`, errors?.nombre ? errors.nombre[0] : null);
     setValidationStyles(`input-chair-table`, errors?.sillas ? errors.sillas[0] : null);
-    if (errors) hasError = true;
+    if (errors.nombre || errors.sillas) hasError = true;
 }
 let formEdit = document.querySelector("#form-submit-edit-table")
 if (!formEdit.dataset.listenerAttached) {
@@ -252,7 +150,7 @@ if (!formEdit.dataset.listenerAttached) {
         setValidationStyles(`input-name-table`, errors?.nombre ? errors.nombre[0] : null);
         setValidationStyles(`input-chair-table`, errors?.sillas ? errors.sillas[0] : null);
         setValidationStyles(`input-image-table`, errors?.imagen ? errors.imagen[0] : null);
-        if (errors) hasError = true;
+        if (errors.nombre || errors.sillas || errors.imagen) hasError = true;
         else hasError = false
         if (!hasError) {
             let dataFinal = new FormData()
@@ -272,9 +170,9 @@ if (!formEdit.dataset.listenerAttached) {
 }
 attachValidationListeners(1);
 print(config);
-print({ ...config, search: () => searchParam({ active: 1, estado: "OCUPADA" }, "mesa"), container: ".cont_tables_occupied" });
+print({ ...config, search: () => searchParam({ active: 1, estado: "OCUPADA" }, "mesas"), container: ".cont_tables_occupied" });
 
 // paginacion
 
-pagination((page) => print({ ...config, search: () => searchParam({ active: 1, estado: "OCUPADA" }, "mesa", null, page), container: ".cont_tables_occupied" }), ".pagination_occupied")
-pagination((page) => print({ ...config, search: () => searchParam({ active: 1, estado: "LIBRE" }, "mesa", null, page), container: ".cont_tables_free" }), ".pagination_free")
+pagination((page) => print({ ...config, search: () => searchParam({ active: 1, estado: "OCUPADA" }, "mesas", null, page), container: ".cont_tables_occupied" }), ".pagination_occupied")
+pagination((page) => print({ ...config, search: () => searchParam({ active: 1, estado: "LIBRE" }, "mesas", null, page), container: ".cont_tables_free" }), ".pagination_free")

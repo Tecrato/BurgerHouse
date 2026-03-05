@@ -128,7 +128,7 @@ if (!form.dataset.listenerAttached) {
             const errors = validate(data, rules);
             setValidationStyles(`input-name-units-${index}`, errors?.nombre ? errors.nombre[0] : null);
             setValidationStyles(`input-alias-units-${index}`, errors?.alias ? errors.alias[0] : null);
-            if (errors) {
+            if (errors.nombre || errors.alias) {
                 formHasError = true;
             }
         })
@@ -158,7 +158,7 @@ editDataTables(".table_unit", (response) => {
     setValidationStyles(`input-name-unit`, errors?.nombre ? errors.nombre[0] : null);
     setValidationStyles(`input-alias-unit`, errors?.alias ? errors.alias[0] : null);
 
-    if (errors) {
+    if (errors.nombre || errors.alias) {
         formHasError = true;
     }
     let formEdit = document.getElementById("form-submit-edit-unit")
@@ -173,7 +173,7 @@ editDataTables(".table_unit", (response) => {
             setValidationStyles(`input-name-unit`, errors?.nombre ? errors.nombre[0] : null);
             setValidationStyles(`input-alias-unit`, errors?.alias ? errors.alias[0] : null);
 
-            if (errors) formHasError = true;
+            if (errors.nombre || errors.alias) formHasError = true;
             else formHasError = false;
 
             if (!formHasError) {

@@ -57,9 +57,14 @@
       <div class="error-message">
         <h2>LO SIENTO!</h2>
         <p>No se ha encontrado la página que buscabas.</p>
+        <p><?php echo $message; ?></p>
       </div>
     </div>
-    <a href="home" style="display: block; margin-top: 2rem">Ir al inicio</a>
+    <div style="height: 2rem;display: flex; justify-content: center; align-items: center; gap: 2rem;">
+      <a href="login" style="display: block; margin-top: 2rem">Login</a>
+      <a href="home" style="display: block; margin-top: 2rem">Ir al inicio</a>
+      <a href="javascript:history.back()" style="display: block; margin-top: 2rem">Volver</a>
+    </div>
     <p style="margin-top: 2rem;">Copyright &copy; 2025 Todos los derechos reservados.</p>
   </div>
 </body>

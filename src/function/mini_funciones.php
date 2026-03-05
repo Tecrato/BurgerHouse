@@ -16,10 +16,11 @@ function make_url_error($message, $code = 400, $ajax = false) {
         // echo "No estás autenticado. Redirigiendo a login...";
         // echo "<br>";
         // echo $message;
-        header('Location: ' . __URL__ . 'error404/');
+        include_once __DIR__.'/../views/error-404.php';
+        // header('Location: ' . __URL__ . 'error404/');
         exit;
     }
-    echo $message;
+    // echo $message;
     exit;
 }
 

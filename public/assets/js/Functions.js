@@ -1,4 +1,8 @@
 import { myfecth } from "./Functions2.js";
+
+// Importar validate desde window (cargado como script clásico)
+const validate = window.validate;
+
 export default function functionGeneral() {
 
   async function permission(module = null, funtion = null) {
@@ -762,6 +766,7 @@ export default function functionGeneral() {
     }
   }
   return {
+    validate,
     InputPrice,
     hora,
     fecha,

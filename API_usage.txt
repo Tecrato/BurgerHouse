@@ -36,4 +36,3 @@ Notas:
  - Se puede forzar el json con un parametro get o post con el nombre de parametro "ajax" y el valor "1", esto imprime si o si en formato json.
  - Se pueden incluir tanto GET como POST en la misma peticion.
  - Cualquier parametro o filtro obviado se considera NULL, y se usara el valor por defecto que se le da en el controlador.
- - Los parametros de limitacion y ordenamiento se pueden enviar por GET en vez de la url, pero hay que usar el nombre que esta asignado en la funcion de php .

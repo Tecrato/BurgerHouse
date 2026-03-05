@@ -63,6 +63,8 @@ export function myfecth(url, parametros_get = {}, parametros_post = null, callba
     }
   }
   request.open(method, url_with_params, async_call);
+  // Header para decir que espera un json
+  request.setRequestHeader("HTTP_ACCEPT", "application/json")
 
   // Establecer encabezados según el tipo de datos enviados
   if (method === 'POST' && !(postData instanceof FormData)) {

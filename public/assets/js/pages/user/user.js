@@ -1,15 +1,17 @@
+import { set_validaciones, reglas_validaciones } from "../../Validaciones.js";
 import functionGeneral from "../../Functions.js";
 import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
-const { selectOptionAll, setValidationStyles, validateField, searchParam, searchFilter, print, add, update, reindex, resetForm, binnacle, sessionInfo, Delete, edit, permission } = functionGeneral();
+const { selectOptionAll, setValidationStyles, validateField, searchParam, searchFilter, print, add, update, reindex, resetForm, binnacle, sessionInfo, Delete, edit, permission, validate } = functionGeneral();
 const { elemenFormUser, optionsRol, targetUser } = Templates()
 const tooltip = new bootstrap.Tooltip(document.querySelector(".btn-add-tooltip"))
 let session = await sessionInfo();
 permission("usuarios")
+set_validaciones()
 selectOptionAll(".select_options_td", null)
-selectOptionAll(".select_options_rol", "rol", optionsRol)
+selectOptionAll(".select_options_rol", "roles", optionsRol)
 selectOptionAll(".select_options_td_edit", null)
-selectOptionAll(".select_options_rol_edit", "rol", optionsRol)
+selectOptionAll(".select_options_rol_edit", "roles", optionsRol)
 const config = {
     search: () => searchParam({ active: 1 }, "users"),
     template: targetUser,
@@ -43,68 +45,73 @@ function addUsers() {
 function attachValidationListeners(index) {
     const productElement = document.getElementById(`user-${index}`);
     productElement.querySelectorAll("input[type='text'], input[type='button'], input[type='password']").forEach(input => {
-        input.addEventListener("keyup", (e) => validateField(e, rules));
-        input.addEventListener("blur", (e) => validateField(e, rules));
+        input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
     });
     const productElement2 = document.getElementById(`user`);
     productElement2.querySelectorAll("input[type='text'], input[type='button'], input[type='password']").forEach(input => {
-        input.addEventListener("keyup", (e) => validateField(e, rules2));
-        input.addEventListener("blur", (e) => validateField(e, rules2));
+        input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
     });
 }
 document.getElementById("add-user-btn").addEventListener("click", () => {
     addUsers()
     reindex("#users-container .users", "user", UsersCount, "Usuario");
 });
-validate.validators.validateTD = function (value, options, key, attributes) {
-    if (!value) {
-        return options.message || "es requerido";
-    }
-    if (value.toLowerCase() === "seleccione una opcion") {
-        return options.message || "es requerido";
-    }
-};
-validate.validators.nombreValidator = function (value, options, key, attributes) {
-    if (!value) return;
-    if (!/^[A-Z]/.test(value)) {
-        return options.uppercaseMessage;
-    }
-    if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        return options.specialCharMessage;
-    }
-};
-validate.validators.email = function (value, options, key, attributes) {
-    if (!value) return;
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
-        return options.validateEmail
-    }
-}
-validate.validators.password = function (value, options, key, attributes) {
-    if (!value) return;
-    if (!/(?=.*\d)/.test(value)) {
-        return options.onceDigit
-    }
-    if (!/(?=.*[a-z])/.test(value)) {
-        return options.onceLower
-    }
-    if (!/(?=.*[A-Z])/.test(value)) {
-        return options.onceUpper
-    }
-    if (!/(?=.*[^a-zA-Z0-9])/.test(value)) {
-        return options.onceSpecial
-    }
-    if (/\s/.test(value)) {
-        return options.noSpace
-    }
-    if (value.length < 8 || value.length > 15) {
-        return options.length
-    }
-}
+// validate.validators.validateTD = function (value, options, key, attributes) {
+//     if (!value || value.toLowerCase() === "seleccione una opcion") {
+//         return options.message || "es requerido";
+//     }
+// };
+// validate.validators.nombreValidator = function (value, options, key, attributes) {
+//     if (!value) return;
+//     if (!/^[A-Z]/.test(value)) {
+//         return options.uppercaseMessage;
+//     }
+//     if (!/^[A-Za-z0-9\s]*$/.test(value)) {
+//         return options.specialCharMessage;
+//     }
+//     if (/\s{2,}/.test(value)) {
+//         return options.noDoubleSpace;
+//     }
+//     if (/[0-9]/.test(value)) {
+//         return options.noNumber;
+//     }
+// };
+// validate.validators.email = function (value, options, key, attributes) {
+//     if (!value) return;
+//     if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
+//         return options.validateEmail
+//     }
+// }
+// validate.validators.password = function (value, options, key, attributes) {
+//     if (!value) return;
+//     if (!/(?=.*\d)/.test(value)) {
+//         return options.onceDigit
+//     }
+//     if (!/(?=.*[a-z])/.test(value)) {
+//         return options.onceLower
+//     }
+//     if (!/(?=.*[A-Z])/.test(value)) {
+//         return options.onceUpper
+//     }
+//     if (!/(?=.*[^a-zA-Z0-9])/.test(value)) {
+//         return options.onceSpecial
+//     }
+//     if (/\s/.test(value)) {
+//         return options.noSpace
+//     }
+//     if (value.length < 8 || value.length > 15) {
+//         return options.length
+//     }
+// }
 const rules = {
     nombre: {
         nombreValidator: {
             uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
+            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,).",
+            noDoubleSpace: "^No se permiten espacios dobles",
+            noNumber: "^No se permiten números"
         },
         presence: {
             allowEmpty: false,
@@ -175,80 +182,6 @@ const rules = {
         email: { validateEmail: "^El correo electrónico no es válido" }
     }
 };
-const rules2 = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 2,
-            message: "^debe tener al menos 2 caracteres"
-        },
-    },
-    apellido: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 2,
-            message: "^debe tener al menos 2 caracteres"
-        },
-    },
-    // rif: {
-    //     presence: {
-    //         allowEmpty: false,
-    //         message: "^es requerida"
-    //     },
-    //     format: {
-    //         pattern: "^[0-9]+$",
-    //         message: "^solo puede tener numeros"
-    //     }
-    // },
-    // tipo_documento: {
-    //     presence: {
-    //         allowEmpty: false,
-    //         message: "^es requerida"
-    //     },
-    //     validateTD: { message: "^es requerido" }
-    // },
-    id_rol: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        validateTD: { message: "^es requerido" }
-    },
-    // hash: {
-    //     presence: {
-    //         allowEmpty: false,
-    //         message: "^es requerido"
-    //     },
-    //     password: {
-    //         onceDigit: "^Al menos un dígito.",
-    //         onceLower: "^Al menos una letra minúscula.",
-    //         onceSpecial: "^Al menos un carácter especial.",
-    //         noSpace: "^Sin espacios en blanco.",
-    //         length: "^Longitud entre 8 y 15 caracteres."
-    //     }
-    // },
-    email: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        email: { validateEmail: "^El correo electrónico no es válido" }
-    }
-};
 let form = document.getElementById("form-submit-users")
 if (!form.dataset.listenerAttached) {
     form.addEventListener("submit", (e) => {
@@ -269,7 +202,7 @@ if (!form.dataset.listenerAttached) {
                 hash: user.querySelector(`input[name="hash"]`).value
             }
             dataUsers.push(data)
-            const errors = validate(data, rules);
+            const errors = validate(data, reglas_validaciones);
             setValidationStyles(`input-name-user-${index}`, errors?.nombre ? errors.nombre[0] : null);
             setValidationStyles(`input-lastname-user-${index}`, errors?.apellido ? errors.apellido[0] : null);
             // setValidationStyles(`input-td-user-${index}`, errors?.tipo_documento ? errors.tipo_documento[0] : null);
@@ -277,7 +210,7 @@ if (!form.dataset.listenerAttached) {
             setValidationStyles(`input-email-user-${index}`, errors?.email ? errors.email[0] : null);
             setValidationStyles(`input-password-user-${index}`, errors?.hash ? errors.hash[0] : null);
             setValidationStyles(`input-rol-user-${index}`, errors?.id_rol ? errors.id_rol[0] : null);
-            if (errors) {
+            if (errors.nombre || errors.apellido || errors.email || errors.hash || errors.id_rol) {
                 formHasError = true;
             }
         })
@@ -300,6 +233,7 @@ if (!form.dataset.listenerAttached) {
 }
 attachValidationListeners(1)
 print(config)
+
 //edicion de usuarios
 function editData(response) {
     document.querySelector(`#id-user`).value = response[0].id;
@@ -321,7 +255,7 @@ function editData(response) {
         id_rol: document.querySelector(`#input-rol-user`).getAttribute("data-id"),
         // hash: document.querySelector(`#input-password-user`).value
     }
-    const errors = validate(data, rules);
+    const errors = validate(data, reglas_validaciones);
     setValidationStyles(`input-name-user`, errors?.nombre ? errors.nombre[0] : null);
     setValidationStyles(`input-lastname-user`, errors?.apellido ? errors.apellido[0] : null);
     // setValidationStyles(`input-td-user`, errors?.tipo_documento ? errors.tipo_documento[0] : null);
@@ -344,7 +278,7 @@ function editData(response) {
                 id_rol: formEdit.querySelector(`input[name="id_rol"]`).getAttribute("data-id"),
                 // hash: formEdit.querySelector(`input[name="hash"]`).value
             }
-            const errors = validate(data, rules2);
+            const errors = validate(data, reglas_validaciones);
             setValidationStyles(`input-name-user`, errors?.nombre ? errors.nombre[0] : null);
             setValidationStyles(`input-lastname-user`, errors?.apellido ? errors.apellido[0] : null);
             // setValidationStyles(`input-td-user`, errors?.tipo_documento ? errors.tipo_documento[0] : null);
@@ -353,7 +287,9 @@ function editData(response) {
             // setValidationStyles(`input-password-user`, errors?.hash ? errors.hash[0] : null);
             setValidationStyles(`input-rol-user`, errors?.id_rol ? errors.id_rol[0] : null);
 
-            if (errors) hasError = true;
+            if (errors.nombre || errors.apellido || errors.email || errors.id_rol) {
+                hasError = true;
+            }
             else hasError = false
 
             if (!hasError) {

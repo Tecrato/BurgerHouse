@@ -6,6 +6,9 @@ import {
     InputPriceFormat,
     myfecth
  } from "../../Functions2.js";
+import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
+// Inicializar validators personalizados
+set_validaciones();
 const { resetForm, setValidationStyles, validateField, addDataTables, reindex, deleteDatatable, editDataTables, updateDataTables, InputPrice, sessionInfo, viewImage, permission } = functionGeneral();
 const { elemenFormAdditional } = Templates()
 const { additional } = introTooltip()
