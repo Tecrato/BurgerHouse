@@ -626,7 +626,7 @@
 <script src="./assets/libs/libs/jspdf/jspdf.umd.min.js"></script>
 <script src="./assets/libs/libs/tagify/tagify.js"></script>
 <script src="./assets/libs/libs/tagify/tagify.polyfills.min.js"></script>
-<script type="module" src="./assets/js/pages/order/order.js"></script>
 <script type="module" src="./assets/js/pages/order/domicile_and_takeaway.js"></script>
+<script type="module" src="./assets/js/pages/order/order.js"></script>
 <script type="module" src="./assets/js/pages/order/local.js"></script>
 <script src="./assets/libs/libs/bs-stepper/bs-stepper.min.js"></script>

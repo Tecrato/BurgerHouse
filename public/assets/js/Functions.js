@@ -94,8 +94,8 @@ export default function functionGeneral() {
     return horaFormateada;
   }
   const amountDolar = async () => {
-    let search = myfecth("https://ve.dolarapi.com/v1/dolares")
-    let response = search.json()
+    let search = await fetch("https://ve.dolarapi.com/v1/dolares")
+    let response = await search.json()
     return parseFloat(response[0].promedio).toFixed(2);
   }
   function fecha(f) {

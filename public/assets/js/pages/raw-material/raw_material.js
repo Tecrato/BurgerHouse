@@ -2,6 +2,9 @@ import functionGeneral from "../../Functions.js";
 import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
+import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
+// Inicializar validators personalizados
+set_validaciones();
 const { rawMaterial } = introTooltip()
 const { validateField, setValidationStyles, selectOptionAll, reindex, resetForm, addDataTables, deleteDatatable, editDataTables, updateDataTables, sessionInfo, permission } = functionGeneral();
 const { elemenFormRawMaterial, optionsRol } = Templates()
@@ -156,92 +159,25 @@ document.getElementById("add-rawmaterial-btn").addEventListener("click", () => {
     addRawMaterial()
     reindex("#rawmaterials-container .rawmaterials", "rawmaterials", RawmaterialCount, "Materia Prima");
 });
-validate.validators.validateCategoryAndUnit = function (value, options, key, attributes) {
-    if (!value) {
-        return options.message || "es requerido";
-    }
-    if (value.toLowerCase() === "seleccione una opcion") {
-        return options.message || "es requerido'";
-    }
-};
-validate.validators.nombreValidator = function (value, options, key, attributes) {
-    if (!value) return;
-
-    if (!/^[A-Z]/.test(value)) {
-        return options.uppercaseMessage;
-    }
-    if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        return options.specialCharMessage;
-    }
-};
-validate.validators.stockValidator = function (value, options, key, attributes) {
-    // Si uno de los dos no está presente, no hacemos nada
-    if (value == null || attributes[options.field] == null) return;
-    const val = Number(value);
-    const other = Number(attributes[options.field]);
-    if (isNaN(val) || isNaN(other)) return;
-    if (val < other) {
-        return options.message || `no puede ser menor que ${options.field}`;
-    }
-};
+// Las reglas usan reglas_validaciones cuando es posible, o definiciones locales para casos específicos
 const rules = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 4,
-            message: "^debe tener al menos 4 caracteres"
-        },
-        format: {
-            pattern: /^[A-Z].*/,
-            message: "^debe empezar con mayuscula"
-        },
-    },
+    nombre: reglas_validaciones.nombre,
     id_categoria: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
+        presence: { allowEmpty: false, message: "^es requerida" },
         validateCategoryAndUnit: { message: "^es requerido" }
     },
     id_unidad: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
+        presence: { allowEmpty: false, message: "^es requerida" },
         validateCategoryAndUnit: { message: "^es requerido" }
     },
     min: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        numericality: {
-            onlyInteger: true,
-            greaterThan: 0,
-            message: "^debe ser un número mayor que 0"
-        }
+        presence: { allowEmpty: false, message: "^es requerido" },
+        numericality: { onlyInteger: true, greaterThan: 0, message: "^debe ser un número mayor que 0" }
     },
     max: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        numericality: {
-            onlyInteger: true,
-            greaterThan: 0,
-            message: "^debe ser un número mayor que 0"
-        },
-        stockValidator: {
-            field: "min",
-            message: "^no puede ser menor que Stock Min"
-        }
+        presence: { allowEmpty: false, message: "^es requerido" },
+        numericality: { onlyInteger: true, greaterThan: 0, message: "^debe ser un número mayor que 0" },
+        stockValidator: { field: "min", message: "^no puede ser menor que Stock Min" }
     }
 };
 let form = document.getElementById("form-submit-rawMaterials")

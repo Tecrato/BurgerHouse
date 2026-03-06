@@ -2,6 +2,7 @@
 
 function make_url_error($message, $code = 400, $ajax = false) {
     header('HTTP/1.0 ' . $code . ' ' . ERROR_DICT[$code]);
+    echo $message;
     if (
         (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ||
         (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) ||
@@ -20,7 +21,6 @@ function make_url_error($message, $code = 400, $ajax = false) {
         // header('Location: ' . __URL__ . 'error404/');
         exit;
     }
-    // echo $message;
     exit;
 }
 

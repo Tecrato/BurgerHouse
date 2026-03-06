@@ -54,10 +54,10 @@ if (!form.dataset.listenerAttached) {
             descripcion: form.querySelector("#input-capital-description").value,
             monto: form.querySelector("#input-capital-monto").value,
         }
-        const errors = validate(data, rules)
+        const errors = validate(data, reglas_validaciones)
         setValidationStyles("input-capital-description", errors?.descripcion ? errors.descripcion[0] : null);
         setValidationStyles("input-capital-monto", errors?.monto ? errors.monto[0] : null);
-        if (errors) hasError = true
+        if (errors?.descripcion || errors?.monto) hasError = true
         else hasError = false
         if (!hasError) {
             let dataFinal = new FormData()
@@ -71,18 +71,4 @@ if (!form.dataset.listenerAttached) {
         }
     })
     form.dataset.listenerAttached = "true"
-}
-const rules = {
-    descripcion: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-    },
-    monto: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-    },
 }

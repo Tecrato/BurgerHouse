@@ -370,10 +370,10 @@ export default function Templates() {
                         <small class="text-body-secondary">
                             <div style="display: flex; justify-content: end; align-items: center;">
                                 <div class="d-flex gap-3">
-                                    <a class="link-secondary edit_btn" data-id="${objet.id}" module-edit="supplier" data-module-edit="proveedores" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#edit-supplier" data-bs-title="Editar Proveedor" data-bs-placement="bottom">
+                                    <a class="link-secondary edit_btn" data-id="${objet.id}" module-edit="proveedor" data-module-edit="proveedores" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#edit-supplier" data-bs-title="Editar Proveedor" data-bs-placement="bottom">
                                         <i data-feather="edit"></i>
                                     </a>
-                                    <a class="link-secondary trash_btn" data-id="${objet.id}" module-delete="supplier" data-module-delete="proveedores" style="cursor: pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar Proveedor" data-bs-placement="bottom">
+                                    <a class="link-secondary trash_btn" data-id="${objet.id}" module-delete="proveedor" data-module-delete="proveedores" style="cursor: pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar Proveedor" data-bs-placement="bottom">
                                         <i data-feather="trash-2"></i>
                                     </a>
                                 </div>

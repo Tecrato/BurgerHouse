@@ -3,6 +3,9 @@ import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
 import { recipe_detail, recipe_detail_all } from "./report.js"
+import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
+// Inicializar validators personalizados
+set_validaciones();
 const { recipe } = introTooltip()
 const { InputPrice, selectOptionAll, setValidationStyles, validateField, reindex, resetForm, edit, searchParam, sessionInfo, binnacle, permission } = functionGeneral();
 const { elemenFormRecipe, optionsRol, optionsRawMaterial, targetRecipe, elemenFormEditRecipe } = Templates()
@@ -40,40 +43,11 @@ document.getElementById("add-recipe-btn").addEventListener("click", () => {
     addRecipe()
     reindex("#recipes-container .recipes", "recipes", RecipeCount, "Item")
 });
-validate.validators.cantidad = function (value, options, key, attributes) {
-    if (!value) return;
-    const cleanValue = value.replace(/\./g, '').replace(',', '.');
-    const numberValue = parseFloat(cleanValue);
-
-    if (isNaN(numberValue)) {
-        return options.message || "no es un número válido";
-    }
-    if (numberValue <= 0) {
-        return options.message || "debe ser un número mayor a 0";
-    }
-};
-validate.validators.validateRecipe = function (value, options, key, attributes) {
-    if (!value) {
-        return options.message || "es requerido";
-    }
-    if (value.toLowerCase() === "seleccione una opcion") {
-        return options.message || "es requerido";
-    }
-};
+// Las reglas se definen en cada validate() usando reglas_validaciones
 const rules = {
-    cantidad: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        cantidad: { message: "^debe ser un número mayor a 0" }
-    },
+    cantidad: reglas_validaciones.cantidad,
     id_rawmaterial: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        validateRecipe: { message: "^es requerido" }
+        presence: { allowEmpty: false, message: "^es requerido" }
     },
 };
 const rules2 = {

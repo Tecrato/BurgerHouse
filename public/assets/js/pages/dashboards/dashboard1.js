@@ -198,7 +198,7 @@ const activity = async () => {
 }
 const targetItem = async () => {
     let numeroClientes = myfecth("clientes/count", {}, { active: 1 }, null, "POST");
-    let tablesAvaliable = myfecth("mesa/count", {}, { active: 1, estado: "LIBRE" }, null, "POST");
+    let tablesAvaliable = myfecth("mesas/count", {}, { active: 1, estado: "LIBRE" }, null, "POST");
     let orders = myfecth("orden/count", {}, { status: "entregada" }, null, "POST");
     let orders2 = myfecth("orden/count", {}, { status: "pagado" }, null, "POST");
     let ganancias = myfecth("estadisticas/UtilidadNetaMes", {}, { anio: new Date().getFullYear(), mes: new Date().getMonth() + 1 }, null, "POST");

@@ -5,7 +5,7 @@ const validate = window.validate;
 export function set_validaciones(){
     validate.validators.nombreValidator = function (value, options, key, attributes) {
         if (!value) return;
-        if (!/^[A-Z]+/.test(value)) {
+        if (!/^[A-Z]/.test(value)) {
             return options.uppercaseMessage;
         }
         if (/\d/.test(value)) {
@@ -16,6 +16,17 @@ export function set_validaciones(){
         }
         if (/\s{2,}/.test(value)) {
             return options.noDoubleSpace;
+        }
+    };
+    validate.validators.telefonoValido = function (value) {
+        if (!value) return;
+        // Intenta obtener el objeto iti desde el elemento
+        const input = document.querySelector("input[type='tel']");
+        if (!input || !input.dataset.iti) return; // Si no hay iti, asume válido
+        const iti = window.intlTelInputGlobals.getInstance(input);
+        if (!iti || !iti.isValidNumber()) {
+            const pais = iti ? iti.getSelectedCountryData().name : "desconocido";
+            return `^Número inválido para ${pais}`;
         }
     };
     validate.validators.validateID = function (value, options, key, attributes) {
@@ -95,11 +106,33 @@ export function set_validaciones(){
             return options.message || "^debe ser un número";
         }
     };
+    validate.validators.numberOnly = function (value, options, key, attributes) {
+        if (!value) return;
+        if (!/^[0-9]+$/.test(value)) {
+            return options.message || "^solo debe contener números";
+        }
+    };
     validate.validators.stockValidator = function (value, options, key, attributes) {
         if (!value) return;
         const num = parseFloat(value);
         if (isNaN(num) || num < 0) {
             return options.message || "^debe ser 0 o mayor";
+        }
+    };
+    validate.validators.validateCategoryAndRecipe = function (value, options, key, attributes) {
+        if (!value) {
+            return options.message || "es requerido";
+        }
+        if (value.toLowerCase() === "seleccione una opcion") {
+            return options.message || "es requerido";
+        }
+    };
+    validate.validators.validateCategoryAndUnit = function (value, options, key, attributes) {
+        if (!value) {
+            return options.message || "es requerido";
+        }
+        if (value.toLowerCase() === "seleccione una opcion") {
+            return options.message || "es requerido'";
         }
     };
 
@@ -173,8 +206,42 @@ export const reglas_validaciones = {
     id_metodo_pago: r.id_,
     id_rawmaterial: r.id_,
 
-
-
+    detalles: {
+        presence: {
+            allowEmpty: false,
+            message: "^es requerido"
+        },
+        length: {
+            minimum: 15,
+            message: "^debe tener al menos 15 caracteres"
+        }
+    },
+    min: {
+        presence: {
+            allowEmpty: false,
+            message: "^es requerido"
+        },
+        numericality: {
+            onlyInteger: true,
+            greaterThan: 0,
+            message: "^debe ser un número mayor que 0"
+        }
+    },
+    max: {
+        presence: {
+            allowEmpty: false,
+            message: "^es requerido"
+        },
+        numericality: {
+            onlyInteger: true,
+            greaterThan: 0,
+            message: "^debe ser un número mayor que 0"
+        },
+        stockValidator: {
+            field: "min",
+            message: "^no puede ser menor que Stock Min"
+        }
+    },
 
     nombre: r.nombre,
     apellido: r.nombre,
@@ -218,6 +285,20 @@ export const reglas_validaciones = {
         }
     },
     precio: {
+        presence: {
+            allowEmpty: false,
+            message: "^es requerido"
+        },
+        precio: { message: "^debe ser un número mayor a 0" }
+    },
+    precio_bs: {
+        presence: {
+            allowEmpty: false,
+            message: "^es requerido"
+        },
+        precio: { message: "^debe ser un número mayor a 0" }
+    },
+    precio_usd: {
         presence: {
             allowEmpty: false,
             message: "^es requerido"
@@ -276,12 +357,45 @@ export const reglas_validaciones = {
             message: "^es requerido"
         }
     },
+    // Reglas para supplier (telefono)
+    telefono1: {
+        presence: {
+            allowEmpty: false,
+            message: "^es requerido"
+        }
+    },
+    telefono2: {
+        presence: {
+            allowEmpty: true,
+        }
+    },
+    // Reglas para supplier (n_telefono1, n_telefono2)
+    n_telefono1: {
+        presence: {
+            allowEmpty: false,
+            message: "^es requerido"
+        },
+        telefonoValido: true
+    },
+    n_telefono2: {
+        presence: {
+            allowEmpty: true,
+        }
+    },
     cantidad: {
         presence: {
             allowEmpty: false,
             message: "^es requerida"
         },
         cantidad: { message: "^debe ser mayor a 0" }
+    },
+    cantidadNumero: {
+        presence: {
+            allowEmpty: false,
+            message: "^es requerida"
+        },
+        cantidad: { message: "^debe ser mayor a 0" },
+        numberOnly: { message: "^solo debe contener números" }
     },
     codigo: {
         presence: {

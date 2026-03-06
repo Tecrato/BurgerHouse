@@ -1,6 +1,9 @@
 import functionGeneral from "../../Functions.js";
 import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
+import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
+// Inicializar validators personalizados
+set_validaciones();
 const { selectOptionAll, setValidationStyles, validateField, searchParam, searchFilter, print, add, update, reindex, resetForm, sessionInfo, binnacle, edit, Delete, permission } = functionGeneral();
 const { elemenFormClient, targetClient } = Templates()
 let session = await sessionInfo();
@@ -42,174 +45,23 @@ function addClient() {
 function attachValidationListeners(index) {
     const productElement = document.getElementById(`clients-${index}`);
     productElement.querySelectorAll("input[type='text'], textarea, input[type='button'], input[type='tel']").forEach(input => {
-        input.addEventListener("keyup", (e) => validateField(e, rules));
-        input.addEventListener("blur", (e) => validateField(e, rules));
-        input.addEventListener("change", (e) => validateField(e, rules));
+        input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("change", (e) => validateField(e, reglas_validaciones));
     });
     const contEditClient = document.querySelector("#client-container");
     contEditClient.querySelectorAll("input[type='text'], textarea, input[type='button'], input[type='tel']").forEach(input => {
-        input.addEventListener("keyup", (e) => validateField(e, rules2));
-        input.addEventListener("blur", (e) => validateField(e, rules2));
-        input.addEventListener("change", (e) => validateField(e, rules2));
+        input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("change", (e) => validateField(e, reglas_validaciones));
     });
 }
 document.getElementById("add-client-btn").addEventListener("click", () => {
     addClient()
     reindex("#clients-container .clients", "clients", ClientCount, "Cliente");
 });
-validate.validators.telefonoValido = function (value) {
-    if (!value) return
-    if (!iti.isValidNumber()) {
-        const pais = iti.getSelectedCountryData().name;
-        return `^Número inválido para ${pais}`;
-    }
-};
-validate.validators.telefonoValidoEdit = function (value) {
-    if (!value) return
-    if (!itiedit.isValidNumber()) {
-        const pais = itiedit.getSelectedCountryData().name;
-        return `^Número inválido para ${pais}`;
-    }
-};
-validate.validators.validateTD = function (value, options, key, attributes) {
-    if (!value) {
-        return options.message || "es requerido";
-    }
-    if (value.toLowerCase() === "seleccione una opcion") {
-        return options.message || "es requerido";
-    }
-};
-validate.validators.nombreValidator = function (value, options, key, attributes) {
-    if (!value) return;
-    if (!/^[A-Z]/.test(value)) {
-        return options.uppercaseMessage;
-    }
-    if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        return options.specialCharMessage;
-    }
-};
-const rules = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 4,
-            message: "^debe tener al menos 3 caracteres"
-        },
-    },
-    apellido: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 4,
-            message: "^debe tener al menos 3 caracteres"
-        },
-    },
-    documento: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        format: {
-            pattern: "^[0-9]+$",
-            message: "^solo puede tener numeros"
-        }
-    },
-    telefono: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        telefonoValido: true
-
-    },
-    // direccion: {
-    //     presence: {
-    //         allowEmpty: false,
-    //         message: "^es requerido"
-    //     },
-    // },
-    tipo_documento: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        validateTD: { message: "^es requerido" }
-    }
-};
-const rules2 = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 4,
-            message: "^debe tener al menos 3 caracteres"
-        },
-    },
-    apellido: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 4,
-            message: "^debe tener al menos 3 caracteres"
-        },
-    },
-    documento: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        format: {
-            pattern: "^[0-9]+$",
-            message: "^solo puede tener numeros"
-        }
-    },
-    telefono: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        telefonoValidoEdit: true
-
-    },
-    // direccion: {
-    //     presence: {
-    //         allowEmpty: false,
-    //         message: "^es requerido"
-    //     },
-    // },
-    tipo_documento: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        validateTD: { message: "^es requerido" }
-    }
-};
+// telefonoValido y telefonoValidoEdit dependen de variables locales (iti, itiedit), se mantienen aquí
+// Los demás validators ya están en Validaciones.js
 let form = document.getElementById("form-submit-clients")
 if (!form.dataset.listenerAttached) {
     form.addEventListener("submit", function (e) {
@@ -229,14 +81,14 @@ if (!form.dataset.listenerAttached) {
                 // direccion: client.querySelector(`textarea[name="direccion"]`) ? client.querySelector(`textarea[name="direccion"]`).value : "",
             };
             dataClient.push(data)
-            const errors = validate(data, rules);
+            const errors = validate(data, reglas_validaciones);
             setValidationStyles(`input-name-client-${index}`, errors?.nombre ? errors.nombre[0] : null);
             setValidationStyles(`input-lastname-client-${index}`, errors?.apellido ? errors.apellido[0] : null);
             setValidationStyles(`input-td-client-${index}`, errors?.tipo_documento ? errors.tipo_documento[0] : null);
             setValidationStyles(`input-doc-client-${index}`, errors?.documento ? errors.documento[0] : null);
             setValidationStyles(`input-tel-client-${index}`, errors?.telefono ? errors.telefono[0] : null);
             // setValidationStyles(`input-direction-client-${index}`, errors?.direccion ? errors.direccion[0] : null);
-            if (errors.nombre || errors.apellido || errors.tipo_documento || errors.documento || errors.telefono) formHasError = true;
+            if (errors?.nombre || errors?.apellido || errors?.tipo_documento || errors?.documento || errors?.telefono) formHasError = true;
         });
 
         if (!formHasError) {
@@ -273,8 +125,8 @@ const editData = (response) => {
         documento: document.querySelector(`#input-doc-client`).value,
         // direccion: document.querySelector(`#input-direction-client`).value,
     };
-    const errors = validate(data, rules2);
-    if (errors.nombre || errors.apellido || errors.tipo_documento || errors.documento || errors.telefono) hasError = true;
+    const errors = validate(data, reglas_validaciones);
+    if (errors?.nombre || errors?.apellido || errors?.tipo_documento || errors?.documento || errors?.telefono) hasError = true;
     setValidationStyles(`input-name-client`, errors?.nombre ? errors.nombre[0] : null);
     setValidationStyles(`input-lastname-client`, errors?.apellido ? errors.apellido[0] : null);
     setValidationStyles(`input-td-client`, errors?.tipo_documento ? errors.tipo_documento[0] : null);
@@ -294,8 +146,8 @@ const editData = (response) => {
                 documento: document.querySelector(`#input-doc-client`).value,
                 // direccion: document.querySelector(`#input-direction-client`).value,
             };
-            const errors = validate(data, rules2);
-            if (errors.nombre || errors.apellido || errors.tipo_documento || errors.documento || errors.telefono) hasError = true;
+            const errors = validate(data, reglas_validaciones);
+            if (errors?.nombre || errors?.apellido || errors?.tipo_documento || errors?.documento || errors?.telefono) hasError = true;
             else hasError = false
             if (!hasError) {
                 let dataFinal = new FormData();

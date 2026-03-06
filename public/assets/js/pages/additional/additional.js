@@ -84,137 +84,17 @@ document.getElementById("add-additional-btn").addEventListener("click", () => {
 function attachValidationListeners(index) {
     const additionalElement = document.getElementById(`additionals-${index}`);
     additionalElement.querySelectorAll("input[type='text'], input[type='file']").forEach(input => {
-        input.addEventListener("keyup", (e) => validateField(e, rules));
-        input.addEventListener("blur", (e) => validateField(e, rules));
-        input.addEventListener("change", (e) => validateField(e, rules));
+        input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("change", (e) => validateField(e, reglas_validaciones));
     });
     const element2 = document.getElementById(`additional`);
     element2.querySelectorAll("input[type='text']").forEach(input => {
-        input.addEventListener("keyup", (e) => validateField(e, rules2));
-        input.addEventListener("blur", (e) => validateField(e, rules2));
+        input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
     });
 }
-validate.validators.precio = function (value, options, key, attributes) {
-    if (!value) return;
-    const cleanValue = value.replace(/\./g, '').replace(',', '.');
-    const numberValue = parseFloat(cleanValue);
-
-    if (isNaN(numberValue)) {
-        return options.message || "no es un número válido";
-    }
-    if (numberValue <= 0) {
-        return options.message || "debe ser un número mayor a 0";
-    }
-};
-validate.validators.nombreValidator = function (value, options, key, attributes) {
-    if (!value) return;
-
-    if (!/^[A-Z]/.test(value)) {
-        return options.uppercaseMessage;
-    }
-
-    if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        return options.specialCharMessage;
-    }
-};
-validate.validators.fileType = function (value, options, key, attributes) {
-    if (!value) return
-    if (value.type) {
-        const typeFile = value.type.split("/")[1]
-        if (!options.types.includes(typeFile)) {
-            return `debe ser una imagen JPG, PNG o WEBP`;
-        }
-    } else {
-        const typeFile = value.split(".")[1]
-        if (!options.types.includes(typeFile)) {
-            return `debe ser una imagen JPG, PNG o WEBP`;
-        }
-    }
-
-};
-const rules = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 4,
-            message: "^debe tener al menos 4 caracteres"
-        },
-    },
-    precio: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        precio: { message: "^debe ser un número mayor a 0" }
-    },
-    imagen: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        fileType: {
-            types: ['jpeg', 'png', 'webp', 'jpg']
-        }
-    },
-};
-const rules2 = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 4,
-            message: "^debe tener al menos 4 caracteres"
-        },
-    },
-    precio: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        precio: { message: "^debe ser un número mayor a 0" }
-    },
-};
-const rules3 = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 4,
-            message: "^debe tener al menos 4 caracteres"
-        },
-    },
-    precio: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        precio: { message: "^debe ser un número mayor a 0" }
-    },
-    imagen: {
-        fileType: {
-            types: ['jpeg', 'png', 'webp', 'jpg']
-        }
-    },
-};
+// Las reglas se definen directamente en cada validate() usando reglas_validaciones
 
 let form = document.getElementById("form-submit-additionals")
 if (!form.dataset.listenerAttached) {
@@ -232,11 +112,11 @@ if (!form.dataset.listenerAttached) {
                 imagen: additional.querySelector(`input[name="imagen"]`) ? additional.querySelector(`input[name="imagen"]`).files[0] : ""
             };
             dataAdditionals.push(data)
-            const errors = validate(data, rules);
+            const errors = validate(data, reglas_validaciones);
             setValidationStyles(`input-name-additional-${index}`, errors?.nombre ? errors.nombre[0] : null);
             setValidationStyles(`input-price-additional-${index}`, errors?.precio ? errors.precio[0] : null);
             setValidationStyles(`input-image-additional-${index}`, errors?.imagen ? errors.imagen[0] : null);
-            if (errors) formHasError = true;
+            if (errors?.nombre || errors?.precio || errors?.imagen) formHasError = true;
         })
         if (!formHasError) {
             console.log(dataAdditionals);
@@ -268,11 +148,11 @@ editDataTables(".table_additional", (response) => {
         precio: document.querySelector(`#input-price-additional`).value.replace(/\./g, '').replace(',', '.'),
     }
 
-    const errors = validate(data, rules2);
+    const errors = validate(data, reglas_validaciones);
     setValidationStyles(`input-name-additional`, errors?.nombre ? errors.nombre[0] : null);
     setValidationStyles(`input-price-additional`, errors?.precio ? errors.precio[0] : null);
 
-    if (errors) formHasError = true;
+    if (errors?.nombre || errors?.precio) formHasError = true;
 
 })
 
@@ -286,12 +166,12 @@ if (!formEdit.dataset.listenerAttached) {
             precio: document.querySelector(`#input-price-additional`).value.replace(/\./g, '').replace(',', '.'),
             imagen: document.querySelector(`#input-image-additional`).files[0]
         }
-        const errors = validate(data, rules3);
+        const errors = validate(data, reglas_validaciones);
         setValidationStyles(`input-name-additional`, errors?.nombre ? errors.nombre[0] : null);
         setValidationStyles(`input-price-additional`, errors?.precio ? errors.precio[0] : null);
         setValidationStyles(`input-image-additional`, errors?.imagen ? errors.imagen[0] : null);
 
-        if (errors) formHasError = true;
+        if (errors?.nombre || errors?.precio || errors?.imagen) formHasError = true;
         else formHasError = false;
 
         if (!formHasError) {

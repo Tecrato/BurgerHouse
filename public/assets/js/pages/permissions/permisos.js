@@ -1,5 +1,8 @@
 import Templates, {targetPermission} from "../../templates.js";
 import { sessionInfo, imprimir, myfecth, funcs_btn_editar, funcs_btn_eliminar, searchFilter, setValidationStyles, nuevaBitacora } from "../../Functions2.js";
+import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
+// Inicializar validators personalizados
+set_validaciones();
 
 var [session, permisos] = sessionInfo('roles y permisos');
 permisos = permisos[0] || {permisos: ''}
@@ -26,40 +29,10 @@ searchFilter("#SearchRol", (e) => {
 })
 
 imprimir_roles()
-validate.validators.nombreValidator = function (value, options, key, attributes) {
-    if (!value) return;
-    if (!/^[A-Z]/.test(value)) {
-        return options.uppercaseMessage;
-    }
-    if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        return options.specialCharMessage;
-    }
-};
+// Las reglas se definen en cada validate() usando reglas_validaciones
 const reglas = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "El nombre debe comenzar con mayúscula",
-            specialCharMessage: "El nombre no puede contener caracteres especiales"
-        },
-        presence: {
-            allowEmpty: false,
-            message: "El nombre es requerido"
-        },
-        length: {
-            minlength: 3,
-            maxlength: 100
-        }
-    },
-    descripcion: {
-        presence: {
-            allowEmpty: false,
-            message: "La descripción es requerida"
-        },
-        length: {
-            minimum: 3,
-            maximum: 255
-        }
-    }
+    nombre: reglas_validaciones.nombre,
+    descripcion: reglas_validaciones.descripcion,
 }
 
 function editar(id) {

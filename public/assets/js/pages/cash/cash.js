@@ -3,6 +3,9 @@ import { myfecth,nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import { report } from "./report.js"
 import introTooltip from "../../intro-tooltip.js"
+import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
+// Inicializar validators personalizados
+set_validaciones();
 const { cashIntro } = introTooltip()
 const { targetCash, infoCash, amountCash, cashDetail } = Templates()
 const { validateField, setValidationStyles, sessionInfo, binnacle, print, add, searchParam, InputPrice, CheckCash, searchFilter, permission } = funtionGeneral()
@@ -51,46 +54,19 @@ const config = {
     },
 }
 let form = document.getElementById("form-submit-cash")
-validate.validators.precio = function (value, options, key, attributes) {
-    if (!value) return;
-    const cleanValue = value.replace(/\./g, '').replace(',', '.');
-    const numberValue = parseFloat(cleanValue);
-
-    if (isNaN(numberValue)) {
-        return options.message || "no es un número válido";
-    }
-    if (numberValue <= 0) {
-        return options.message || "debe ser un número mayor a 0";
-    }
-};
-const rules = {
-    precio_bs: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        precio: { message: "^debe ser un número mayor a 0" }
-    },
-    precio_usd: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        precio: { message: "^debe ser un número mayor a 0" }
-    },
-};
+// Los validators ya están definidos en Validaciones.js
 print(config)
 print({ ...config, search: () => searchParam({ estado: 0 }, "caja"), container: ".cont-cash_close" })
 form.querySelectorAll("input").forEach((input) => {
-    input.addEventListener("keyup", (e) => validateField(e, rules));
-    input.addEventListener("blur", (e) => validateField(e, rules));
-    input.addEventListener("change", (e) => validateField(e, rules));
+    input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
+    input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
+    input.addEventListener("change", (e) => validateField(e, reglas_validaciones));
 });
 
 form.addEventListener("submit", (e) => {
     e.preventDefault();
     let data = { precio_bs: document.getElementById("input-price-bs-cash").value, precio_usd: document.getElementById("input-price-usd-cash").value }
-    const error = validate(data, rules);
+    const error = validate(data, reglas_validaciones);
     setValidationStyles("input-price-bs-cash", error?.precio_bs ? error.precio_bs[0] : null);
     setValidationStyles("input-price-usd-cash", error?.precio_usd ? error.precio_usd[0] : null);
 

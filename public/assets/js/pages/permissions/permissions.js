@@ -1,6 +1,9 @@
 import functionGeneral from "../../Functions.js";
 import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
+import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
+// Inicializar validators personalizados
+set_validaciones();
 const { setValidationStyles, validateField, print, searchParam, searchFilter, Delete, edit, sessionInfo, binnacle, update, add, permission } = functionGeneral();
 const { targetPermission } = Templates()
 let session = await sessionInfo();
@@ -293,42 +296,10 @@ verify.forEach(d => {
         }
     })
 })
-//-----------------------------------------------------------------------------
-validate.validators.nombreValidator = function (value, options, key, attributes) {
-    if (!value) return;
-    if (!/^[A-Z]/.test(value)) {
-        return options.uppercaseMessage;
-    }
-    if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        return options.specialCharMessage;
-    }
-};
+// Las reglas se definen en cada validate() usando reglas_validaciones
 const rules = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 4,
-            message: "^debe tener al menos 4 caracteres"
-        },
-    },
-
-    descripcion: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 15,
-            message: "^debe tener al menos 15 caracteres"
-        }
-    },
+    nombre: reglas_validaciones.nombre,
+    descripcion: reglas_validaciones.descripcion,
 };
 document.querySelectorAll("input[type='text'], textarea").forEach(input => {
     input.addEventListener("keyup", (e) => validateField(e, rules));
@@ -346,7 +317,7 @@ if (!form.dataset.listenerAttached) {
         const errors = validate(data, rules);
         setValidationStyles("input-name-permission", errors?.nombre ? errors.nombre[0] : null);
         setValidationStyles("input-description-permission", errors?.descripcion ? errors.descripcion[0] : null);
-        if (errors) hasError = true
+        if (errors?.nombre || errors?.descripcion) hasError = true
         else hasError = false
         if (!hasError) {
             let data = new FormData(form)

@@ -1,5 +1,8 @@
 import functionGeneral from "../../Functions.js"
 import { nuevaBitacora, myfecth, sessionInfo } from "../../Functions2.js"
+import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
+// Inicializar validators personalizados
+set_validaciones();
 const { setValidationStyles, validateField } = functionGeneral()
 dayjs.extend(window.dayjs_plugin_relativeTime);
 dayjs.locale('es');
@@ -128,94 +131,13 @@ document.querySelector('input[type="file"]').addEventListener('change', async fu
     }
 });
 
-document.querySelector(".form-submit-edit-user-profile").querySelectorAll("input").forEach(input => {
-    input.addEventListener("keyup", (e) => validateField(e, rules));
-    input.addEventListener("blur", (e) => validateField(e, rules));
-})
-validate.validators.nombreValidator = function (value, options, key, attributes) {
-    if (!value) return;
-    if (!/^[A-Z]/.test(value)) {
-        return options.uppercaseMessage;
-    }
-    if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        return options.specialCharMessage;
-    }
-};
-validate.validators.email = function (value, options, key, attributes) {
-    if (!value) return;
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
-        return options.validateEmail
-    }
-}
-validate.validators.password = function (value, options, key, attributes) {
-    if (!value) return;
-    if (!/(?=.*\d)/.test(value)) {
-        return options.onceDigit
-    }
-    if (!/(?=.*[a-z])/.test(value)) {
-        return options.onceLower
-    }
-    if (!/(?=.*[^a-zA-Z0-9])/.test(value)) {
-        return options.onceSpecial
-    }
-    if (/\s/.test(value)) {
-        return options.noSpace
-    }
-    if (value.length < 8 || value.length > 15) {
-        return options.length
-    }
-}
 const rules = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 2,
-            message: "^debe tener al menos 2 caracteres"
-        },
-    },
-    apellido: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 2,
-            message: "^debe tener al menos 2 caracteres"
-        },
-    },
-    email: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        email: { validateEmail: "^El correo electrónico no es válido" }
-    }
+    nombre: reglas_validaciones.nombre,
+    apellido: reglas_validaciones.apellido,
+    email: reglas_validaciones.email,
 };
 const rulesPassNew = {
-    password: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        password: {
-            onceDigit: "^Al menos un dígito.",
-            onceLower: "^Al menos una letra minúscula.",
-            onceSpecial: "^Al menos un carácter especial.",
-            noSpace: "^Sin espacios en blanco.",
-            length: "^Longitud entre 8 y 15 caracteres."
-        }
-    },
+    password: reglas_validaciones.password,
 }
 const rulesPassConfirm = {
     confirm: {

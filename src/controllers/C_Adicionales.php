@@ -1,6 +1,6 @@
 <?php
 use Shtch\Burgerhouse\function\AuthSession;
-use Shtch\Burgerhouse\models\ProductoProcesado;
+use Shtch\Burgerhouse\models\ProductoPreparado;
 
 $session = new AuthSession();
 $resultado_final = '';
@@ -24,7 +24,7 @@ if ($url[1] === 'get_all') {
     }
 
     try {
-        $modelo = new ProductoProcesado(...$_POST);
+        $modelo = new ProductoPreparado(...$_POST);
         $resultado_final = $modelo->search(...$parametros_paginacion);
     } catch (Exception $e) {
         make_url_error($e->getMessage(), 400, ajax: true);
@@ -36,7 +36,7 @@ if ($url[1] === 'get_all') {
     }
 
     try {
-        $modelo = new ProductoProcesado(...$_POST);
+        $modelo = new ProductoPreparado(...$_POST);
         $id = $modelo->agregar();
         $resultado_final = ['success' => true, 'last_id' => $id];
     } catch (Exception $e) {
@@ -62,7 +62,7 @@ if ($url[1] === 'get_all') {
     }
 
     try {
-        $modelo = new ProductoProcesado(...$_POST);
+        $modelo = new ProductoPreparado(...$_POST);
         $resultado_final = $modelo->actualizar();
     } catch (Exception $e) {
         make_url_error($e->getMessage(), 400, ajax: true);
@@ -78,7 +78,7 @@ if ($url[1] === 'get_all') {
     }
 
     try {
-        $modelo = new ProductoProcesado(id: $_POST['id']);
+        $modelo = new ProductoPreparado(id: $_POST['id']);
         $resultado_final = ['success' => $modelo->borrar()];
     } catch (Exception $e) {
         make_url_error($e->getMessage(), 400, ajax: true);
@@ -90,7 +90,7 @@ if ($url[1] === 'get_all') {
     }
 
     try {
-        $modelo = new ProductoProcesado(...$_POST);
+        $modelo = new ProductoPreparado(...$_POST);
         $resultado_final = $modelo->count();
     } catch (Exception $e) {
         make_url_error($e->getMessage(), 400, ajax: true);

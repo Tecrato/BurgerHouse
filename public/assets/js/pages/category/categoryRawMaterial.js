@@ -1,5 +1,8 @@
 import functionGeneral from "../../Functions.js";
 import Templates from "../../templates.js";
+import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
+// Inicializar validators personalizados
+set_validaciones();
 const { setValidationStyles, validateField, addDataTables, reindex, deleteDatatable, editDataTables, updateDataTables, resetForm, sessionInfo, binnacle, permission } = functionGeneral();
 const { elemenFormCategoryRawmaterial } = Templates()
 let session = await sessionInfo();
@@ -67,40 +70,15 @@ document.getElementById("add-categoryRawMaterial-btn").addEventListener("click",
 function attachValidationListeners(index) {
     const unitElement = document.getElementById(`categoryRawMaterials-${index}`);
     unitElement.querySelectorAll("input[type='text']").forEach(input => {
-        input.addEventListener("keyup", (e) => validateField(e, rules));
-        input.addEventListener("blur", (e) => validateField(e, rules));
+        input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
     });
     const category2 = document.getElementById(`categoryRawMaterial-container`);
     category2.querySelectorAll("input[type='text']").forEach(input => {
-        input.addEventListener("keyup", (e) => validateField(e, rules));
-        input.addEventListener("blur", (e) => validateField(e, rules));
+        input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
     });
 }
-validate.validators.nombreValidator = function (value, options, key, attributes) {
-    if (!value) return;
-    if (!/^[A-Z]/.test(value)) {
-        return options.uppercaseMessage;
-    }
-    if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        return options.specialCharMessage;
-    }
-};
-const rules = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 2,
-            message: "^debe tener al menos 2 caracteres"
-        },
-    },
-};
 
 let form = document.getElementById("form-submit-categoryRawMaterials")
 if (!form.dataset.listenerAttached) {
@@ -116,9 +94,9 @@ if (!form.dataset.listenerAttached) {
                 nombre: category.querySelector(`input[name="nombre"]`).value,
             }
             datacategoryRawMaterial.push(data)
-            const errors = validate(data, rules);
+            const errors = validate(data, reglas_validaciones);
             setValidationStyles(`input-name-categoryRawMaterials-${index}`, errors?.nombre ? errors.nombre[0] : null);
-            if (errors) {
+            if (errors?.nombre) {
                 formHasError = true;
             }
         })
@@ -143,10 +121,10 @@ editDataTables(".table_category_rawmaterial", (response) => {
     const data = {
         nombre: document.querySelector(`#input-name-categoryRawMaterial`).value,
     }
-    const errors = validate(data, rules);
+    const errors = validate(data, reglas_validaciones);
     setValidationStyles(`input-name-categoryRawMaterial`, errors?.nombre ? errors.nombre[0] : null);
 
-    if (errors) {
+    if (errors?.nombre) {
         formHasError = true;
     }
     let formEdit = document.getElementById("form-submit-edit-categoryRawMaterial")
@@ -156,9 +134,9 @@ editDataTables(".table_category_rawmaterial", (response) => {
             const data = {
                 nombre: document.querySelector(`#input-name-categoryRawMaterial`).value,
             }
-            const errors = validate(data, rules);
+            const errors = validate(data, reglas_validaciones);
             setValidationStyles(`input-name-categoryRawMaterial`, errors?.nombre ? errors.nombre[0] : null);
-            if (errors) formHasError = true;
+            if (errors?.nombre) formHasError = true;
             else formHasError = false;
 
             if (!formHasError) {

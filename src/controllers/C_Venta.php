@@ -40,7 +40,8 @@ if ($url[1] === 'get_all') {
         $id = $modelo->agregar();
         $resultado_final = ['success' => true, 'last_id' => $id];
     } catch (Exception $e) {
-        make_url_error($e->getMessage(), 400, ajax: true);
+        
+        make_url_error($e->getMessage().json_encode($_POST), 400, ajax: true);
     }
     $ajax = true;
 } else if ($url[1] === 'update') {

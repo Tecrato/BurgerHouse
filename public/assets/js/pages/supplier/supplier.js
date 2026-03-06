@@ -2,6 +2,9 @@ import functionGeneral from "../../Functions.js";
 import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
+import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
+// Inicializar validators personalizados
+set_validaciones();
 const {supplier} = introTooltip()
 const { selectOptionAll, setValidationStyles, validateField, searchParam, print, add, reindex, resetForm, update, searchFilter, sessionInfo, binnacle, edit, Delete, permission } = functionGeneral();
 const { elemenFormSupplier, targetSupplier } = Templates()
@@ -59,22 +62,23 @@ function addSupplier() {
 function attachValidationListeners(index) {
     const productElement = document.getElementById(`suppliers-${index}`);
     productElement.querySelectorAll("input[type='text'], textarea, input[type='button'], input[type='tel']").forEach(input => {
-        input.addEventListener("keyup", (e) => validateField(e, rules));
-        input.addEventListener("blur", (e) => validateField(e, rules));
-        input.addEventListener("change", (e) => validateField(e, rules));
+        input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("change", (e) => validateField(e, reglas_validaciones));
     });
 
     const SupplierEdit = document.getElementById(`supplier-container`);
     SupplierEdit.querySelectorAll("input[type='text'], textarea, input[type='button'], input[type='tel']").forEach(input => {
-        input.addEventListener("keyup", (e) => validateField(e, rules2));
-        input.addEventListener("blur", (e) => validateField(e, rules2));
-        input.addEventListener("change", (e) => validateField(e, rules2));
+        input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("change", (e) => validateField(e, reglas_validaciones));
     });
 }
 document.getElementById("add-supplier-btn").addEventListener("click", () => {
     addSupplier()
     reindex("#suppliers-container .suppliers", "proveedor", SupplierCount, "Proveedor");
 });
+// telefonoValido y telefonoValidoEdit dependen de variables locales (iti, itiEdit), se mantienen aquí
 validate.validators.telefonoValido = function (value) {
     if (!value) return
     if (!iti.isValidNumber()) {
@@ -89,155 +93,8 @@ validate.validators.telefonoValidoEdit = function (value) {
         return `^Número inválido para ${pais}`;
     }
 };
-validate.validators.validateTD = function (value, options, key, attributes) {
-    if (!value) {
-        return options.message || "es requerido";
-    }
-    if (value.toLowerCase() === "seleccione una opcion") {
-        return options.message || "es requerido";
-    }
-};
-validate.validators.nombreValidator = function (value, options, key, attributes) {
-    if (!value) return;
-    if (!/^[A-Z]/.test(value)) {
-        return options.uppercaseMessage;
-    }
-    if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        return options.specialCharMessage;
-    }
-};
-const rules = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 4,
-            message: "^debe tener al menos 4 caracteres"
-        },
-    },
-    razonSocial: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 4,
-            message: "^debe tener al menos 4 caracteres"
-        },
-    },
-    rif: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        format: {
-            pattern: "^[0-9]+$",
-            message: "^solo puede tener numeros"
-        }
-    },
-    n_telefono1: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        telefonoValido: true
-
-    },
-    n_telefono2: {
-        presence: {
-            allowEmpty: true,
-        },
-    },
-    direccion: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-    },
-    tipo_documento: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        validateTD: { message: "^es requerido" }
-    }
-};
-const rules2 = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 4,
-            message: "^debe tener al menos 4 caracteres"
-        },
-    },
-    razonSocial: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 4,
-            message: "^debe tener al menos 4 caracteres"
-        },
-    },
-    rif: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        format: {
-            pattern: "^[0-9]+$",
-            message: "^solo puede tener numeros"
-        }
-    },
-    n_telefono1: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        telefonoValidoEdit: true
-
-    },
-    n_telefono2: {
-        presence: {
-            allowEmpty: true,
-        },
-    },
-    direccion: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-    },
-    tipo_documento: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        validateTD: { message: "^es requerido" }
-    }
-};
+// Los demás validators ya están en Validaciones.js
+// Las reglas se usan directamente desde reglas_validaciones
 let form = document.getElementById("form-submit-suppliers")
 if (!form.dataset.listenerAttached) {
     form.addEventListener("submit", function (e) {
@@ -258,7 +115,7 @@ if (!form.dataset.listenerAttached) {
                 direccion: supplier.querySelector(`textarea[name="direccion"]`) ? supplier.querySelector(`textarea[name="direccion"]`).value : "",
             };
             dataSupplier.push(data)
-            const errors = validate(data, rules);
+            const errors = validate(data, reglas_validaciones);
             setValidationStyles(`input-name-supplier-${index}`, errors?.nombre ? errors.nombre[0] : null);
             setValidationStyles(`input-razonSocial-supplier-${index}`, errors?.razonSocial ? errors.razonSocial[0] : null);
             setValidationStyles(`input-td-supplier-${index}`, errors?.tipo_documento ? errors.tipo_documento[0] : null);
@@ -266,7 +123,7 @@ if (!form.dataset.listenerAttached) {
             setValidationStyles(`input-num1-supplier-${index}`, errors?.n_telefono1 ? errors.n_telefono1[0] : null);
             setValidationStyles(`input-num2-supplier-${index}`, errors?.n_telefono2 ? errors.n_telefono2[0] : null);
             setValidationStyles(`input-direction-supplier-${index}`, errors?.direccion ? errors.direccion[0] : null);
-            if (errors.nombre || errors.razonSocial || errors.tipo_documento || errors.rif || errors.n_telefono1 || errors.n_telefono2 || errors.direccion) formHasError = true;
+            if (errors?.nombre || errors?.razonSocial || errors?.tipo_documento || errors?.rif || errors?.n_telefono1 || errors?.n_telefono2 || errors?.direccion) formHasError = true;
         });
 
         if (!formHasError) {
@@ -279,7 +136,7 @@ if (!form.dataset.listenerAttached) {
                 data.append(`lista[${index}][n_telefono2]`, sup.n_telefono2);
                 data.append(`lista[${index}][direccion]`, sup.direccion);
             })
-            add(config, 'supplier', data, () => nuevaBitacora("Proveedores", "Agregar", "Se Agrego un proveedor"))
+            add(config, 'proveedor', data, () => nuevaBitacora("Proveedores", "Agregar", "Se Agrego un proveedor"))
             bootstrap.Modal.getOrCreateInstance('#register-supplier').hide()
             resetForm("#suppliers-container .suppliers", form)
         }
@@ -307,7 +164,7 @@ function editData(response) {
         rif: document.querySelector("#input-rif-supplier") ? document.querySelector("#input-rif-supplier").value : "",
         direccion: document.querySelector("#input-direction-supplier") ? document.querySelector("#input-direction-supplier").value : "",
     };
-    const errors = validate(data, rules2);
+    const errors = validate(data, reglas_validaciones);
     setValidationStyles(`input-name-supplier`, errors?.nombre ? errors.nombre[0] : null);
     setValidationStyles(`input-razonSocial-supplier`, errors?.razonSocial ? errors.razonSocial[0] : null);
     setValidationStyles(`input-td-supplier`, errors?.tipo_documento ? errors.tipo_documento[0] : null);
@@ -315,7 +172,7 @@ function editData(response) {
     setValidationStyles(`input-num1-supplier`, errors?.n_telefono1 ? errors.n_telefono1[0] : null);
     setValidationStyles(`input-num2-supplier`, errors?.n_telefono2 ? errors.n_telefono2[0] : null);
     setValidationStyles(`input-direction-supplier`, errors?.direccion ? errors.direccion[0] : null);
-    if (errors.nombre || errors.razonSocial || errors.tipo_documento || errors.rif || errors.n_telefono1 || errors.n_telefono2 || errors.direccion) hasError = true;
+    if (errors?.nombre || errors?.razonSocial || errors?.tipo_documento || errors?.rif || errors?.n_telefono1 || errors?.n_telefono2 || errors?.direccion) hasError = true;
     let formEdit = document.getElementById("form-submit-edit-supplier")
     if (!formEdit.dataset.listenerAttached) {
         formEdit.addEventListener("submit", function (e) {
@@ -329,7 +186,7 @@ function editData(response) {
                 rif: document.querySelector("#input-rif-supplier") ? document.querySelector("#input-rif-supplier").value : "",
                 direccion: document.querySelector("#input-direction-supplier") ? document.querySelector("#input-direction-supplier").value : "",
             };
-            const errors = validate(data, rules2);
+            const errors = validate(data, rules);
             setValidationStyles(`input-name-supplier`, errors?.nombre ? errors.nombre[0] : null);
             setValidationStyles(`input-razonSocial-supplier`, errors?.razonSocial ? errors.razonSocial[0] : null);
             setValidationStyles(`input-td-supplier`, errors?.tipo_documento ? errors.tipo_documento[0] : null);
@@ -337,7 +194,7 @@ function editData(response) {
             setValidationStyles(`input-num1-supplier`, errors?.n_telefono1 ? errors.n_telefono1[0] : null);
             setValidationStyles(`input-num2-supplier`, errors?.n_telefono2 ? errors.n_telefono2[0] : null);
             setValidationStyles(`input-direction-supplier`, errors?.direccion ? errors.direccion[0] : null);
-            if (errors.nombre || errors.razonSocial || errors.tipo_documento || errors.rif || errors.n_telefono1 || errors.n_telefono2 || errors.direccion) hasError = true;
+            if (errors?.nombre || errors?.razonSocial || errors?.tipo_documento || errors?.rif || errors?.n_telefono1 || errors?.n_telefono2 || errors?.direccion) hasError = true;
             else hasError = false
             if (!hasError) {
                 let data = new FormData()
@@ -348,7 +205,7 @@ function editData(response) {
                 data.append(`n_telefono1`, window.intlTelInput(document.querySelector("#input-num1-supplier"), { initialCountry: "ve", separateDialCode: true, utilsScript: "./assets/libs/libs/intl-tel-input/js/utils.js" }).getNumber())
                 data.append(`n_telefono2`, window.intlTelInput(document.querySelector("#input-num2-supplier"), { initialCountry: "ve", separateDialCode: true, utilsScript: "./assets/libs/libs/intl-tel-input/js/utils.js" }).getNumber())
                 data.append(`direccion`, document.querySelector("#input-direction-supplier").value)
-                update(config, 'supplier', data, () => nuevaBitacora("Proveedores", "Actualizacion", "Se Actualizo un proveedor"))
+                update(config, 'proveedor', data, () => nuevaBitacora("Proveedores", "Actualizacion", "Se Actualizo un proveedor"))
                 bootstrap.Modal.getOrCreateInstance('#edit-supplier').hide()
             }
         });

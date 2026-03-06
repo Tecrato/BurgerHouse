@@ -1,6 +1,9 @@
 import functionGeneral from "../../Functions.js";
 import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
+import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
+// Inicializar validators personalizados
+set_validaciones();
 const { setValidationStyles, validateField, addDataTables, reindex, deleteDatatable, editDataTables, updateDataTables, resetForm, sessionInfo, binnacle, permission } = functionGeneral();
 const { elemenFormPaymentMethod } = Templates()
 permission("metodo pago")
@@ -66,6 +69,7 @@ document.getElementById("add-payment-btn").addEventListener("click", () => {
     reindex("#payments-container .payments", `payments`, paymentCount, "Metodos de Pago");
 });
 function attachValidationListeners(index) {
+    const rules = { nombre: reglas_validaciones.nombre };
     const paymentElement = document.getElementById(`payments-${index}`);
     paymentElement.querySelectorAll("input[type='text']").forEach(input => {
         input.addEventListener("keyup", (e) => validateField(e, rules));
@@ -77,37 +81,13 @@ function attachValidationListeners(index) {
         input.addEventListener("blur", (e) => validateField(e, rules));
     });
 }
-validate.validators.nombreValidator = function (value, options, key, attributes) {
-    if (!value) return;
-    if (!/^[A-Z]/.test(value)) {
-        return options.uppercaseMessage;
-    }
-    if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        return options.specialCharMessage;
-    }
-};
-const rules = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 2,
-            message: "^debe tener al menos 2 caracteres"
-        },
-    },
-};
 
 let form = document.getElementById("form-submit-payments")
 if (!form.dataset.listenerAttached) {
     form.addEventListener("submit", (e) => {
         e.preventDefault();
         const Payment = document.querySelectorAll(".payments");
+        const rules = { nombre: reglas_validaciones.nombre };
         let formHasError = false;
         let dataPayment = []
 
@@ -119,7 +99,7 @@ if (!form.dataset.listenerAttached) {
             dataPayment.push(data)
             const errors = validate(data, rules);
             setValidationStyles(`input-name-payments-${index}`, errors?.nombre ? errors.nombre[0] : null);
-            if (errors) {
+            if (errors?.nombre) {
                 formHasError = true;
             }
         })
@@ -140,25 +120,27 @@ editDataTables(".table_payment", (response) => {
     let formHasError = false;
     document.querySelector("#input-name-payment").value = response[0].nombre;
     document.querySelector("#input-id-payment").value = response[0].id;
+    const rules = { nombre: reglas_validaciones.nombre };
     const data = {
         nombre: document.querySelector(`#input-name-payment`).value,
     }
     const errors = validate(data, rules);
     setValidationStyles(`input-name-payment`, errors?.nombre ? errors.nombre[0] : null);
 
-    if (errors) {
+    if (errors?.nombre) {
         formHasError = true;
     }
     let formEdit = document.getElementById("form-submit-edit-payment")
     if (!formEdit.dataset.listenerAttached) {
         formEdit.addEventListener("submit", (e) => {
             e.preventDefault();
+            const rulesEdit = { nombre: reglas_validaciones.nombre };
             const data = {
                 nombre: document.querySelector(`#input-name-payment`).value,
             }
-            const errors = validate(data, rules);
+            const errors = validate(data, rulesEdit);
             setValidationStyles(`input-name-payment`, errors?.nombre ? errors.nombre[0] : null);
-            if (errors) formHasError = true;
+            if (errors?.nombre) formHasError = true;
             else formHasError = false;
 
             if (!formHasError) {

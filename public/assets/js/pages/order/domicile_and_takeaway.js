@@ -1,4 +1,6 @@
-export default async function domicile_and_takeaway(functions, templates, report, targetUpdate, table_reload) {
+// import { myfecth } from "../../Functions2";
+
+export default async function domicile_and_takeaway(functions, templates, report, targetUpdate, table_reload, myfecth) {
     const { searchParam, amountDolar, viewImage, InputPrice, selectOptionAll, validateField, setValidationStyles, reindex, CheckCash, sessionInfo, binnacle, resetForm, notification, notificationAlert } = functions()
     const { tagFilterProduct, selectProduct, targetDetailProductOrder, targetDetailOtherOrder, targetClienteOrder, optionsRol, elemenFormPaymentOrder } = templates()
     viewImage(".input-image")
@@ -87,9 +89,9 @@ export default async function domicile_and_takeaway(functions, templates, report
     const initPopover = async () => {
         let data = []
         let elements = []
-        let recipeDetails = await searchParam({}, "recetas", 5000)
+        let recipeDetails = myfecth("recetas/get_all/0/5000").json()
         for (const item of recipeDetails) {
-            let pet = await searchParam({ active: 1, tipo: "adicional", id: item.id_producto }, "adicionales", 100);
+            let pet = myfecth("adicionales/get_all/0/5000", {}, {active:1, tipo:"adicional", id:item.id_producto}).json()
             for (const el of pet) {
                 elements.push(el)
             }
@@ -697,19 +699,15 @@ export default async function domicile_and_takeaway(functions, templates, report
                     order.append(`lista_detalle_preparado[${index}][cantidad]`, aditional.cantidad);
                     index++
                 })
+                // let resOrder = myfecth("orden/add", {}, order)
                 let petOrder = await fetch("orden/add", { method: "POST", body: order })
                 let resOrder = await petOrder.json()
                 console.log(resOrder);
                 if (resOrder.success == true) {
                     let id_orden = resOrder.last_id
                     window.id_orden_invoice = id_orden
-                    let dataSale = new FormData();
-                    dataSale.append("id_orden", id_orden)
-                    dataSale.append("id_caja", await CheckCash())
-                    dataSale.append("monto_final", amountTotal.total_dolares)
-                    dataSale.append("direccion", directionSale)
-                    let petSale = await fetch("sale/add", { method: "POST", body: dataSale })
-                    let resSale = await petSale.json()
+                    let resSale = myfecth("venta/add", {}, {id_orden: id_orden, id_caja: await CheckCash(), monto_final: amountTotal.total_dolares, direccion: directionSale}).json()
+
                     console.log(resSale);
                     let id_venta = resSale.last_id
 
@@ -723,7 +721,7 @@ export default async function domicile_and_takeaway(functions, templates, report
                         paymentData.append(`lista[${index}][imagen]`, payment.imagen)
                         paymentData.append(`lista[${index}][imagen_name]`, payment.imagen.name)
                     })
-                    let petPayment = await fetch("payment/add_many", { method: "POST", body: paymentData })
+                    let petPayment = await fetch("pagos/add_many", { method: "POST", body: paymentData })
                     let resPayment = await petPayment.json()
                     console.log(resPayment);
                     let id_payments = resPayment.lista
@@ -733,7 +731,8 @@ export default async function domicile_and_takeaway(functions, templates, report
                         dataPaymentDetails.append(`lista[${index}][id_pago]`, payment)
                         dataPaymentDetails.append(`lista[${index}][id_venta]`, id_venta)
                     })
-                    let petPaymentDetails = await fetch("paymentSale/add_many", { method: "POST", body: dataPaymentDetails })
+                    // let resPaymentDetails = myfecth
+                    let petPaymentDetails = await fetch("pago_venta/add_many", { method: "POST", body: dataPaymentDetails })
                     let resPaymentDetails = await petPaymentDetails.json()
                     console.log(resPaymentDetails);
                     const paymentInvoice = dataPayment.map(PAY => ({ ...PAY, id_venta: id_venta, metodo_pago: PAY.metodo, monto: PAY.cantidad }));

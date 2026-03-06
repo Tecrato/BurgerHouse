@@ -1,6 +1,9 @@
 import functionGeneral from "../../Functions.js";
 import { nuevaBitacora } from "../../Functions2.js";
 import Templates from "../../templates.js";
+import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
+// Inicializar validators personalizados
+set_validaciones();
 const { resetForm, setValidationStyles, validateField, addDataTables, reindex, deleteDatatable, editDataTables, updateDataTables, sessionInfo, binnacle, permission } = functionGeneral();
 const { elemenFormUnit } = Templates()
 let session = await sessionInfo();
@@ -79,35 +82,11 @@ function attachValidationListeners(index) {
         input.addEventListener("blur", (e) => validateField(e, rules));
     });
 }
-validate.validators.nombreValidator = function (value, options, key, attributes) {
-    if (!value) return;
-    if (!/^[A-Z]/.test(value)) {
-        return options.uppercaseMessage;
-    }
-    if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        return options.specialCharMessage;
-    }
-};
+// Los validators ya están definidos en Validaciones.js
 const rules = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 2,
-            message: "^debe tener al menos 2 caracteres"
-        },
-    },
+    nombre: reglas_validaciones.nombre,
     alias: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
+        presence: { allowEmpty: false, message: "^es requerido" },
     }
 };
 let form = document.getElementById("form-submit-unit")
@@ -128,7 +107,7 @@ if (!form.dataset.listenerAttached) {
             const errors = validate(data, rules);
             setValidationStyles(`input-name-units-${index}`, errors?.nombre ? errors.nombre[0] : null);
             setValidationStyles(`input-alias-units-${index}`, errors?.alias ? errors.alias[0] : null);
-            if (errors.nombre || errors.alias) {
+            if (errors?.nombre || errors?.alias) {
                 formHasError = true;
             }
         })
@@ -158,7 +137,7 @@ editDataTables(".table_unit", (response) => {
     setValidationStyles(`input-name-unit`, errors?.nombre ? errors.nombre[0] : null);
     setValidationStyles(`input-alias-unit`, errors?.alias ? errors.alias[0] : null);
 
-    if (errors.nombre || errors.alias) {
+    if (errors?.nombre || errors?.alias) {
         formHasError = true;
     }
     let formEdit = document.getElementById("form-submit-edit-unit")
@@ -173,7 +152,7 @@ editDataTables(".table_unit", (response) => {
             setValidationStyles(`input-name-unit`, errors?.nombre ? errors.nombre[0] : null);
             setValidationStyles(`input-alias-unit`, errors?.alias ? errors.alias[0] : null);
 
-            if (errors.nombre || errors.alias) formHasError = true;
+            if (errors?.nombre || errors?.alias) formHasError = true;
             else formHasError = false;
 
             if (!formHasError) {

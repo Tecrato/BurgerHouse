@@ -1,6 +1,9 @@
 import functionGeneral from "../../Functions.js";
 import { nuevaBitacora } from "../../Functions2.js"
 import Templates from "../../templates.js";
+import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
+// Inicializar validators personalizados
+set_validaciones();
 const { setValidationStyles, validateField, reindex, resetForm, searchParam, print, add, update, permission, searchFilter, sessionInfo, binnacle, edit, Delete, pagination, InputPrice } = functionGeneral();
 const { targetPackage } = Templates()
 let session = await sessionInfo()
@@ -70,29 +73,7 @@ const TablesDataAdd = async () => {
     document.querySelector(".cont_tables_package_edit").innerHTML = templatesTablesEdit;
 };
 TablesDataAdd()
-validate.validators.precio = function (value, options, key, attributes) {
-    if (!value) return;
-    const cleanValue = value.replace(/\./g, '').replace(',', '.');
-    const numberValue = parseFloat(cleanValue);
-
-    if (isNaN(numberValue)) {
-        return options.message || "no es un número válido";
-    }
-    if (numberValue <= 0) {
-        return options.message || "debe ser un número mayor a 0";
-    }
-};
-validate.validators.nombreValidator = function (value, options, key, attributes) {
-    if (!value) return;
-
-    if (!/^[A-Z]/.test(value)) {
-        return options.uppercaseMessage;
-    }
-
-    if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        return options.specialCharMessage;
-    }
-};
+// Los validators ya están definidos en Validaciones.js
 const rules = {
     nombre: {
         nombreValidator: {

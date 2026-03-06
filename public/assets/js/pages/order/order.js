@@ -5,7 +5,7 @@ import domicile_and_takeaway from "./domicile_and_takeaway.js";
 import { local, more_product_local_order, payOrder } from "./local.js";
 import { payOrderReservation } from "./reservationOrder.js"
 import { report, invoice } from "./report.js"
-const { searchParam, fecha, hora, sessionInfo, binnacle, resetForm, permission, amountDolar } = functionGeneral()
+const { searchParam, fecha, hora, sessionInfo, resetForm, permission, amountDolar } = functionGeneral()
 import introTooltip from "../../intro-tooltip.js"
 const { order } = introTooltip()
 let session = await sessionInfo();
@@ -1353,7 +1353,7 @@ document.querySelectorAll(".btnOrder").forEach((btn) => {
       tableOrderParaLlevarPendingsVeryfy.ajax.reload()
       tableOrderParaLlevarProcess.ajax.reload()
       tableOrderParaLlevarNull.ajax.reload()
-    })
+    }, myfecth)
     resetFormModal()
     setTimeout(() => { bootstrap.Modal.getOrCreateInstance('#domicile_and_takeaway').show() }, 300)
   })

@@ -97,7 +97,7 @@ if (!form.dataset.listenerAttached) {
             setValidationStyles(`input-name-tables-${index}`, errors?.nombre ? errors.nombre[0] : null);
             setValidationStyles(`input-chair-tables-${index}`, errors?.sillas ? errors.sillas[0] : null);
             setValidationStyles(`input-image-tables-${index}`, errors?.imagen ? errors.imagen[0] : null);
-            if (errors.nombre || errors.sillas || errors.imagen) {
+            if (errors?.nombre || errors?.sillas || errors?.imagen) {
                 formHasError = true;
             }
         });
@@ -134,7 +134,7 @@ const editData = (response) => {
     const errors = validate(data, rules2);
     setValidationStyles(`input-name-table`, errors?.nombre ? errors.nombre[0] : null);
     setValidationStyles(`input-chair-table`, errors?.sillas ? errors.sillas[0] : null);
-    if (errors.nombre || errors.sillas) hasError = true;
+    if (errors?.nombre || errors?.sillas) hasError = true;
 }
 let formEdit = document.querySelector("#form-submit-edit-table")
 if (!formEdit.dataset.listenerAttached) {
@@ -150,7 +150,7 @@ if (!formEdit.dataset.listenerAttached) {
         setValidationStyles(`input-name-table`, errors?.nombre ? errors.nombre[0] : null);
         setValidationStyles(`input-chair-table`, errors?.sillas ? errors.sillas[0] : null);
         setValidationStyles(`input-image-table`, errors?.imagen ? errors.imagen[0] : null);
-        if (errors.nombre || errors.sillas || errors.imagen) hasError = true;
+        if (errors?.nombre || errors?.sillas || errors?.imagen) hasError = true;
         else hasError = false
         if (!hasError) {
             let dataFinal = new FormData()

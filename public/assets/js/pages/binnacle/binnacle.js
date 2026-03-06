@@ -110,10 +110,3 @@ $('#searchBinnacleUser').on('keyup', function () {
 $('#searchBinnacleSystem').on('keyup', function () {
     table2.search(this.value).draw();
 });
-
-const algo = async () => {
-    let pet = await fetch(`bitacora/get_all/0/10000000/id/asc`);
-    let response = await pet.json()
-    console.log(response)
-}
-// algo()

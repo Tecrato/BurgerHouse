@@ -58,130 +58,6 @@ document.getElementById("add-user-btn").addEventListener("click", () => {
     addUsers()
     reindex("#users-container .users", "user", UsersCount, "Usuario");
 });
-// validate.validators.validateTD = function (value, options, key, attributes) {
-//     if (!value || value.toLowerCase() === "seleccione una opcion") {
-//         return options.message || "es requerido";
-//     }
-// };
-// validate.validators.nombreValidator = function (value, options, key, attributes) {
-//     if (!value) return;
-//     if (!/^[A-Z]/.test(value)) {
-//         return options.uppercaseMessage;
-//     }
-//     if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-//         return options.specialCharMessage;
-//     }
-//     if (/\s{2,}/.test(value)) {
-//         return options.noDoubleSpace;
-//     }
-//     if (/[0-9]/.test(value)) {
-//         return options.noNumber;
-//     }
-// };
-// validate.validators.email = function (value, options, key, attributes) {
-//     if (!value) return;
-//     if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
-//         return options.validateEmail
-//     }
-// }
-// validate.validators.password = function (value, options, key, attributes) {
-//     if (!value) return;
-//     if (!/(?=.*\d)/.test(value)) {
-//         return options.onceDigit
-//     }
-//     if (!/(?=.*[a-z])/.test(value)) {
-//         return options.onceLower
-//     }
-//     if (!/(?=.*[A-Z])/.test(value)) {
-//         return options.onceUpper
-//     }
-//     if (!/(?=.*[^a-zA-Z0-9])/.test(value)) {
-//         return options.onceSpecial
-//     }
-//     if (/\s/.test(value)) {
-//         return options.noSpace
-//     }
-//     if (value.length < 8 || value.length > 15) {
-//         return options.length
-//     }
-// }
-const rules = {
-    nombre: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,).",
-            noDoubleSpace: "^No se permiten espacios dobles",
-            noNumber: "^No se permiten números"
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 2,
-            message: "^debe tener al menos 2 caracteres"
-        },
-    },
-    apellido: {
-        nombreValidator: {
-            uppercaseMessage: "^debe tener la primera letra en mayúscula.",
-            specialCharMessage: "^No se permiten signos como puntos (.) o comas (,)."
-        },
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        length: {
-            minimum: 2,
-            message: "^debe tener al menos 2 caracteres"
-        },
-    },
-    // rif: {
-    //     presence: {
-    //         allowEmpty: false,
-    //         message: "^es requerida"
-    //     },
-    //     format: {
-    //         pattern: "^[0-9]+$",
-    //         message: "^solo puede tener numeros"
-    //     }
-    // },
-    // tipo_documento: {
-    //     presence: {
-    //         allowEmpty: false,
-    //         message: "^es requerida"
-    //     },
-    //     validateTD: { message: "^es requerido" }
-    // },
-    id_rol: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerida"
-        },
-        validateTD: { message: "^es requerido" }
-    },
-    hash: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        password: {
-            onceDigit: "^Al menos un dígito.",
-            onceLower: "^Al menos una letra minúscula.",
-            onceUpper: "^Al menos una letra mayúscula",
-            onceSpecial: "^Al menos un carácter especial.",
-            noSpace: "^Sin espacios en blanco.",
-            length: "^Longitud entre 8 y 15 caracteres.",
-        }
-    },
-    email: {
-        presence: {
-            allowEmpty: false,
-            message: "^es requerido"
-        },
-        email: { validateEmail: "^El correo electrónico no es válido" }
-    }
-};
 let form = document.getElementById("form-submit-users")
 if (!form.dataset.listenerAttached) {
     form.addEventListener("submit", (e) => {
@@ -210,7 +86,7 @@ if (!form.dataset.listenerAttached) {
             setValidationStyles(`input-email-user-${index}`, errors?.email ? errors.email[0] : null);
             setValidationStyles(`input-password-user-${index}`, errors?.hash ? errors.hash[0] : null);
             setValidationStyles(`input-rol-user-${index}`, errors?.id_rol ? errors.id_rol[0] : null);
-            if (errors.nombre || errors.apellido || errors.email || errors.hash || errors.id_rol) {
+            if (errors?.nombre || errors?.apellido || errors?.email || errors?.hash || errors?.id_rol) {
                 formHasError = true;
             }
         })
@@ -287,7 +163,7 @@ function editData(response) {
             // setValidationStyles(`input-password-user`, errors?.hash ? errors.hash[0] : null);
             setValidationStyles(`input-rol-user`, errors?.id_rol ? errors.id_rol[0] : null);
 
-            if (errors.nombre || errors.apellido || errors.email || errors.id_rol) {
+            if (errors?.nombre || errors?.apellido || errors?.email || errors?.id_rol) {
                 hasError = true;
             }
             else hasError = false

@@ -77,15 +77,15 @@ if ($url[1] === 'get_all') {
             }
 
             date_default_timezone_set('America/Caracas');
-            $entradas_materia_prima = new Detalle_entrada_materia_prima();
-            $entradas_materia_prima->__construct(active: 1);
-            $result_entrys = $entradas_materia_prima->search(0, 100, "fecha_vencimiento", "ASC");
             $date_now = new DateTime();
 
             $recetaPosible = true;
             $faltantes = [];
             foreach ($detalles_receta as $detalle) {
                 $faltante = $detalle['cantidad'];
+                $entradas_materia_prima = new Detalle_entrada_materia_prima(active: 1, id_materia_prima: $detalle['id_materia_prima']);
+                $result_entrys = $entradas_materia_prima->search(0, 100, "fecha_vencimiento", "asc");
+
                 foreach ($result_entrys as $entrada) {
                     if (
                         $detalle['id_materia_prima'] == $entrada['id_materia_prima'] &&
@@ -104,7 +104,8 @@ if ($url[1] === 'get_all') {
                     $recetaPosible = false;
                     $faltantes[] = [
                         'producto' => $detalle['ingrediente'],
-                        'faltante' => $faltante
+                        'faltante' => $faltante,
+                        'diferencia' => $result_entrys
                     ];
                 }
             }
