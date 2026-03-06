@@ -19,7 +19,7 @@ if (count($url) < 2 || $url[1] === 'view') {
 }
 
 if ($url[1] === 'get_all') {
-    if (!$session->has_permission('PaqueteMesa', 'consultar')) {
+    if (!$session->has_permission('Paquetes', 'consultar')) {
         make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
     }
 
@@ -31,7 +31,7 @@ if ($url[1] === 'get_all') {
     }
     $ajax = true;
 } else if ($url[1] === 'add') {
-    if (!$session->has_permission('PaqueteMesa', 'agregar')) {
+    if (!$session->has_permission('Paquetes', 'agregar')) {
         make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
     }
 
@@ -43,21 +43,43 @@ if ($url[1] === 'get_all') {
         make_url_error($e->getMessage(), 400, ajax: true);
     }
     $ajax = true;
+} else if ($url[1] === 'add_many') {
+    if (!$session->has_permission('Paquetes', 'agregar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    if (!isset($_POST['lista']) || !is_array($_POST['lista']) || count($_POST['lista']) === 0) {
+        make_url_error("No se recibio una lista valida para agregar.", 400, ajax: true);
+    }
+
+    try {
+        foreach ($_POST['lista'] as $item) {
+            if (!is_array($item)) {
+                make_url_error("Cada item de la lista debe ser un arreglo valido.", 400, ajax: true);
+            }
+            $itemModel = new Paquetes_mesa(...$item);
+            $itemModel->agregar();
+        }
+        $resultado_final = ['success' => true];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
 } else if ($url[1] === 'update') {
     $active = $_POST['active'] ?? null;
 
     if ($active !== null && (string)$active === '0') {
-        if (!$session->has_permission('PaqueteMesa', 'eliminar')) {
+        if (!$session->has_permission('Paquetes', 'eliminar')) {
             make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
         }
     } else if ($active !== null && (string)$active === '1') {
         if (
             !$session->has_permission('Papelera', 'restaurar') &&
-            !$session->has_permission('PaqueteMesa', 'eliminar')
+            !$session->has_permission('Paquetes', 'eliminar')
         ) {
             make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
         }
-    } else if (!$session->has_permission('PaqueteMesa', 'editar')) {
+    } else if (!$session->has_permission('Paquetes', 'editar')) {
         make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
     }
 
@@ -69,7 +91,7 @@ if ($url[1] === 'get_all') {
     }
     $ajax = true;
 } else if ($url[1] === 'delete') {
-    if (!$session->has_permission('PaqueteMesa', 'eliminar')) {
+    if (!$session->has_permission('Paquetes', 'eliminar')) {
         make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
     }
 
@@ -85,7 +107,7 @@ if ($url[1] === 'get_all') {
     }
     $ajax = true;
 } else if ($url[1] === 'count' || $url[1] === 'total') {
-    if (!$session->has_permission('PaqueteMesa', 'consultar')) {
+    if (!$session->has_permission('Paquetes', 'consultar')) {
         make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
     }
 

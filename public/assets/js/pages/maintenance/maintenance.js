@@ -1,9 +1,12 @@
 import functionGeneral from "../../Functions.js";
-const { sessionInfo, permission } = functionGeneral()
-let session = await sessionInfo();
+import { myfecth, sessionInfo } from "../../Functions2.js";
+const { permission } = functionGeneral()
+let [session, permisos] = sessionInfo();
 permission("Mantenimiento")
-document.querySelectorAll(".btn_export").forEach(btn => {
-    btn.addEventListener("click", () => {
+
+document.body.addEventListener("click", (e) => {
+    const btn = e.target.closest(".btn_export");
+    if (btn) {
         Swal.fire({
             title: "¿Deseas hacer una copia de seguridad?",
             icon: "warning",
@@ -24,7 +27,7 @@ document.querySelectorAll(".btn_export").forEach(btn => {
                 let db = btn.getAttribute("data-db")
                 data.append("route", type);
                 data.append("db", db);
-                let pet = await fetch(`maintenance/export`, { method: "POST", body: data });
+                let pet = await fetch(`mantenimiento/export`, { method: "POST", body: data });
                 let response = await pet.json();
                 if (response.success == true) {
                     Swal.close();
@@ -47,7 +50,7 @@ document.querySelectorAll(".btn_export").forEach(btn => {
                 }
             }
         });
-    })
+    }
 })
 
 let table_backup_system = $('.table_db_backup_system').DataTable({
@@ -56,7 +59,7 @@ let table_backup_system = $('.table_db_backup_system').DataTable({
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
     ajax: {
-        url: 'maintenance/search',
+        url: 'mantenimiento/search',
         data: { route: "system" },
         dataSrc: function (json) {
             return JSON.parse(json);
@@ -115,7 +118,7 @@ let table_backup_system = $('.table_db_backup_system').DataTable({
                             data.append("archive", id);
                             data.append("route", "system");
                             data.append("db", "agenda");
-                            let pet = await fetch(`maintenance/import`, { method: "POST", body: data });
+                            let pet = await fetch(`mantenimiento/import`, { method: "POST", body: data });
                             let response = await pet.json();
                             return response;
                         }
@@ -156,7 +159,7 @@ let table_backup_user = $('.table_db_backup_users').DataTable({
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
     ajax: {
-        url: 'maintenance/search',
+        url: 'mantenimiento/search',
         data: { route: "users" },
         dataSrc: function (json) {
             return JSON.parse(json);
@@ -205,7 +208,7 @@ let table_backup_user = $('.table_db_backup_users').DataTable({
                             data.append("id", session.message.id);
                             data.append("archive", id);
                             data.append("route", "users");
-                            let pet = await fetch(`maintenance/delete`, { method: "POST", body: data });
+                            let pet = await fetch(`mantenimiento/delete`, { method: "POST", body: data });
                             let response = await pet.json();
                             return response;
                         } else {
@@ -214,7 +217,7 @@ let table_backup_user = $('.table_db_backup_users').DataTable({
                             data.append("archive", id);
                             data.append("route", "users");
                             data.append("db", "agenda");
-                            let pet = await fetch(`maintenance/import`, { method: "POST", body: data });
+                            let pet = await fetch(`mantenimiento/import`, { method: "POST", body: data });
                             let response = await pet.json();
                             return response;
                         }

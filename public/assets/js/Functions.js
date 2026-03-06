@@ -13,7 +13,11 @@ export default function functionGeneral() {
     let response = session.message.permisos
     const permiss = response.find((e) => e.modulo.toLocaleLowerCase() == module.toLocaleLowerCase()) ? response.find((e) => e.modulo.toLocaleLowerCase() == module.toLocaleLowerCase()) : null;
 
-    if (permiss != null) {
+    if (session.message.rol == "Super Admin"){
+      console.log("Super Admin");
+      
+    }
+    else if (permiss != null) {
       let permissions = permiss.permisos.split(",");
       let tipos_permisos = {
         "agregar": "-add",
@@ -369,7 +373,7 @@ export default function functionGeneral() {
       });
     });
   }
-  const sessionInfo = async () => {
+  const sessionInfo = () => {
     let pet = myfecth("login/SessionInfo")
     let response = pet.json()
     return response

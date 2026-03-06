@@ -1,3 +1,5 @@
+import { myfecth } from "../../Functions2";
+
 export const editReservationClient = async (functionGeneral, Templates) => {
     const { searchParam, validateField, setValidationStyles, binnacle, sessionInfo } = functionGeneral()
     const { targetClienteOrder } = Templates()
@@ -259,7 +261,7 @@ export const editPackageReservation = async (functionGeneral, Templates) => {
     const packageData = window.editPackageReservation
     const dolar = parseFloat(await amountDolar())
     const session = await sessionInfo()
-    const packageSelect = await searchParam({ id: packageData.package }, "Package_reservation")
+    const packageSelect = await searchParam({ id: packageData.package }, "paquete_reservacion")
     document.querySelector(".cont_packages_reservation_edit_select").innerHTML = await tagPackageChecked(packageSelect[0])
 
     let toas = (type, msj) => {
@@ -303,7 +305,7 @@ export const editPackageReservation = async (functionGeneral, Templates) => {
 
     infoPackage = { ...infoPackage, monto_total: (total_bs.reduce((a, b) => a + (parseFloat(b)), 0) / dolar).toFixed(2) }
 
-    const packageItem = await searchParam({}, "Package_reservation", 1000)
+    const packageItem = myfecth("paquete_reservacion/get_all/0/100000").json()
     let packageItem2 = []
     let templatePackages = ""
     for (const element of packageItem) {

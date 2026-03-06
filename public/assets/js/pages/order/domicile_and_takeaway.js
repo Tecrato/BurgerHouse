@@ -699,9 +699,9 @@ export default async function domicile_and_takeaway(functions, templates, report
                     order.append(`lista_detalle_preparado[${index}][cantidad]`, aditional.cantidad);
                     index++
                 })
-                // let resOrder = myfecth("orden/add", {}, order)
-                let petOrder = await fetch("orden/add", { method: "POST", body: order })
-                let resOrder = await petOrder.json()
+                let resOrder = myfecth("orden/add", {}, order).json();
+                // let petOrder = await fetch("orden/add", { method: "POST", body: order })
+                // let resOrder = await petOrder.json()
                 console.log(resOrder);
                 if (resOrder.success == true) {
                     let id_orden = resOrder.last_id

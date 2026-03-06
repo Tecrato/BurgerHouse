@@ -204,8 +204,8 @@ document.querySelector(".edit_date_reservationEdit").addEventListener("click", a
 document.querySelector(".edit_package_reservationEdit").addEventListener("click", async () => {
     let data = new FormData();
     data.append("id", document.querySelector('.edit_package_reservationEdit').getAttribute('data-id'))
-    const pet = await fetch('calendario/get_all/0/10000000/id/asc', { method: 'POST', body: data })
-    let res = await pet.json()
+    let res = myfecth('calendario/get_all/0/10000000/id/asc', {}, data ).json()
+
     stepperReservationEdit.to(0)
     window.editPackageReservation = {
         package: res[0].id_paquete,

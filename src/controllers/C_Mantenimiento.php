@@ -11,8 +11,8 @@ if (!$session->usuario) {
 }
 
 if (count($url) < 2 || $url[1] === 'view') {
-    if (file_exists(__DIR__ . '/../views/mantenimiento.php')) {
-        include_once __DIR__ . '/../views/mantenimiento.php';
+    if (file_exists(__DIR__ . '/../views/V_mantenimiento.php')) {
+        include_once __DIR__ . '/../views/V_mantenimiento.php';
     } else {
         make_url_error("No se encontró la vista mantenimiento.php", 404);
     }
@@ -26,8 +26,8 @@ if ($url[1] === 'export') {
 
     try {
         $backup = new Backup();
-        $backup->respaldo($_POST['db'], $_POST['route']);
-        $resultado_final = ['success' => true, 'message' => 'Backup creado exitosamente'];
+        $result = $backup->respaldo($_POST['db'], $_POST['route']);
+        $resultado_final = ['success' => true, 'message' => $result];
     } catch (Exception $e) {
         make_url_error($e->getMessage(), 400, ajax: true);
     }

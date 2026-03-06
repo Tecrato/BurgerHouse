@@ -91,7 +91,7 @@ export async function payReservation(functions, templates, calendar) {
     })
     const Package = async () => {
         let template = ""
-        let pet = await searchParam({ active: 1 }, "package_reservation", null, 0)
+        let pet = await searchParam({ active: 1 }, "paquete_reservacion", null, 0)
         for (const element of pet) {
             template += await tagPackage(element)
         }
@@ -373,7 +373,7 @@ export async function payReservation(functions, templates, calendar) {
                     let DataTelClient = new FormData();
                     DataTelClient.append("id", clientData.id_cliente);
                     DataTelClient.append("telefono", clientData.telefonoClient);
-                    let updateTelClient = await fetch("clients/update", { method: "POST", body: DataTelClient })
+                    let updateTelClient = await fetch("clientes/update", { method: "POST", body: DataTelClient })
                     let responseTelClient = await updateTelClient.json()
                     console.log(responseTelClient);
                     let order = new FormData();
@@ -394,7 +394,7 @@ export async function payReservation(functions, templates, calendar) {
                     reservationData.append("fecha_bloqueo", dateReservation.fecha_bloqueo);
                     reservationData.append("metodo_pedido", "Sistema");
                     reservationData.append("status", "confirmada");
-                    let petReservation = await fetch("calendar/add", { method: "POST", body: reservationData })
+                    let petReservation = await fetch("calendario/add", { method: "POST", body: reservationData })
                     let resReservation = await petReservation.json()
                     console.log(resReservation);
                     let paymentData = new FormData();
@@ -406,7 +406,7 @@ export async function payReservation(functions, templates, calendar) {
                         paymentData.append(`lista[${index}][imagen]`, payment.imagen)
                         paymentData.append(`lista[${index}][imagen_name]`, payment.imagen.name)
                     })
-                    let petPayment = await fetch("payment/add_many", { method: "POST", body: paymentData })
+                    let petPayment = await fetch("pago/add_many", { method: "POST", body: paymentData })
                     let resPayment = await petPayment.json()
                     console.log(resPayment);
                     let id_payments = resPayment.lista
@@ -415,7 +415,7 @@ export async function payReservation(functions, templates, calendar) {
                         dataPaymentDetails.append(`lista[${index}][id_pago]`, payment)
                         dataPaymentDetails.append(`lista[${index}][id_reserva]`, resReservation.last_id)
                     })
-                    let petPaymentDetails = await fetch("paymentReservation/add_many", { method: "POST", body: dataPaymentDetails })
+                    let petPaymentDetails = await fetch("pago_reserva/add_many", { method: "POST", body: dataPaymentDetails })
                     let resPaymentDetails = await petPaymentDetails.json()
                     console.log(resPaymentDetails);
 

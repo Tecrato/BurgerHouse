@@ -17,9 +17,11 @@ class Backup
             $ruta = "../src/backups/{$route}/{$nombreArchivo}";
             $command = "mysqldump -h {$host} -u {$user} -p{$pass} --routines --events --triggers --add-drop-table {$db} > \"$ruta\" 2>nul";
             shell_exec($command);
-            echo json_encode(["success" => true, "message" => $nombreArchivo]);
+            // echo json_encode(["success" => true, "message" => $nombreArchivo]);
+            return $nombreArchivo;
         } catch (Exception $e) {
-            echo json_encode(["success" => false, "message" => $e->getMessage()]);
+            // echo json_encode(["success" => false, "message" => $e->getMessage()]);
+            return $e->getMessage();
         }
     }
     public function restaurar($db, $route, $id)
@@ -33,9 +35,11 @@ class Backup
             shell_exec($dropCreate);
             $command = "mysql -h {$host} -u {$user} -p{$pass} {$db} < {$rutaBackup}";
             shell_exec($command . " 2>&1");
-            echo json_encode(["success" => true]);
+            // echo json_encode(["success" => true]);
+            return true;
         } catch (Exception $e) {
-            echo json_encode(["success" => false, "message" => $e->getMessage()]);
+            // echo json_encode(["success" => false, "message" => $e->getMessage()]);
+            return $e->getMessage();
         }
     }
     public function config($db, $route)

@@ -92,7 +92,7 @@
                         <span class="ms-2 d-none d-lg-inline-block"><span>Hola,</span> <span class="text-dark" id="name_profile_header"><?php echo ucfirst($_SESSION['nombre']) . " " . ucfirst($_SESSION['apellido']); ?></span> <i data-feather="chevron-down" class="svg-icon"></i></span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-right user-dd animated flipInY">
-                        <a class="dropdown-item" href="profile"><i data-feather="user"
+                        <a class="dropdown-item" href="perfil"><i data-feather="user"
                                 class="svg-icon me-2 ms-1"></i>
                             Mi perfil</a>
 
