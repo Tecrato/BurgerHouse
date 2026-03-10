@@ -10,8 +10,8 @@ if (!$session->usuario) {
 }
 
 if (count($url) < 2 || $url[1] === 'view') {
-    if (file_exists(__DIR__ . '/../views/producto_procesado.php')) {
-        include_once __DIR__ . '/../views/producto_procesado.php';
+    if (file_exists(__DIR__ . '/../views/V_producto_procesado.php')) {
+        include_once __DIR__ . '/../views/V_producto_procesado.php';
     } else {
         make_url_error("No se encontró la vista producto_procesado.php", 404);
     }

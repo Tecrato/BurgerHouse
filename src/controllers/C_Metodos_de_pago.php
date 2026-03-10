@@ -10,10 +10,10 @@ if (!$session->usuario) {
 }
 
 if (count($url) < 2 || $url[1] === 'view') {
-    if (file_exists(__DIR__ . '/../views/paymentMethod.php')) {
-        include_once __DIR__ . '/../views/paymentMethod.php';
+    if (file_exists(__DIR__ . '/../views/V_metodos_de_pago.php')) {
+        include_once __DIR__ . '/../views/V_metodos_de_pago.php';
     } else {
-        make_url_error("No se encontró la vista paymentMethod.php", 404);
+        make_url_error("No se encontró la vista metodos de pago.php", 404);
     }
     exit;
 }

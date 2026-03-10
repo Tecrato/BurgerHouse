@@ -9,7 +9,7 @@ const modulesConfig = {
     mesas: {
         ajax: {
             dataSrc: '',
-            url: 'mesa/get_all/0/10000000/id/asc',
+            url: 'mesas/get_all/0/10000000/id/asc',
             type: 'POST',
             data: { active: 0 },
         },
@@ -23,7 +23,7 @@ const modulesConfig = {
                 data: null,
                 orderable: false,
                 render: (data) => `
-                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="table" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Mesa" data-bs-placement="bottom">
+                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="mesas" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Mesa" data-bs-placement="bottom">
                     <i data-feather="refresh-ccw" class="text-white"></i>
                 </button>`
             }
@@ -56,7 +56,7 @@ const modulesConfig = {
     },
     product_processed: {
         ajax: {
-            url: 'productProcess/get_all/0/10000000/id/asc',
+            url: 'producto_procesado/get_all/0/10000000/id/asc',
             dataSrc: '',
             type: 'POST',
             data: {
@@ -73,7 +73,7 @@ const modulesConfig = {
                 data: null,
                 render: (data) =>
                     `
-                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="productProcess" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Producto" data-bs-placement="bottom">
+                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="producto_procesado" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Producto" data-bs-placement="bottom">
                     <i data-feather="refresh-ccw" class="text-white"></i>
                 </button>
                 `
@@ -82,7 +82,7 @@ const modulesConfig = {
     },
     Proveedores: {
         ajax: {
-            url: 'supplier/get_all/0/10000000/id/asc',
+            url: 'provedor/get_all/0/10000000/id/asc',
             dataSrc: '',
             type: 'POST',
             data: {
@@ -123,7 +123,7 @@ const modulesConfig = {
                 data: null,
                 render: (data) =>
                     `
-                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="clients" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Cliente" data-bs-placement="bottom">
+                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="clientes" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Cliente" data-bs-placement="bottom">
                     <i data-feather="refresh-ccw" class="text-white"></i>
                 </button>
                 `
@@ -203,7 +203,7 @@ const modulesConfig = {
                 data: null,
                 render: (data) =>
                     `
-                  <button data-id="${data.id}" data-module-restore="Papelera" module-restore="categoryProducto" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Categoria" data-bs-placement="bottom">
+                  <button data-id="${data.id}" data-module-restore="Papelera" module-restore="categoria_poducto" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Categoria" data-bs-placement="bottom">
                       <i data-feather="refresh-ccw" class="text-white"></i>
                   </button>
                   `
@@ -260,7 +260,7 @@ const modulesConfig = {
     },
     Roles: {
         ajax: {
-            url: 'rol/get_all/0/10000000/id/asc',
+            url: 'roles/get_all/0/10000000/id/asc',
             dataSrc: '',
             type: 'POST',
             data: {
@@ -276,7 +276,7 @@ const modulesConfig = {
                 data: null,
                 render: (data) =>
                     `
-                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="rol" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Rol" data-bs-placement="bottom">
+                <button data-id="${data.id}" data-module-restore="Papelera" module-restore="roles" class="btn bh_1 rounded-circle btn-circle btn_datatable_restore" data-bs-toggle="tooltip" data-bs-title="Restaurar Rol" data-bs-placement="bottom">
                     <i data-feather="refresh-ccw" class="text-white"></i>
                 </button>
                 `
@@ -310,7 +310,7 @@ const modulesConfig = {
     },
     Adicionales: {
         ajax: {
-            url: 'additional/get_all/0/10000000/id/asc',
+            url: 'adicionales/get_all/0/10000000/id/asc',
             dataSrc: '',
             type: 'POST',
             data: { active: 0, tipo: "adicional" }

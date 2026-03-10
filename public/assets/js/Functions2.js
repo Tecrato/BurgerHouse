@@ -23,7 +23,7 @@ function getCookies(name) {
 }
 
 // Utilidades generales
-export function myfecth(url, parametros_get = {}, parametros_post = null, callback = null, method = null, async_call = false, parseAsJson = false) {
+export function myfecth(url, parametros_get = {}, parametros_post = null, callback = null, method = null, async_call = false, func_onerror = null, parseAsJson = false) {
   // Auto-detectar método: si hay parametros_post, usar POST
   if (method === null) {
     method = (parametros_post !== null) ? 'POST' : 'GET';
@@ -67,10 +67,12 @@ export function myfecth(url, parametros_get = {}, parametros_post = null, callba
   request.setRequestHeader("HTTP_ACCEPT", "application/json")
 
   // Establecer encabezados según el tipo de datos enviados
-  if (method === 'POST' && !(postData instanceof FormData)) {
-      request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-  } else if (method === 'POST' && postData instanceof Object) {
+  if (postData instanceof FormData) {
+    // Dejar que el navegador establezca el encabezado Content-Type para FormData
+  } else if (method === 'POST' && parseAsJson) {
       request.setRequestHeader('Content-Type', 'application/json');
+  } else if (method === 'POST') {
+      request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   }
 
   // Agregar token de sesión si está disponible
@@ -89,6 +91,10 @@ export function myfecth(url, parametros_get = {}, parametros_post = null, callba
         console.log('Error al obtener los datos');
         console.log(request.response);
       }
+    }
+    request.onerror = function () {
+      console.log('Error de conexión');
+      if (typeof func_onerror === "function") func_onerror();
     }
     request.send(postData);
     return;
@@ -270,4 +276,37 @@ export function InputPriceFormat(input) {
       }
     });
   });
+}
+
+export function modal_agregando(request, func=null) {
+  Swal.fire({
+    title: 'Procesando...',
+    text: 'Por favor espera',
+    allowOutsideClick: false,
+    didOpen: () => { Swal.showLoading() }
+  });
+  let respuesta = request()
+  if (respuesta.status == 200) {
+    Swal.close();
+    Swal.fire({
+      title: `Exito!`,
+      text: "El elemento fue agregado correctamente",
+      icon: "success",
+      didOpen: () => { Swal.hideLoading() },
+      didClose: () => {
+        if (func) func();
+      }
+    });
+  } else {
+    Swal.close();
+    Swal.fire({
+      title: `Error!`,
+      text: "El elemento no fue agregado",
+      icon: "error",
+      didOpen: () => { Swal.hideLoading() },
+      didClose: () => {
+        table.ajax.reload();
+      }
+    });
+  }
 }

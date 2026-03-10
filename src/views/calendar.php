@@ -93,4 +93,3 @@
 <script src="./assets/libs/libs/fullcalendar/index.global.js"></script>
 <script src="./assets/libs/libs/fullcalendar/es.global.min.js"></script>
 <script src="./assets/libs/libs/bs-stepper/bs-stepper.min.js"></script>
-<script type="module" src="./assets/js/pages/calendar/cal-init.js"></script>

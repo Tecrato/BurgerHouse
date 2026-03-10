@@ -58,6 +58,9 @@
         <h2>LO SIENTO!</h2>
         <p>No se ha encontrado la página que buscabas.</p>
         <p><?php echo $message; ?></p>
+        <p style="margin-top: 2rem;">
+          <?php echo $url_failed; ?>
+        </p>
       </div>
     </div>
     <div style="height: 2rem;display: flex; justify-content: center; align-items: center; gap: 2rem;">

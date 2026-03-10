@@ -291,7 +291,7 @@ export async function payOrderReservation(functions, templates, invoice, reload)
                                     dataRes.append("id", window.IdReservationPaymentLocal)
                                     dataRes.append("status", "finalizada")
                                     dataRes.append("fecha_final", DataFormat(new Date()))
-                                    let petRes = await fetch("calendar/update", { method: "POST", body: dataRes })
+                                    let petRes = await fetch("calendario/update", { method: "POST", body: dataRes })
                                     let resSale = await petRes.json()
                                     console.log(resSale);
 

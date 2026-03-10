@@ -7,7 +7,7 @@ let session = await sessionInfo();
 const dolar = await amountDolar()
 permission("Entradas de productos procesados")
 selectOptionAll(".select_options_supplier", "proveedor", optionsSupplier)
-selectOptionAll(".select_options_product", "productProcess", optionsRol)
+selectOptionAll(".select_options_product", "producto_procesado", optionsRol)
 selectOptionAll(".select_options_unit", "unidades", optionsRol)
 selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
 InputPrice("[input_price]")
@@ -326,8 +326,9 @@ let tableSinStock = $(".table_entrys_sin_stock").DataTable({
             });
             return EntrySinStock
         },
-        type: 'POST',
+        type: 'POST'
     },
+
     columns: [
         { data: 'codigo' },
         { data: 'nombre_materia_prima' },
@@ -375,7 +376,7 @@ function addEntrys() {
     }));
     feather.replace();
     selectOptionAll(".select_options_supplier", "proveedor", optionsSupplier)
-    selectOptionAll(".select_options_product", "productProcess", optionsRol)
+    selectOptionAll(".select_options_product", "producto_procesado", optionsRol)
     selectOptionAll(".select_options_unit", "unidades", optionsRol)
     selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
     InputPrice("[input_price]")
@@ -891,7 +892,7 @@ editDataTables(".table_entrys_active", async (response) => {
     document.querySelector("#payment_entry_container_edit").innerHTML = template;
     feather.replace()
     selectOptionAll(".select_options_supplier", "proveedor", optionsSupplier)
-    selectOptionAll(".select_options_product", "productProcess", optionsRol)
+    selectOptionAll(".select_options_product", "producto_procesado", optionsRol)
     selectOptionAll(".select_options_unit", "unidades", optionsRol)
     selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
     InputPrice("[input_price]")

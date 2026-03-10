@@ -9,8 +9,8 @@ if (!$session->usuario) {
 }
 
 if (count($url) < 2 || $url[1] === 'view') {
-    if (file_exists(__DIR__ . '/../views/factura.php')) {
-        include_once __DIR__ . '/../views/factura.php';
+    if (file_exists(__DIR__ . '/../views/V_factura.php')) {
+        include_once __DIR__ . '/../views/V_factura.php';
     } else {
         make_url_error("No se encontró la vista factura.php", 404);
     }

@@ -3,7 +3,7 @@ namespace Shtch\Burgerhouse\models;
 
 use Shtch\Burgerhouse\models\Db_base;
 
-class Credito extends Db_base {
+class Detalle_modulo_permiso extends Db_base {
     private $id;
     private $id_rol;
     private $id_modulo;

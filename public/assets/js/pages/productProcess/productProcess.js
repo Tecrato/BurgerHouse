@@ -12,11 +12,11 @@ const tooltip = new bootstrap.Tooltip(document.querySelector(".btn-add-tooltip")
 let session = await sessionInfo()
 productProcessIntro('navbarDropdown')
 InputPrice("[input_price]");
-selectOptionAll(".select_options_category_combo", "categoryProducto", optionsRol)
+selectOptionAll(".select_options_category_combo", "categoria_producto", optionsRol)
 viewImage(".input-image")
 permission("Producto procesado")//verifica el btn de agg
 const config = {
-  search: () => searchParam({ active: 1 }, "productProcess"),
+  search: () => searchParam({ active: 1 }, "producto_procesado"),
   template: targetProductProcess,
   container: ".cont-product",
   funtions: () => {
@@ -28,7 +28,7 @@ const config = {
 }
 searchFilter("#searchProduct", (e) => {
   if (e.target.value == "") print(config)
-  else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value }, "productProcess") })
+  else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value }, "producto_procesado") })
 })
 // ------------------Validacion de Formulario---------------------------
 // Contador global de productos. Inicia en 1 porque ya existe un producto por defecto.
@@ -37,7 +37,7 @@ function addProduct() {
   productCount++;
   document.getElementById("products-container").insertAdjacentHTML('beforeend', elemenFormProductProcess(productCount));
   feather.replace();
-  selectOptionAll(".select_options_category_combo", "categoryProducto", optionsRol)
+  selectOptionAll(".select_options_category_combo", "categoria_producto", optionsRol)
 
   viewImage(".input-image")
   InputPrice("[input_price]");
@@ -157,7 +157,7 @@ if (!form.dataset.listenerAttached) {
         data.append(`lista[${index}][stock_max]`, combo.max);
       })
       resetForm("#products-container .product", form)
-      add(config, 'productProcess', data, () => nuevaBitacora('Producto procesado', 'Agregar', 'Se agrego un producto procesado'))
+      add(config, 'producto_procesado', data, () => nuevaBitacora('Producto procesado', 'Agregar', 'Se agrego un producto procesado'))
       bootstrap.Modal.getOrCreateInstance('#register-product').hide()
     }
   });

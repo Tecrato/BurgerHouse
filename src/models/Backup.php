@@ -11,12 +11,13 @@ class Backup
             $host = $GLOBALS['db1']['host'];
             $user = $GLOBALS['db1']['user'];
             $pass = $GLOBALS['db1']['pass'];
+            $__dump_file_path = $GLOBALS['__mysql_path']."mysqldump";
             $fecha = date('Y-m-d');
             $hora = date('h-i');
             $nombreArchivo = "F{$fecha}_H{$hora}-{$route}.sql";
             $ruta = "../src/backups/{$route}/{$nombreArchivo}";
-            $command = "mysqldump -h {$host} -u {$user} -p{$pass} --routines --events --triggers --add-drop-table {$db} > \"$ruta\" 2>nul";
-            shell_exec($command);
+            $command = "$__dump_file_path --host={$host} --user={$user} --password={$pass} --routines --events --triggers --add-drop-table {$db} > \"$ruta\" 2>nul";
+            $result = shell_exec($command);
             // echo json_encode(["success" => true, "message" => $nombreArchivo]);
             return $nombreArchivo;
         } catch (Exception $e) {
@@ -30,10 +31,11 @@ class Backup
             $host = $GLOBALS['db1']['host'];
             $user = $GLOBALS['db1']['user'];
             $pass = $GLOBALS['db1']['pass'];
+            $__mysql_path = $GLOBALS['__mysql_path']."mysql";
             $rutaBackup = realpath("../src/backups/{$route}/{$id}");
-            $dropCreate = "mysql -h $host -u $user -p$pass -e \"DROP DATABASE IF EXISTS `$db`; CREATE DATABASE `$db`;\"";
+            $dropCreate = "$__mysql_path -h $host -u $user --password$pass -e \"DROP DATABASE IF EXISTS `$db`; CREATE DATABASE `$db`;\"";
             shell_exec($dropCreate);
-            $command = "mysql -h {$host} -u {$user} -p{$pass} {$db} < {$rutaBackup}";
+            $command = "$__mysql_path -h {$host} -u {$user} --password{$pass} {$db} < {$rutaBackup}";
             shell_exec($command . " 2>&1");
             // echo json_encode(["success" => true]);
             return true;

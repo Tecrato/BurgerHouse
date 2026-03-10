@@ -712,7 +712,7 @@ export async function more_product_local_order(functions, templates, reload) {
             let detailsTables = await searchParam({ id_orden: window.id_orden }, "order_table", 1000)
             document.querySelector(".table_confirm_order_local_more").textContent = detailsTables.map((index) => index.nombre).join(", ")
         } else {
-            let detailsTables = await searchParam({ id: window.id_reservation }, "calendar", 1000)
+            let detailsTables = await searchParam({ id: window.id_reservation }, "calendario", 1000)
             document.querySelector(".table_confirm_order_local_more").textContent = detailsTables.map((index) => index.paquete).join(", ")
         }
 

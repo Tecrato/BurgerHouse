@@ -25,11 +25,11 @@ const config = {
 viewImage(".input-image")
 searchFilter("#SearchTablesFREE", (e) => {
     if (e.target.value == "") print(config)
-    else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value, estado: "LIBRE" }, "table") })
+    else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value, estado: "LIBRE" }, "mesas") })
 })
 searchFilter("#SearchTablesOCCUPIED", (e) => {
-    if (e.target.value == "") print({ ...config, search: () => searchParam({ active: 1, estado: "OCUPADA" }, "table"), container: ".cont_tables_occupied" })
-    else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value, estado: "OCUPADA" }, "table"), container: ".cont_tables_occupied" })
+    if (e.target.value == "") print({ ...config, search: () => searchParam({ active: 1, estado: "OCUPADA" }, "mesas"), container: ".cont_tables_occupied" })
+    else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value, estado: "OCUPADA" }, "mesas"), container: ".cont_tables_occupied" })
 })
 let TableCount = 1;
 function addTable() {
@@ -112,7 +112,7 @@ if (!form.dataset.listenerAttached) {
                 data.append(`lista[${index}][vip]`, table.vip == true ? 1 : 0);
             })
             resetForm("#tables-container .tables", form)
-            add(config, "table", data, () => nuevaBitacora("Mesas", "Agregar", "Se agrego una mesa"))
+            add(config, "mesas", data, () => nuevaBitacora("Mesas", "Agregar", "Se agrego una mesa"))
             bootstrap.Modal.getOrCreateInstance('#register-table').hide()
         }
     });

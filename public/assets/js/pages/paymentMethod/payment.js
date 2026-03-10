@@ -13,7 +13,7 @@ let table = $(".table_payment").DataTable({
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
     ajax: {
-        url: 'metodo_pago/get_all/0/10000000/id/asc',
+        url: 'metodos_de_pago/get_all/0/10000000/id/asc',
         dataSrc: '',
         type: 'POST',
         data: {
@@ -28,10 +28,10 @@ let table = $(".table_payment").DataTable({
             orderable: false,
             render: function (data, type, row, meta) {
                 return `
-                <button data-id="${data.id}" module-edit="metodo_pago" data-module-edit="metodo pago" class="btn bh_1 rounded-circle btn-circle edit_btn_datatable" data-bs-toggle="modal" data-bs-target="#edit-payment" data-bs-title="Editar Metodo de pago" data-bs-placement="bottom">
+                <button data-id="${data.id}" module-edit="metodos_de_pago" data-module-edit="metodo pago" class="btn bh_1 rounded-circle btn-circle edit_btn_datatable" data-bs-toggle="modal" data-bs-target="#edit-payment" data-bs-title="Editar Metodo de pago" data-bs-placement="bottom">
                     <i data-feather="edit" class="text-white"></i>
                 </button>
-                <button data-id="${data.id}" module-delete="metodo_pago" data-module-delete="metodo pago" class="btn bh_5 rounded-circle btn-circle trash_btn_datatable"  data-bs-toggle="tooltip" data-bs-title="Eliminar Metodo de pago" data-bs-placement="bottom">
+                <button data-id="${data.id}" module-delete="metodos_de_pago" data-module-delete="metodo pago" class="btn bh_5 rounded-circle btn-circle trash_btn_datatable"  data-bs-toggle="tooltip" data-bs-title="Eliminar Metodo de pago" data-bs-placement="bottom">
                     <i data-feather="trash" class="text-white"></i>
                 </button>`;
             }
@@ -108,7 +108,7 @@ if (!form.dataset.listenerAttached) {
             dataPayment.forEach((category, index) => {
                 dataFinal.append(`lista[${index}][nombre]`, category.nombre)
             })
-            addDataTables(table, dataFinal, "metodo_pago", () => nuevaBitacora("Metodo de Pago", "Agregar", "Se ha agregado un metodo de pago"))
+            addDataTables(table, dataFinal, "metodos_de_pago", () => nuevaBitacora("Metodo de Pago", "Agregar", "Se ha agregado un metodo de pago"))
             resetForm(".payments", form)
             bootstrap.Modal.getOrCreateInstance('#register-payments').hide()
         }
@@ -147,7 +147,7 @@ editDataTables(".table_payment", (response) => {
                 let dataFinal = new FormData()
                 dataFinal.append(`nombre`, document.querySelector(`#input-name-payment`).value)
                 dataFinal.append(`id`, document.querySelector("#input-id-payment").value)
-                updateDataTables(table, dataFinal, "metodo_pago", () => nuevaBitacora("Metodo de Pago", "Actualizacion", "Se ha actualizado un metodo de pago"))
+                updateDataTables(table, dataFinal, "metodos_de_pago", () => nuevaBitacora("Metodo de Pago", "Actualizacion", "Se ha actualizado un metodo de pago"))
                 bootstrap.Modal.getOrCreateInstance('#edit-payment').hide()
             }
         })

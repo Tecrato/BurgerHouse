@@ -1211,7 +1211,7 @@ const actionOrder = async (btn, status) => {
           dataReservation.append("id", id_reservation);
           dataReservation.append("status", "finalizada");
           dataReservation.append("fecha_final", DataFormat(new Date()));
-          let petReservation = await fetch(`calendar/update`, { method: "POST", body: dataReservation });
+          let petReservation = await fetch(`calendario/update`, { method: "POST", body: dataReservation });
           let petResponse = await petReservation.json();
           if (response.success == true && petResponse.success == true) {
             if (response.success == true) {

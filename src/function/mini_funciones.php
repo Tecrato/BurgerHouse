@@ -2,7 +2,9 @@
 
 function make_url_error($message, $code = 400, $ajax = false) {
     header('HTTP/1.0 ' . $code . ' ' . ERROR_DICT[$code]);
+    if (!$code == 404) {
     echo $message;
+    }
     if (
         (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ||
         (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) ||
@@ -13,10 +15,11 @@ function make_url_error($message, $code = 400, $ajax = false) {
         echo json_encode(["success" => false, "message" => $message]);
         exit;
     }
-    if ($code === 401 || $code === 403 || $code === 404) {
+    if ($code === 404) {
         // echo "No estás autenticado. Redirigiendo a login...";
         // echo "<br>";
         // echo $message;
+        $url_failed = $_SERVER['REQUEST_URI'];
         include_once __DIR__.'/../views/error-404.php';
         // header('Location: ' . __URL__ . 'error404/');
         exit;

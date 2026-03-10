@@ -9,8 +9,8 @@ if (!$session->usuario) {
 }
 
 if (count($url) < 2 || $url[1] === 'view') {
-    if (file_exists(__DIR__ . '/../views/categoria.php')) {
-        include_once __DIR__ . '/../views/categoria.php';
+    if (file_exists(__DIR__ . '/../views/V_categorias.php')) {
+        include_once __DIR__ . '/../views/V_categorias.php';
     } else {
         make_url_error("No se encontró la vista categoria.php", 404);
     }

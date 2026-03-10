@@ -32,7 +32,7 @@ const config = {
     },
 }
 const configRes = {
-    search: () => searchParam({ status: 'finalizada' }, "calendar", 12),
+    search: () => searchParam({ status: 'finalizada' }, "calendario", 12),
     template: targetInvoiceReservation,
     container: ".cont_invoice_reservation",
     funtions: () => {
@@ -110,7 +110,7 @@ searchFilter("#searchInvoiceRes", (e) => {
                     nro_factura: filterClientRes,
                     between_fecha: data_betweenRes,
                     status: 'finalizada'
-                }, "calendar", 12),
+                }, "calendario", 12),
             })
         } else {
             print({
@@ -121,7 +121,7 @@ searchFilter("#searchInvoiceRes", (e) => {
                     apellido_like: filterClientRes,
                     nro_factura: filterClientRes,
                     status: 'finalizada'
-                }, "calendar", 12),
+                }, "calendario", 12),
             })
         }
     }
@@ -136,7 +136,7 @@ searchFilter("#searchInvoiceRes", (e) => {
                     nro_factura: filterClientRes,
                     between_fecha: data_betweenRes,
                     status: 'finalizada'
-                }, "calendar", 12),
+                }, "calendario", 12),
             })
         } else {
             print({
@@ -147,7 +147,7 @@ searchFilter("#searchInvoiceRes", (e) => {
                     apellido_like: filterClientRes,
                     nro_factura: filterClientRes,
                     status: 'finalizada'
-                }, "calendar", 12),
+                }, "calendario", 12),
             })
         }
     }
@@ -171,7 +171,7 @@ searchBetween("#filterResBetween", (e) => {
                 nro_factura: filterClientRes,
                 apellido_like: filterClientRes,
                 status: 'finalizada'
-            }, "calendar", 12)
+            }, "calendario", 12)
         })
     }
 })

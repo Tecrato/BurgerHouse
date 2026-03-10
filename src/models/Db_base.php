@@ -187,7 +187,7 @@ abstract class Db_base extends Conexion
             return 0;
         }
     }
-    public function search( int $n = 0, int $limite = 9, string $order_by = 'id', string $order_type = 'ASC'): array
+    public function search( int $n = 0, int $limite = 9, string $order_by = 'a.id', string $order_type = 'ASC'): array
     {
         $query = "SELECT $this->select_query FROM $this->tabla AS a $this->joins WHERE 1";
 
@@ -211,20 +211,43 @@ abstract class Db_base extends Conexion
             $query .= ' AND ' . $key . ' BETWEEN :' . $this->normalizeKey($key) . ' AND :' . $this->normalizeKey($key) . '2';
         }
 
-        // $order_by = $this->conn->quote($order_by, PDO::PARAM_STR);
-        // $order_type = $this->conn->quote($order_type, PDO::PARAM_STR);
-
-        if (str_contains($this->select_query, $order_by) && in_array(strtoupper($order_type), ['ASC', 'DESC'])) {
-            $query .= " ORDER BY $order_by $order_type";
+        // Validación genérica para order_by
+        $order_by_clean = str_replace('a.', '', $order_by);
+        
+        // Verificar si la columna existe en la tabla (método más seguro)
+        try {
+            $columns_query = $this->conn->prepare("DESCRIBE $this->tabla");
+            $columns_query->execute();
+            $table_columns = $columns_query->fetchAll(PDO::FETCH_COLUMN);
+            
+            if (in_array($order_by_clean, $table_columns) && in_array(strtoupper($order_type), ['ASC', 'DESC'])) {
+                // Usar alias 'a' si existe en la consulta, sino usar nombre directo
+                if (str_contains($query, 'FROM ' . $this->tabla . ' AS a')) {
+                    $query .= " ORDER BY a.$order_by_clean $order_type";
+                } else {
+                    $query .= " ORDER BY $order_by_clean $order_type";
+                }
+            }
+        } catch (Exception $e) {
+            // Si falla la consulta DESCRIBE, usar fallback simple
+            if (in_array(strtoupper($order_type), ['ASC', 'DESC'])) {
+                if (str_contains($query, 'FROM ' . $this->tabla . ' AS a')) {
+                    $query .= " ORDER BY a.$order_by_clean $order_type";
+                } else {
+                    $query .= " ORDER BY $order_by_clean $order_type";
+                }
+            }
         }
 
         $query .= " LIMIT :l OFFSET :n ";
 
         // print_r("\n");
-        // print_r($query);
+        // print_r($order_by);
         // print_r("\n");
-        // Creamos la consulta
+        // print_r($order_type);
+        // print_r("\n");
         // print_r($query);
+        // Creamos la consulta
         $consulta = $this->conn->prepare($query);
         // Asignamos los parametros   
         // print_r($this->variables);

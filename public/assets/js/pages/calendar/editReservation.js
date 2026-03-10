@@ -230,7 +230,7 @@ export const editDateReservation = async (funtionGeneral, reload) => {
                 data.append("id", id);
                 data.append("fecha_inicio", date.fecha_inicio);
                 data.append("fecha_bloqueo", date.fecha_bloqueo);
-                let pet = await fetch(`calendar/update`, { method: "POST", body: data })
+                let pet = await fetch(`calendario/update`, { method: "POST", body: data })
                 let res = await pet.json()
                 if (res.success == true) {
                     Swal.fire({
@@ -709,7 +709,7 @@ export const editPackageReservation = async (functionGeneral, Templates) => {
             let data = new FormData();
             data.append("id", id)
             data.append("id_paquete", id_paquete)
-            let pet = await fetch("calendar/update", { method: "POST", body: data })
+            let pet = await fetch("calendario/update", { method: "POST", body: data })
             let res = await pet.json()
             if (res.success == true) {
                 Swal.close();
@@ -779,7 +779,7 @@ export const editPackageReservation = async (functionGeneral, Templates) => {
             let data = new FormData();
             data.append("id", id)
             data.append("id_paquete", id_paquete)
-            let pet = await fetch("calendar/update", { method: "POST", body: data })
+            let pet = await fetch("calendario/update", { method: "POST", body: data })
             let res = await pet.json()
             console.log(res);
 

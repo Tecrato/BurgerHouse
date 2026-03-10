@@ -133,7 +133,7 @@ $GLOBALS['expresiones_regulares'] = [
     'modulo' => '/^[a-zA-Z ]+$/',
     'accion' => '/^[a-zA-Z ]+$/',
     'permiso' => '/^[a-zA-Z ]+$/',
-    'monto' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
+    'monto' => '/^(?:(?:-)?(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?)$/',
     'referencia' => '//',
     'comprobante' => '/^[\w,\s-]+\.(jpg|jpeg|png)$/i',
     'estado' => '/^[a-zA-Z0-9]+$/',
@@ -151,7 +151,7 @@ $GLOBALS['expresiones_regulares'] = [
     'existencia' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
     'cantidad' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
     'broken' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-    'descripcion' => '/^[a-zA-Z0-9á-ú\. ]+$/',
+    'descripcion' => '/^[a-zA-Z0-9á-ú\.\,\:\;\$ ]+$/',
     'adicionales' => '/^[a-zA-Z0-9 ]+$/',
     'vip' => '/^[0-1]+$/',
     'sillas' => '/^[0-9]+$/',
@@ -193,4 +193,5 @@ $GLOBALS['db2'] = [
     'user' => 'root',
     'pass' => '1234'
 ];
+$GLOBALS['__mysql_path'] = 'C:/xampp/mysql/bin/';
 ?>

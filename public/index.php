@@ -84,8 +84,9 @@
     if (file_exists(__DIR__ . '/../src/controllers/C_' . ucfirst(strtolower($url[0])) . '.php')) {
         require_once __DIR__ . '/../src/controllers/C_' . ucfirst(strtolower($url[0])) . '.php';
     } else {
-        require_once __DIR__ . '/../src/controllers/C_Error404.php';
-        $url[0] = 'error404';
+        make_url_error("La URL solicitada no existe.", 404, ajax: $ajax);
+        // require_once __DIR__ . '/../src/controllers/C_Error404.php';
+        // $url[0] = 'error404';
     }
     exit;
 ?>

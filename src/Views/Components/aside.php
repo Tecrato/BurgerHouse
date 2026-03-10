@@ -239,7 +239,7 @@
 
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'clientes' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link sidebar-link" href="clients"
+                            <a class="sidebar-link sidebar-link" href="clientes"
                                 aria-expanded="false">
                                 <i data-feather="users" class="feather-icon"></i>
                                 <span
@@ -282,7 +282,7 @@
                         </a>
                         <ul aria-expanded="false" class="collapse  first-level base-level-line">
                             <li class="sidebar-item">
-                                <a href="invoice" class="sidebar-link">
+                                <a href="facturas" class="sidebar-link">
                                     <span
                                         class="hide-menu">Facturas
                                     </span>
@@ -308,7 +308,7 @@
 
                     <?php if (strtolower($_SESSION['permisos'][$i]['modulo']) == 'categorias' && $_SESSION['permisos'][$i]['permisos']) { ?>
                         <li class="sidebar-item module_link">
-                            <a class="sidebar-link sidebar-link" href="category"
+                            <a class="sidebar-link sidebar-link" href="categorias"
                                 aria-expanded="false">
                                 <i data-feather="flag" class="feather-icon"></i>
                                 <span
