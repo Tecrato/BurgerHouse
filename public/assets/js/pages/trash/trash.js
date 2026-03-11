@@ -64,7 +64,7 @@ const modulesConfig = {
             }
         },
         columns: [
-            { title: '', data: null, render: (data) => `<img src='${data.imagen ? "media/productProcess/" + data.imagen : "./assets/img/big/banner_login.png"}' width='50px' height='50px' alt='Imagen del producto procesado'>` },
+            { title: '', data: null, render: (data) => `<img src='${data.imagen ? "media/producto_procesado/" + data.imagen : "./assets/img/big/banner_login.png"}' width='50px' height='50px' alt='Imagen del producto procesado'>` },
             { title: 'Nombre', data: 'nombre' },
             { title: 'Precio', data: null, render: (data) => { return (data.precio).toString().replace(".", ",") + " $" } },
 

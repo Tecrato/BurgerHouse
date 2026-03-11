@@ -173,7 +173,7 @@ function editData(response) {
   document.querySelector("#input-category-combo").value = response[0].nombre_categoria
   document.querySelector("#input-category-combo").setAttribute("data-id", response[0].id_categoria)
   document.querySelector("#input-details-combo").value = response[0].detalles
-  document.querySelector("#img-combo-response").src = `media/productProcess/${response[0].imagen}`
+  document.querySelector("#img-combo-response").src = `media/producto_procesado/${response[0].imagen}`
   document.querySelector("#input-min-combo").value = response[0].stock_min
   document.querySelector("#input-max-combo").value = response[0].stock_max
   let data = {

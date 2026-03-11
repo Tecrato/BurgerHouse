@@ -1,5 +1,5 @@
 import functionGeneral from "../../Functions.js";
-import { nuevaBitacora } from "../../Functions2.js";
+import { nuevaBitacora, modal_operacion, myfecth } from "../../Functions2.js";
 import Templates from "../../templates.js";
 import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
 // Inicializar validators personalizados
@@ -29,10 +29,10 @@ let n = $(".table_combo").DataTable({
             orderable: false,
             render: function (data, type, row, meta) {
                 return `
-                <button data-id="${data.id}" module-edit="categoryProducto" data-module-edit="categorias" class="btn bh_1 rounded-circle btn-circle edit_btn_datatable" data-bs-toggle="modal" data-bs-target="#edit-categoryCombo" data-bs-title="Editar Categoria" data-bs-placement="bottom">
+                <button data-id="${data.id}" module-edit="categoria_producto" data-module-edit="categorias" class="btn bh_1 rounded-circle btn-circle edit_btn_datatable" data-bs-toggle="modal" data-bs-target="#editar_categoria_producto" data-bs-title="Editar Categoria" data-bs-placement="bottom">
                     <i data-feather="edit" class="text-white"></i>
                 </button>
-                <button data-id="${data.id}" module-delete="categoryProducto" data-module-delete="categorias" class="btn bh_5 rounded-circle btn-circle trash_btn_datatable" data-bs-toggle="tooltip" data-bs-title="Eliminar Categoria" data-bs-placement="bottom">
+                <button data-id="${data.id}" module-delete="categoria_producto" data-module-delete="categorias" class="btn bh_5 rounded-circle btn-circle trash_btn_datatable" data-bs-toggle="tooltip" data-bs-title="Eliminar Categoria" data-bs-placement="bottom">
                     <i data-feather="trash" class="text-white"></i>
                 </button>
 `;
@@ -51,104 +51,129 @@ let n = $(".table_combo").DataTable({
     "info": true,
 })
 $('#searchCategoryProducts').on('keyup', function () { n.search(this.value).draw() });
+// modal_operacion(
+//     () => myfecth("categoria_producto/delete", {}, {}),
+//     'eliminar',
+//     () => {
+//         n.ajax.reload()
+//     }
+// )
 deleteDatatable(".table_combo", n, () => nuevaBitacora("Categoria de Producto", "Eliminacion", "Se elimino una categoria de productos"))
 
-let CategoryProductCount = 1;
-function addCategoryCombo() {
-    CategoryProductCount++;
-    document.getElementById("categoryCombos-container").insertAdjacentHTML('beforeend', elemenFormCategoryProduct(CategoryProductCount));
+let contador_categoria_producto = 1;
+function agregar_categoria_producto() {
+    contador_categoria_producto++;
+    document.getElementById("contenedor_categorias_producto").insertAdjacentHTML('beforeend', elemenFormCategoryProduct(contador_categoria_producto));
     feather.replace();
-    attachValidationListeners(CategoryProductCount);
-    const newCategoryCombo = document.getElementById(`categoryCombos-${CategoryProductCount}`);
-    newCategoryCombo.querySelector(".remove-categoryProducts").addEventListener("click", function () {
-        newCategoryCombo.remove();
-        reindex("#categoryCombos-container .categoryCombos", `categoryCombos`, CategoryProductCount, "Categoria Combo");
+    adjuntar_escuchas_validacion(contador_categoria_producto);
+    const nueva_categoria_producto = document.getElementById(`categoria_producto-${contador_categoria_producto}`);
+    nueva_categoria_producto.querySelector(".remove-categoryProducts").addEventListener("click", function () {
+        nueva_categoria_producto.remove();
+        reindex("#contenedor_categorias_producto .categoria_producto", `categoria_producto`, contador_categoria_producto, "Categoria Producto");
     });
 }
-document.getElementById("add-categoryProduct-btn").addEventListener("click", () => {
-    addCategoryCombo()
-    reindex("#categoryCombos-container .categoryCombos", "categoryCombos", CategoryProductCount, "Categoria Combo");
+document.getElementById("btn_agregar_categoria_producto").addEventListener("click", () => {
+    agregar_categoria_producto()
+    reindex("#contenedor_categorias_producto .categoria_producto", "categoria_producto", contador_categoria_producto, "Categoria Producto");
 });
-function attachValidationListeners(index) {
-    const unitElement = document.getElementById(`categoryCombos-${index}`);
-    unitElement.querySelectorAll("input[type='text']").forEach(input => {
+function adjuntar_escuchas_validacion(indice) {
+    const elemento_unidad = document.getElementById(`categoria_producto-${indice}`);
+    elemento_unidad.querySelectorAll("input[type='text']").forEach(input => {
         input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
         input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
     });
-    const category2 = document.getElementById(`categoryCombo-container`);
-    category2.querySelectorAll("input[type='text']").forEach(input => {
+    const categoria2 = document.getElementById(`contenedor_categorias_producto`);
+    categoria2.querySelectorAll("input[type='text']").forEach(input => {
         input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
         input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
     });
 }
 
-let form = document.getElementById("form-submit-categoryProduct")
-if (!form.dataset.listenerAttached) {
-    form.addEventListener("submit", (e) => {
+let formulario = document.getElementById("formulario_enviar_categoria_producto")
+if (!formulario.dataset.listenerAttached) {
+    formulario.addEventListener("submit", (e) => {
         e.preventDefault();
-        const CategoryCombos = document.querySelectorAll(".categoryCombos");
-        let formHasError = false;
-        let dataCategoryCombos = []
+        const categorias_producto = document.querySelectorAll(".categoria_producto");
+        let formulario_con_error = false;
+        let datos_categorias_producto = []
 
-        CategoryCombos.forEach((category, i) => {
-            const index = i + 1;
-            const data = {
-                nombre: category.querySelector(`input[name="nombre"]`).value,
+        categorias_producto.forEach((categoria, i) => {
+            const indice = i + 1;
+            const datos = {
+                nombre: categoria.querySelector(`input[name="nombre"]`).value,
             }
-            dataCategoryCombos.push(data)
-            const errors = validate(data, reglas_validaciones);
-            setValidationStyles(`input-name-categoryProduct-${index}`, errors?.nombre ? errors.nombre[0] : null);
-            if (errors?.nombre) {
-                formHasError = true;
+            datos_categorias_producto.push(datos)
+            const errores = validate(datos, reglas_validaciones);
+            setValidationStyles(`input_nombre_categoria_producto-${indice}`, errores?.nombre ? errores.nombre[0] : null);
+            if (errores?.nombre) {
+                formulario_con_error = true;
             }
         })
-        if (!formHasError) {
-            let dataFinal = new FormData()
-            dataCategoryCombos.forEach((category, index) => {
-                dataFinal.append(`lista[${index}][nombre]`, category.nombre)
+        if (!formulario_con_error) {
+            let datos_finales = new FormData()
+            datos_categorias_producto.forEach((categoria, indice) => {
+                datos_finales.append(`lista[${indice}][nombre]`, categoria.nombre)
             })
-            addDataTables(n, dataFinal, "categoryProducto", nuevaBitacora("Categoria de Producto", "Agregar", "Se agrego una categoria de productos"))
-            resetForm(".categoryCombos", form)
-            bootstrap.Modal.getOrCreateInstance('#register-categoryCombo').hide()
+            
+            modal_operacion(
+                () => {
+                    return myfecth("categoria_producto/add_many", {}, datos_finales)
+                },
+                'agregar',
+                () => {
+                    n.ajax.reload()
+                    nuevaBitacora("Categoria de Producto", "Agregar", "Se agrego una categoria de productos")
+                }
+            )
+            resetForm(".categoria_producto", formulario)
+            bootstrap.Modal.getOrCreateInstance('#registrar_categoria_producto').hide()
         }
     })
-    form.dataset.listenerAttached = "true";
+    formulario.dataset.listenerAttached = "true";
 }
 
 editDataTables(".table_combo", (response) => {
-    let formHasError = false;
-    document.querySelector("#input-name-categoryProduct").value = response[0].nombre;
-    document.querySelector("#input-id-categoryCombo").value = response[0].id;
-    const data = {
-        nombre: document.querySelector(`#input-name-categoryProduct`).value,
+    let formulario_con_error = false;
+    document.querySelector("#input_nombre_categoria_producto_editar").value = response[0].nombre;
+    document.querySelector("#input_id_categoria_producto").value = response[0].id;
+    const datos = {
+        nombre: document.querySelector(`#input_nombre_categoria_producto_editar`).value,
     }
-    const errors = validate(data, reglas_validaciones);
-    setValidationStyles(`input-name-categoryProduct`, errors?.nombre ? errors.nombre[0] : null);
+    const errores = validate(datos, reglas_validaciones);
+    setValidationStyles(`input_nombre_categoria_producto_editar`, errores?.nombre ? errores.nombre[0] : null);
 
-    if (errors?.nombre) {
-        formHasError = true;
+    if (errores?.nombre) {
+        formulario_con_error = true;
     }
-    let formEdit = document.getElementById("form-submit-edit-categoryProduct")
-    if (!formEdit.dataset.listenerAttached) {
-        formEdit.addEventListener("submit", (e) => {
+    
+    let formulario_editar = document.getElementById("formulario_editar_categoria_producto")
+    if (!formulario_editar.dataset.listenerAttached) {
+        formulario_editar.addEventListener("submit", (e) => {
             e.preventDefault();
-            const data = {
-                nombre: document.querySelector(`#input-name-categoryProduct`).value,
+            const datos = {
+                nombre: document.querySelector(`#input_nombre_categoria_producto_editar`).value,
             }
-            const errors = validate(data, reglas_validaciones);
-            setValidationStyles(`input-name-categoryProduct`, errors?.nombre ? errors.nombre[0] : null);
-            if (errors?.nombre) formHasError = true;
-            else formHasError = false;
+            const errores = validate(datos, reglas_validaciones);
+            setValidationStyles(`input_nombre_categoria_producto_editar`, errores?.nombre ? errores.nombre[0] : null);
+            if (errores?.nombre) formulario_con_error = true;
+            else formulario_con_error = false;
 
-            if (!formHasError) {
-                let dataFinal = new FormData()
-                dataFinal.append(`nombre`, document.querySelector(`#input-name-categoryProduct`).value)
-                dataFinal.append(`id`, document.querySelector("#input-id-categoryCombo").value)
-                updateDataTables(n, dataFinal, "categoryProducto", nuevaBitacora("Categoria de Producto", "Actualizacion", "Se actualizo una categoria de productos"))
-                bootstrap.Modal.getOrCreateInstance('#edit-categoryCombo').hide()
+            if (!formulario_con_error) {
+                let datos_finales = new FormData()
+                datos_finales.append(`nombre`, document.querySelector(`#input_nombre_categoria_producto_editar`).value)
+                datos_finales.append(`id`, document.querySelector("#input_id_categoria_producto").value)
+                modal_operacion(
+                    () => myfecth("categoria_producto/update", {}, datos_finales),
+                    'editar',
+                    () => {
+                        bootstrap.Modal.getOrCreateInstance('#editar_categoria_producto').hide()
+                        nuevaBitacora("Categoria de Producto", "Actualizacion", "Se actualizo una categoria de productos")
+                        n.ajax.reload()
+                    }
+                )
             }
         })
-        formEdit.dataset.listenerAttached = "true";
+        formulario_editar.dataset.listenerAttached = "true";
     }
 })
-attachValidationListeners(1);
+adjuntar_escuchas_validacion(1);

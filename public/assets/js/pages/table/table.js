@@ -34,24 +34,24 @@ searchFilter("#SearchTablesOCCUPIED", (e) => {
 let TableCount = 1;
 function addTable() {
     TableCount++;
-    document.getElementById("tables-container").insertAdjacentHTML('beforeend', elemenFormTables(TableCount));
+    document.getElementById("contenedor_mesas").insertAdjacentHTML('beforeend', elemenFormTables(TableCount));
     feather.replace();
     viewImage(".input-image")
     attachValidationListeners(TableCount);
-    const newTable = document.getElementById(`tables-${TableCount}`);
+    const newTable = document.getElementById(`mesa-${TableCount}`);
     newTable.querySelector(".remove-table").addEventListener("click", function () {
         newTable.remove();
-        reindex("#tables-container .tables", "tables", TableCount, "Mesas");
+        reindex("#contenedor_mesas .mesa", "mesa", TableCount, "Mesas");
     });
 }
 function attachValidationListeners(index) {
-    const productElement = document.getElementById(`tables-${index}`);
+    const productElement = document.getElementById(`mesa-${index}`);
     productElement.querySelectorAll("input[type='text'], input[type='file'], input[type='number']").forEach(input => {
         input.addEventListener("keyup", (e) => validateField(e, rules));
         input.addEventListener("blur", (e) => validateField(e, rules));
         input.addEventListener("change", (e) => validateField(e, rules));
     });
-    const table2 = document.getElementById(`table`);
+    const table2 = document.getElementById(`mesa_editar`);
     table2.querySelectorAll("input[type='text'], input[type='number'], input[type='file']").forEach(input => {
         input.addEventListener("keyup", (e) => validateField(e, rules2));
         input.addEventListener("blur", (e) => validateField(e, rules2));
@@ -59,7 +59,7 @@ function attachValidationListeners(index) {
     });
 
 }
-document.getElementById("add-table-btn").addEventListener("click", () => { addTable(), reindex("#tables-container .tables", "tables", TableCount, "Mesas") });
+document.getElementById("btn_agregar_mesa").addEventListener("click", () => { addTable(), reindex("#contenedor_mesas .mesa", "mesa", TableCount, "Mesas") });
 
 const rules = {
     nombre: reglas_validaciones.nombre,
@@ -75,28 +75,32 @@ const rules3 = {
     sillas: reglas_validaciones.sillas,
     imagen: reglas_validaciones.imagen,
 };
-let form = document.getElementById("form-submit-tables")
+let form = document.getElementById("formulario_enviar_mesas")
 if (!form.dataset.listenerAttached) {
     form.addEventListener("submit", (e) => {
         e.preventDefault();
-        const tables = document.querySelectorAll(".tables");
+        const mesas = document.querySelectorAll(".mesa");
         let formHasError = false;
         let tablesData = []
 
-        tables.forEach((table, i) => {
+        mesas.forEach((mesa, i) => {
             const index = i + 1;
             const data = {
-                nombre: table.querySelector(`input[name="nombre"]`).value,
-                sillas: table.querySelector(`input[name="sillas"]`).value,
-                imagen: table.querySelector(`input[name="imagen"]`) ? table.querySelector(`input[name="imagen"]`).files[0] : "",
-                vip: table.querySelector(`input[name="vip"]`).checked,
+                nombre: mesa.querySelector(`input[name="nombre"]`).value,
+                sillas: mesa.querySelector(`input[name="sillas"]`).value,
+                imagen: mesa.querySelector(`input[name="imagen"]`) ? mesa.querySelector(`input[name="imagen"]`).files[0] : "",
+                vip: mesa.querySelector(`input[name="vip"]`).checked,
             };
             tablesData.push(data)
 
             const errors = validate(data, rules);
-            setValidationStyles(`input-name-tables-${index}`, errors?.nombre ? errors.nombre[0] : null);
-            setValidationStyles(`input-chair-tables-${index}`, errors?.sillas ? errors.sillas[0] : null);
-            setValidationStyles(`input-image-tables-${index}`, errors?.imagen ? errors.imagen[0] : null);
+            const nombreElement = document.getElementById(`input_nombre_mesa-${index}`);
+            const sillasElement = document.getElementById(`input_numero_sillas_mesa-${index}`);
+            const imagenElement = document.getElementById(`input_imagen_mesa-${index}`);
+            
+            if (nombreElement) setValidationStyles(`input_nombre_mesa-${index}`, errors?.nombre ? errors.nombre[0] : null);
+            if (sillasElement) setValidationStyles(`input_numero_sillas_mesa-${index}`, errors?.sillas ? errors.sillas[0] : null);
+            if (imagenElement) setValidationStyles(`input_imagen_mesa-${index}`, errors?.imagen ? errors.imagen[0] : null);
             if (errors?.nombre || errors?.sillas || errors?.imagen) {
                 formHasError = true;
             }
@@ -107,66 +111,67 @@ if (!form.dataset.listenerAttached) {
             tablesData.forEach((table, index) => {
                 data.append(`lista[${index}][nombre]`, table.nombre);
                 data.append(`lista[${index}][sillas]`, table.sillas);
-                data.append(`lista[${index}][imagen_name]`, table.imagen.name);
+                data.append(`lista[${index}][imagen_name]`, table.imagen.name); // El controlador lo sobreescribirá
                 data.append(`lista[${index}][imagen]`, table.imagen);
                 data.append(`lista[${index}][vip]`, table.vip == true ? 1 : 0);
             })
-            resetForm("#tables-container .tables", form)
+            resetForm("#contenedor_mesas .mesa", form)
             add(config, "mesas", data, () => nuevaBitacora("Mesas", "Agregar", "Se agrego una mesa"))
-            bootstrap.Modal.getOrCreateInstance('#register-table').hide()
+            bootstrap.Modal.getOrCreateInstance('#registrar_mesa').hide()
         }
     });
     form.dataset.listenerAttached = "true";
 }
 let hasError = false
 const editData = (response) => {
-    document.querySelector("#input-name-table").value = response[0].nombre;
-    document.querySelector("#input-chair-table").value = response[0].sillas;
-    document.querySelector("#img-table-response").src = "media/table/" + response[0].imagen;
-    document.querySelector("#input-vip-table").checked = response[0].vip == 1 ? true : false;
-    document.querySelector("#input-id-table").value = response[0].id;
+    document.querySelector("#input_nombre_mesa_editar").value = response[0].nombre;
+    document.querySelector("#input_numero_sillas_mesa_editar").value = response[0].sillas;
+    document.querySelector("#img_mesa_respuesta").src = "media/mesas/" + response[0].imagen;
+    document.querySelector("#input_vip_mesa_editar").checked = response[0].vip == 1 ? true : false;
+    document.querySelector("#input_id_mesa").value = response[0].id;
     const data = {
-        nombre: document.querySelector(`#input-name-table`).value,
-        sillas: document.querySelector(`#input-chair-table`).value,
-        imagen: document.querySelector(`#input-image-table`) ? document.querySelector(`#input-image-table`).files[0] : "",
-        vip: document.querySelector(`#input-vip-table`).checked,
+        nombre: document.querySelector(`#input_nombre_mesa_editar`).value,
+        sillas: document.querySelector(`#input_numero_sillas_mesa_editar`).value,
+        imagen: document.querySelector(`#input_imagen_mesa_editar`) ? document.querySelector(`#input_imagen_mesa_editar`).files[0] : "",
+        vip: document.querySelector(`#input_vip_mesa_editar`).checked,
     };
     const errors = validate(data, rules2);
-    setValidationStyles(`input-name-table`, errors?.nombre ? errors.nombre[0] : null);
-    setValidationStyles(`input-chair-table`, errors?.sillas ? errors.sillas[0] : null);
+    setValidationStyles(`input_nombre_mesa_editar`, errors?.nombre ? errors.nombre[0] : null);
+    setValidationStyles(`input_numero_sillas_mesa_editar`, errors?.sillas ? errors.sillas[0] : null);
     if (errors?.nombre || errors?.sillas) hasError = true;
 }
-let formEdit = document.querySelector("#form-submit-edit-table")
+let formEdit = document.querySelector("#formulario_editar_mesa")
 if (!formEdit.dataset.listenerAttached) {
     formEdit.addEventListener("submit", (e) => {
         e.preventDefault()
         const data = {
-            nombre: document.querySelector(`#input-name-table`).value,
-            sillas: document.querySelector(`#input-chair-table`).value,
-            imagen: document.querySelector(`#input-image-table`) ? document.querySelector(`#input-image-table`).files[0] : "",
-            vip: document.querySelector(`#input-vip-table`).checked,
+            nombre: document.querySelector(`#input_nombre_mesa_editar`).value,
+            sillas: document.querySelector(`#input_numero_sillas_mesa_editar`).value,
+            imagen: document.querySelector(`#input_imagen_mesa_editar`) ? document.querySelector(`#input_imagen_mesa_editar`).files[0] : "",
+            vip: document.querySelector(`#input_vip_mesa_editar`).checked,
         };
         const errors = validate(data, rules3);
-        setValidationStyles(`input-name-table`, errors?.nombre ? errors.nombre[0] : null);
-        setValidationStyles(`input-chair-table`, errors?.sillas ? errors.sillas[0] : null);
-        setValidationStyles(`input-image-table`, errors?.imagen ? errors.imagen[0] : null);
+        setValidationStyles(`input_nombre_mesa_editar`, errors?.nombre ? errors.nombre[0] : null);
+        setValidationStyles(`input_numero_sillas_mesa_editar`, errors?.sillas ? errors.sillas[0] : null);
+        setValidationStyles(`input_imagen_mesa_editar`, errors?.imagen ? errors.imagen[0] : null);
         if (errors?.nombre || errors?.sillas || errors?.imagen) hasError = true;
-        else hasError = false
+        else hasError = false;
+
         if (!hasError) {
             let dataFinal = new FormData()
-            dataFinal.append(`id`, document.querySelector("#input-id-table").value);
+            dataFinal.append(`id`, document.querySelector("#input_id_mesa").value);
             dataFinal.append(`nombre`, data.nombre);
             dataFinal.append(`sillas`, data.sillas);
             dataFinal.append(`vip`, data.vip == true ? 1 : 0);
-            if (document.querySelector(`#input-image-table`).value != "") {
+            if (data.imagen && data.imagen instanceof File) {
                 dataFinal.append(`imagen`, data.imagen);
-                dataFinal.append(`imagen_name`, data.imagen.name);
+                dataFinal.append(`imagen_name`, data.imagen.name); // El controlador lo sobreescribirá
             }
-            update(config, "table", dataFinal, () => nuevaBitacora("Mesas", "Edicion", "Se Edito un mesa"))
-            bootstrap.Modal.getOrCreateInstance('#edit-table').hide()
+            update(config, "mesas", dataFinal, () => nuevaBitacora("Mesas", "Edicion", "Se Edito un mesa"))
+            bootstrap.Modal.getOrCreateInstance('#editar_mesa').hide()
         }
     })
-    form.dataset.listenerAttached = "true";
+    formEdit.dataset.listenerAttached = "true";
 }
 attachValidationListeners(1);
 print(config);

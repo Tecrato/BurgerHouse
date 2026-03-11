@@ -118,7 +118,7 @@ $GLOBALS['expresiones_regulares'] = [
 
     //textos
     'total_ventas' => '/^[0-9]+$/',
-    'nombre' => '/^[a-zA-Zá-ú ]+$/',
+    'nombre' => '/^[a-zA-Zá-ú\d ]+$/',
     'apellido' => '/^[a-zA-Z ]+$/',
     'telefono' => '/^(?:0[0-9]{10}|\+[1-9][0-9]{9,14})$/',
     'email' => '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
@@ -127,7 +127,7 @@ $GLOBALS['expresiones_regulares'] = [
     'session_id' => '/^[a-zA-Z0-9]+$/',
     'token' => '/^[a-zA-Z0-9]+$/',
     'token_expiracion' => '/^[0-9]+$/',
-    'imagen' => '/^[a-zA-Z0-9\.\- á-úÁ-Ú\(\)\s\']+$/',
+    'imagen' => '/^[a-zA-Z0-9\.\-_ á-úÁ-Ú\(\)\s\']+$/',
     'hash' => '/^(?:\$2[ayb]\$\d{2}\$[.\/A-Za-z0-9]{53}|\$argon2(?:i|id)\$v=\d+\$m=\d+,t=\d+,p=\d+\$[A-Za-z0-9+\/]+={0,2}\$[A-Za-z0-9+\/]+={0,2})$/',
     'nombre_like' => '/^[a-zA-Z ]+$/',
     'modulo' => '/^[a-zA-Z ]+$/',
@@ -175,7 +175,7 @@ $GLOBALS['expresiones_regulares'] = [
     'alias' => '/^[a-zA-Z ]+$/',
     'IVA' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
     'monto_final' => '/^(?:\d{1,3}(?:[.,]\d{3})+|\d+)([.,]\d+)?$/',
-    'tabla' => '/^[a-zA-Z_]+$/',
+    'tabla' => '/^[a-zA-Z_ ]+$/',
     'valor' => '/^[a-zA-Z_ ]+$/',
     'llave' => '/^[a-zA-Z_]+$/'
 ];

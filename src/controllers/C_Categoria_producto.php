@@ -43,7 +43,32 @@ if ($url[1] === 'get_all') {
         make_url_error($e->getMessage(), 400, ajax: true);
     }
     $ajax = true;
-} else if ($url[1] === 'update') {
+} else if ($url[1] === 'add_many') {
+    if (!$session->has_permission('categoria_producto', 'agregar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    if (!isset($_POST['lista']) || !is_array($_POST['lista']) || count($_POST['lista']) === 0) {
+        make_url_error("No se recibio una lista valida para agregar.", 400, ajax: true);
+    }
+
+    try {
+        $lastIds = [];
+        foreach ($_POST['lista'] as $item) {
+            if (!is_array($item)) {
+                make_url_error("Cada item de la lista debe ser un arreglo valido.", 400, ajax: true);
+            }
+
+            $itemModel = new Categoria_producto(...$item);
+            $lastIds[] = $itemModel->agregar();
+        }
+        $resultado_final = ['success' => true, 'last_ids' => $lastIds];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} 
+else if ($url[1] === 'update') {
     $active = $_POST['active'] ?? null;
 
     if ($active !== null && (string)$active === '0') {

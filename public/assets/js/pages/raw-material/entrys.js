@@ -12,7 +12,7 @@ const { InputPrice, selectOptionAll, viewImage, setValidationStyles, validateFie
 
 selectOptionAll(".select_options_supplier", "proveedor", optionsSupplier)
 selectOptionAll(".select_options_raw_material", "materia_prima", optionsRawMaterial)
-selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
+selectOptionAll(".select_options_payment", "metodos_de_pago", optionsRol)
 permission("Entradas de materia prima")
 InputPrice("[input_price]")
 viewImage(".input-image")
@@ -237,8 +237,8 @@ let tableActive = $(".table_entrys_active").DataTable({
                 <div class="dropdown dropstart">
                     <i data-feather="more-horizontal" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer"></i>
                     <ul class="dropdown-menu" data-bs-boundary="viewport">
-                        <li><a data-id="${data.id_entrada}" module-edit=Entrada_materia_prima_detalles/ data-module-edit="Entradas de materia prima" class="edit_btn_datatable dropdown-item" data-bs-title="Editar Entrada" data-bs-placement="bottom"><i class="me-1" data-feather="edit"></i>Editar</a></li>
-                        <li><a data-id="${data.id}" module-delete=Entrada_materia_prima_detalles/ data-module-delete="Entradas de materia prima" class="trash_btn_datatable dropdown-item" data-bs-toggle="tooltip" data-bs-title="Eliminar Entrada" data-bs-placement="bottom"><i class="me-1" data-feather="trash"></i>Eliminar</a></li>
+                        <li><a data-id="${data.id_entrada}" module-edit=Entrada_materia_prima_detalles data-module-edit="Entradas de materia prima" class="edit_btn_datatable dropdown-item" data-bs-title="Editar Entrada" data-bs-placement="bottom"><i class="me-1" data-feather="edit"></i>Editar</a></li>
+                        <li><a data-id="${data.id}" module-delete=Entrada_materia_prima_detalles data-module-delete="Entradas de materia prima" class="trash_btn_datatable dropdown-item" data-bs-toggle="tooltip" data-bs-title="Eliminar Entrada" data-bs-placement="bottom"><i class="me-1" data-feather="trash"></i>Eliminar</a></li>
                         <li><a class="reference_btn dropdown-item" data-id="${data.id_entrada}" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#comprobante_view"><i class="me-1" data-feather="eye"></i>Ver datos de pago</a></li>
                     </ul>
                 </div>

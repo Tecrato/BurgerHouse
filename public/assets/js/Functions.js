@@ -514,17 +514,21 @@ export default function functionGeneral() {
       allowOutsideClick: false,
       didOpen: () => { Swal.showLoading() }
     });
-    let action = await fetch(`${module}/update`, {
-      method: "POST",
-      body: data,
-    });
-    let response = await action.json();
-    if (response.success == true) {
+    let action = myfecth(`${module}/update`, {}, data);
+    console.log(action.text);
+    // let action = await fetch(`${module}/update`, {
+    //   method: "POST",
+    //   body: data,
+    // });
+    // let response = await action.json();
+    
+    if (action.code == 200) {
       Swal.close();
       Swal.fire({
         title: `Exito!`,
         text: "El elemento fue actualizado correctamente",
         icon: "success",
+        didOpen: () => Swal.hideLoading()
       });
       print(config);
       binnacleAdd()
@@ -534,6 +538,7 @@ export default function functionGeneral() {
         title: `Error!`,
         text: "El elemento no fue actualizado",
         icon: "error",
+        didOpen: () => Swal.hideLoading()
       });
     }
   };
@@ -544,11 +549,10 @@ export default function functionGeneral() {
         let module = btn.getAttribute("module-edit")
         let data = new FormData();
         module == "Detalle_receta" ? data.append("id_receta", id) : data.append("id", id);
-        let pet = await fetch(`${module}/get_all`, {
-          method: "POST",
-          body: data
-        })
-        let response = await pet.json()
+        let pet = myfecth(`${module}/get_all`, {}, data)
+        console.log(pet.data);
+        
+        let response =  pet.json()
         if (typeof inputs === "function") {
           inputs(response);
         }

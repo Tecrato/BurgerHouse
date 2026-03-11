@@ -169,8 +169,8 @@ export async function local(functions, templates, reload) {
             let product = await searchParam({ id: id, tipo: "producto" }, "producto_preparado", 100)
             product.forEach((product) => { templatePrepared += selectProduct(product, "producto_preparado"); })
         }
-        let productProcess = await searchParam({ active: 1 }, "productProcess", 100)
-        productProcess.forEach((product) => { templateProcess += selectProduct(product, "productProcess"); })
+        let productProcess = await searchParam({ active: 1 }, "producto_procesado", 100)
+        productProcess.forEach((product) => { templateProcess += selectProduct(product, "producto_procesado"); })
         document.querySelector(".cont-select-product-order_local").innerHTML = "";
         document.querySelector(".cont-select-product-order_local").insertAdjacentHTML("beforeend", templatePrepared)
         document.querySelector(".cont-select-product-order_local").insertAdjacentHTML("beforeend", templateProcess)
@@ -595,8 +595,8 @@ export async function more_product_local_order(functions, templates, reload) {
             let product = await searchParam({ id: id, tipo: "producto" }, "producto_preparado", 1000)
             product.forEach((product) => { templatePrepared += selectProduct(product, "producto_preparado") })
         }
-        let productProcess = await searchParam({ active: 1 }, "productProcess", 100)
-        productProcess.forEach((product) => { templateProcess += selectProduct(product, "productProcess") })
+        let productProcess = await searchParam({ active: 1 }, "producto_procesado", 100)
+        productProcess.forEach((product) => { templateProcess += selectProduct(product, "producto_procesado") })
         document.querySelector(".cont-select-product-order_local_more").innerHTML = "";
         document.querySelector(".cont-select-product-order_local_more").insertAdjacentHTML("beforeend", templatePrepared)
         document.querySelector(".cont-select-product-order_local_more").insertAdjacentHTML("beforeend", templateProcess)

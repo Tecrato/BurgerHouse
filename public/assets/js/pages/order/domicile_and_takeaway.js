@@ -5,7 +5,7 @@ export default async function domicile_and_takeaway(functions, templates, report
     const { tagFilterProduct, selectProduct, targetDetailProductOrder, targetDetailOtherOrder, targetClienteOrder, optionsRol, elemenFormPaymentOrder } = templates()
     viewImage(".input-image")
     InputPrice("[input_price]");
-    selectOptionAll(".select_options_payment", "metodo_pago", optionsRol);
+    selectOptionAll(".select_options_payment", "metodos_de_pago", optionsRol);
     let iti = window.intlTelInput(document.querySelector("#input-tel-client-order"), { initialCountry: "ve", separateDialCode: true, utilsScript: "./assets/libs/libs/intl-tel-input/js/utils.js" });
     const resetFormModal = () => {
         document.querySelector(".cont-select-product-order").innerHTML = ""

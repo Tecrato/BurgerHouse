@@ -22,4 +22,7 @@ export class Response {
   get status() {
     return this.__status;
   }
+  get code() {
+    return this.__status;
+  }
 }

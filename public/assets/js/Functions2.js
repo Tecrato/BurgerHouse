@@ -278,20 +278,70 @@ export function InputPriceFormat(input) {
   });
 }
 
-export function modal_agregando(request, func=null) {
+// function mostrar_modal(descripciones, request, func=null) {
+//   Swal.fire({
+//     title: 'Procesando...',
+//     text: descripciones[0],
+//     allowOutsideClick: false,
+//     didOpen: () => { Swal.showLoading() }
+//   });
+//   let respuesta = await request()
+//   if (respuesta.status == 200) {
+//     Swal.close();
+//     Swal.fire({
+//       title: `Exito!`,
+//       text: "El elemento fue agregado correctamente",
+//       icon: "success",
+//       allowOutsideClick: true,
+//       didOpen: () => { Swal.hideLoading() },
+//       didClose: () => {
+//         if (func) func();
+//       }
+//     });
+//   } else {
+//     Swal.close();
+//     Swal.fire({
+//       title: `Error!`,
+//       text: "El elemento no fue agregado",
+//       icon: "error",
+//       allowOutsideClick: true,
+//       didOpen: () => { Swal.hideLoading() },
+//       didClose: () => {
+//         table.ajax.reload();
+//       }
+//     });
+//   }
+// }
+
+export async function modal_operacion(request, accion='agregar', func=null) {
+  const descripcion = {
+    'agregar': [
+      "El elemento fue agregado correctamente",
+      "El elemento no fue agregado"
+    ],
+    'editar': [
+      "El elemento fue editado correctamente",
+      "El elemento no fue editado"
+    ],
+    'eliminar': [
+      "El elemento fue eliminado correctamente",
+      "El elemento no fue eliminado"
+    ]
+  }
   Swal.fire({
     title: 'Procesando...',
     text: 'Por favor espera',
     allowOutsideClick: false,
     didOpen: () => { Swal.showLoading() }
   });
-  let respuesta = request()
+  let respuesta = await request()
   if (respuesta.status == 200) {
     Swal.close();
     Swal.fire({
       title: `Exito!`,
-      text: "El elemento fue agregado correctamente",
+      text: descripcion[accion][0],
       icon: "success",
+      allowOutsideClick: true,
       didOpen: () => { Swal.hideLoading() },
       didClose: () => {
         if (func) func();
@@ -301,8 +351,9 @@ export function modal_agregando(request, func=null) {
     Swal.close();
     Swal.fire({
       title: `Error!`,
-      text: "El elemento no fue agregado",
+      text: descripcion[accion][1],
       icon: "error",
+      allowOutsideClick: true,
       didOpen: () => { Swal.hideLoading() },
       didClose: () => {
         table.ajax.reload();

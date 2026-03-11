@@ -8,9 +8,9 @@ export function set_validaciones(){
         if (!/^[A-Z]/.test(value)) {
             return options.uppercaseMessage;
         }
-        if (/\d/.test(value)) {
-            return options.noNumber;
-        }
+        // if (/\d/.test(value)) {
+        //     return options.noNumber;
+        // }
         if (!/^[A-Za-z0-9\s]*$/.test(value)) {
             return options.specialCharMessage;
         }

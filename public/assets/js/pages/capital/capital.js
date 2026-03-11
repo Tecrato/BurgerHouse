@@ -1,5 +1,5 @@
 import introTooltip from "../../intro-tooltip.js"
-import { myfecth, nuevaBitacora, modal_agregando } from "../../Functions2.js"
+import { myfecth, nuevaBitacora, modal_operacion } from "../../Functions2.js"
 import functionGeneral from "../../Functions.js"
 import { reglas_validaciones, set_validaciones } from "../../Validaciones.js"
 const {capital} = introTooltip()
@@ -89,10 +89,9 @@ if (!form.dataset.listenerAttached) {
             const parsePriceToNumber = (priceString) => {
                 return parseFloat(priceString.replace(/\./g, '').replace(',', '.'));
             };
-            modal_agregando(
-                () => {
-                    return myfecth("capital/add", {}, {monto: type_action == "Guardar Gasto" ? -parsePriceToNumber(data.monto) : parsePriceToNumber(data.monto), descripcion: data.descripcion})
-                },
+            modal_operacion(
+                () => myfecth("capital/add", {}, {monto: type_action == "Guardar Gasto" ? -parsePriceToNumber(data.monto) : parsePriceToNumber(data.monto), descripcion: data.descripcion}),
+                'agregar',
                 () => {
                     n.ajax.reload()
                     nuevaBitacora("capital", `Agregar`, `${type_action} en capital de ${data.monto} $`)
