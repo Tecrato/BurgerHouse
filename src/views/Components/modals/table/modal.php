@@ -13,31 +13,30 @@
                             <h4>Mesa 1</h4>
                             <div class="col-md-3">
                                 <label for="inputEmail4" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" placeholder="Nombre" id="input_nombre_mesa-1" name="nombre">
-                                <div class="text-danger mt-1 fs-6" id="error-input_nombre_mesa-1"></div>
+                                <input type="text" class="form-control" placeholder="Nombre" id="input_nombre_mesa" name="nombre">
+                                <div class="text-danger mt-1 fs-6" id="error-input_nombre_mesa"></div>
                             </div>
                             <div class="col-md-3">
                                 <label for="inputEmail4" class="form-label">Nro de sillas</label>
-                                <input type="number" class="form-control" placeholder="Nro de sillas" id="input_numero_sillas_mesa-1" name="sillas">
-                                <div class="text-danger mt-1 fs-6" id="error-input_numero_sillas_mesa-1"></div>
+                                <input type="number" class="form-control" placeholder="Nro de sillas" id="input_numero_sillas_mesa" name="sillas">
+                                <div class="text-danger mt-1 fs-6" id="error-input_numero_sillas_mesa"></div>
                             </div>
                             <div class="col-md-1">
                                 <label for="inputAddress2" class="form-label">VIP</label>
                                 <br>
-                                <input type="checkbox" class="btn-check" id="input_vip_mesa-1" autocomplete="off" name="vip">
-                                <label class="btn btn-outline-primary w-100" for="input_vip_mesa-1">VIP</label><br>
-                                <div class="text-danger mt-1 fs-6" id="error-input_vip_mesa-1"></div>
+                                <input type="checkbox" class="btn-check" id="input_vip_mesa" autocomplete="off" name="vip">
+                                <label class="btn btn-outline-primary w-100" for="input_vip_mesa">VIP</label><br>
+                                <div class="text-danger mt-1 fs-6" id="error-input_vip_mesa"></div>
                             </div>
                             <div class="col-md-5">
                                 <label for="inputZip" class="form-label">Imagen</label>
-                                <input class="form-control input-image" type="file" id="input_imagen_mesa-1" name="imagen">
-                                <div class="text-danger mt-1 fs-6" id="error-input_imagen_mesa-1"></div>
+                                <input class="form-control input-image" type="file" id="input_imagen_mesa" name="imagen">
+                                <div class="text-danger mt-1 fs-6" id="error-input_imagen_mesa"></div>
                             </div>
                             <img class="mt-3" src="" alt="Vista previa" style="max-width: 200px; display: none;">
                         </div>
                     </div>
                     <input type="submit" class="d-none" id="enviar_mesas">
-                    <button type="button" id="btn_agregar_mesa" class="btn btn-secondary mt-3">Agregar Mesa</button>
                 </form>
             </div>
             <div class="modal-footer">

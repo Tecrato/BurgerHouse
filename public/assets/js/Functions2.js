@@ -344,7 +344,7 @@ export async function modal_operacion(request, accion='agregar', func=null) {
       allowOutsideClick: true,
       didOpen: () => { Swal.hideLoading() },
       didClose: () => {
-        if (func) func();
+        if (func) func(respuesta.json());
       }
     });
   } else {

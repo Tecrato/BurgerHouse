@@ -1,5 +1,5 @@
 import functionGeneral from "../../Functions.js";
-import { nuevaBitacora } from "../../Functions2.js"
+import { nuevaBitacora, modal_operacion, myfecth } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
 import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
@@ -31,93 +31,67 @@ searchFilter("#SearchTablesOCCUPIED", (e) => {
     if (e.target.value == "") print({ ...config, search: () => searchParam({ active: 1, estado: "OCUPADA" }, "mesas"), container: ".cont_tables_occupied" })
     else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value, estado: "OCUPADA" }, "mesas"), container: ".cont_tables_occupied" })
 })
-let TableCount = 1;
-function addTable() {
-    TableCount++;
-    document.getElementById("contenedor_mesas").insertAdjacentHTML('beforeend', elemenFormTables(TableCount));
-    feather.replace();
-    viewImage(".input-image")
-    attachValidationListeners(TableCount);
-    const newTable = document.getElementById(`mesa-${TableCount}`);
-    newTable.querySelector(".remove-table").addEventListener("click", function () {
-        newTable.remove();
-        reindex("#contenedor_mesas .mesa", "mesa", TableCount, "Mesas");
-    });
-}
 function attachValidationListeners(index) {
     const productElement = document.getElementById(`mesa-${index}`);
     productElement.querySelectorAll("input[type='text'], input[type='file'], input[type='number']").forEach(input => {
-        input.addEventListener("keyup", (e) => validateField(e, rules));
-        input.addEventListener("blur", (e) => validateField(e, rules));
-        input.addEventListener("change", (e) => validateField(e, rules));
+        input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("change", (e) => validateField(e, reglas_validaciones));
     });
     const table2 = document.getElementById(`mesa_editar`);
     table2.querySelectorAll("input[type='text'], input[type='number'], input[type='file']").forEach(input => {
-        input.addEventListener("keyup", (e) => validateField(e, rules2));
-        input.addEventListener("blur", (e) => validateField(e, rules2));
-        input.addEventListener("change", (e) => validateField(e, rules3));
+        input.addEventListener("keyup", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("blur", (e) => validateField(e, reglas_validaciones));
+        input.addEventListener("change", (e) => validateField(e, reglas_validaciones));
     });
 
 }
-document.getElementById("btn_agregar_mesa").addEventListener("click", () => { addTable(), reindex("#contenedor_mesas .mesa", "mesa", TableCount, "Mesas") });
+// document.getElementById("btn_agregar_mesa").addEventListener("click", () => { addTable(), reindex("#contenedor_mesas .mesa", "mesa", TableCount, "Mesas") });
 
-const rules = {
-    nombre: reglas_validaciones.nombre,
-    sillas: reglas_validaciones.sillas,
-    imagen: reglas_validaciones.imagen,
-};
-const rules2 = {
-    nombre: reglas_validaciones.nombre,
-    sillas: reglas_validaciones.sillas,
-};
-const rules3 = {
-    nombre: reglas_validaciones.nombre,
-    sillas: reglas_validaciones.sillas,
-    imagen: reglas_validaciones.imagen,
-};
+
 let form = document.getElementById("formulario_enviar_mesas")
 if (!form.dataset.listenerAttached) {
     form.addEventListener("submit", (e) => {
         e.preventDefault();
-        const mesas = document.querySelectorAll(".mesa");
         let formHasError = false;
-        let tablesData = []
+        let data = new FormData()
 
-        mesas.forEach((mesa, i) => {
-            const index = i + 1;
-            const data = {
-                nombre: mesa.querySelector(`input[name="nombre"]`).value,
-                sillas: mesa.querySelector(`input[name="sillas"]`).value,
-                imagen: mesa.querySelector(`input[name="imagen"]`) ? mesa.querySelector(`input[name="imagen"]`).files[0] : "",
-                vip: mesa.querySelector(`input[name="vip"]`).checked,
-            };
-            tablesData.push(data)
+        data.append("nombre",form.querySelector(`input[name="nombre"]`).value)
+        data.append("sillas",form.querySelector(`input[name="sillas"]`).value)
+        data.append("vip",form.querySelector(`input[name="vip"]`).checked ? 1 : 0)
+        data.append("imagen",form.querySelector(`input[name="imagen"]`) ? form.querySelector(`input[name="imagen"]`).files[0] : "")
+        data.append("imagen_name",form.querySelector(`input[name="imagen"]`) ? form.querySelector(`input[name="imagen"]`).files[0].name : "")
 
-            const errors = validate(data, rules);
-            const nombreElement = document.getElementById(`input_nombre_mesa-${index}`);
-            const sillasElement = document.getElementById(`input_numero_sillas_mesa-${index}`);
-            const imagenElement = document.getElementById(`input_imagen_mesa-${index}`);
+        const errors = validate({
+            nombre: data.get("nombre"),
+            sillas: data.get("sillas"),
+            imagen: data.get("imagen"),
+            vip: data.get("vip"),
+        }, reglas_validaciones);
+        const nombreElement = document.getElementById("input_nombre_mesa");
+        const sillasElement = document.getElementById("input_numero_sillas_mesa");
+        const imagenElement = document.getElementById("input_imagen_mesa");
             
-            if (nombreElement) setValidationStyles(`input_nombre_mesa-${index}`, errors?.nombre ? errors.nombre[0] : null);
-            if (sillasElement) setValidationStyles(`input_numero_sillas_mesa-${index}`, errors?.sillas ? errors.sillas[0] : null);
-            if (imagenElement) setValidationStyles(`input_imagen_mesa-${index}`, errors?.imagen ? errors.imagen[0] : null);
-            if (errors?.nombre || errors?.sillas || errors?.imagen) {
-                formHasError = true;
-            }
-        });
+        if (nombreElement) setValidationStyles("input_nombre_mesa", errors?.nombre ? errors.nombre[0] : null);
+        if (sillasElement) setValidationStyles("input_numero_sillas_mesa", errors?.sillas ? errors.sillas[0] : null);
+        if (imagenElement) setValidationStyles(`input_imagen_mesa`, errors?.imagen ? errors.imagen[0] : null);
+        if (errors?.nombre || errors?.sillas || errors?.imagen) {
+            formHasError = true;
+        }
 
         if (!formHasError) {
-            let data = new FormData()
-            tablesData.forEach((table, index) => {
-                data.append(`lista[${index}][nombre]`, table.nombre);
-                data.append(`lista[${index}][sillas]`, table.sillas);
-                data.append(`lista[${index}][imagen_name]`, table.imagen.name); // El controlador lo sobreescribirá
-                data.append(`lista[${index}][imagen]`, table.imagen);
-                data.append(`lista[${index}][vip]`, table.vip == true ? 1 : 0);
-            })
             resetForm("#contenedor_mesas .mesa", form)
-            add(config, "mesas", data, () => nuevaBitacora("Mesas", "Agregar", "Se agrego una mesa"))
-            bootstrap.Modal.getOrCreateInstance('#registrar_mesa').hide()
+            modal_operacion(
+                () => myfecth("mesas/add", {}, data),
+                'agregar',
+                (response) => {
+                    nuevaBitacora("Mesas", "Agregar", "Se agregó una mesa con el id: " + response['last_id'])
+                    bootstrap.Modal.getOrCreateInstance('#registrar_mesa').hide()
+                    print(config)
+                }
+            )
+            // add(config, "mesas", data, () => nuevaBitacora("Mesas", "Agregar", "Se agrego una mesa"))
+            
         }
     });
     form.dataset.listenerAttached = "true";
@@ -135,7 +109,7 @@ const editData = (response) => {
         imagen: document.querySelector(`#input_imagen_mesa_editar`) ? document.querySelector(`#input_imagen_mesa_editar`).files[0] : "",
         vip: document.querySelector(`#input_vip_mesa_editar`).checked,
     };
-    const errors = validate(data, rules2);
+    const errors = validate(data, reglas_validaciones);
     setValidationStyles(`input_nombre_mesa_editar`, errors?.nombre ? errors.nombre[0] : null);
     setValidationStyles(`input_numero_sillas_mesa_editar`, errors?.sillas ? errors.sillas[0] : null);
     if (errors?.nombre || errors?.sillas) hasError = true;
@@ -150,7 +124,7 @@ if (!formEdit.dataset.listenerAttached) {
             imagen: document.querySelector(`#input_imagen_mesa_editar`) ? document.querySelector(`#input_imagen_mesa_editar`).files[0] : "",
             vip: document.querySelector(`#input_vip_mesa_editar`).checked,
         };
-        const errors = validate(data, rules3);
+        const errors = validate(data, reglas_validaciones);
         setValidationStyles(`input_nombre_mesa_editar`, errors?.nombre ? errors.nombre[0] : null);
         setValidationStyles(`input_numero_sillas_mesa_editar`, errors?.sillas ? errors.sillas[0] : null);
         setValidationStyles(`input_imagen_mesa_editar`, errors?.imagen ? errors.imagen[0] : null);

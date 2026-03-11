@@ -67,8 +67,8 @@ if ($url[1] === 'get_all') {
             }
         }
     } elseif (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
-        // Para el caso de edición individual
-        $upload_dir = 'media/mesas/';
+        // Para el caso de agregar o edición individual
+        $upload_dir = __DIR__ . '/../media/mesas/';
         
         // Crear directorio si no existe
         if (!file_exists($upload_dir)) {
@@ -87,6 +87,7 @@ if ($url[1] === 'get_all') {
         
         if (move_uploaded_file($_FILES['imagen']['tmp_name'], $upload_path)) {
             $_POST['imagen'] = $file_name;
+            $_POST['imagen_name'] = $file_name; // Usar el mismo nombre único
         } else {
             make_url_error("Error al subir la imagen.", 500, ajax: true);
         }
