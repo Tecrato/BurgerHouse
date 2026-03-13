@@ -27,7 +27,7 @@ let table = $('.table_binnacle_user').DataTable({
         }
         const body = new FormData();
         body.append('id_usuario', session.message.id);
-        fetch(`bitacora/get_all/${page}/${size}/id/asc`, {
+        fetch(`bitacora/get_all/${page}/${size}/${settings.aoColumns[data.order[0].column].data}/${data.order[0].dir}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: body,

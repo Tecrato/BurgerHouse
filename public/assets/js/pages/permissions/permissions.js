@@ -1,5 +1,5 @@
 import functionGeneral from "../../Functions.js";
-import { nuevaBitacora } from "../../Functions2.js"
+import { nuevaBitacora, myfecth } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
 // Inicializar validators personalizados
@@ -9,7 +9,7 @@ const { targetPermission } = Templates()
 let session = await sessionInfo();
 permission('roles y permisos')
 const config = {
-    search: () => searchParam({ active: 1 }, "rol"),
+    search: () => searchParam({ active: 1 }, "roles"),
     template: targetPermission,
     container: ".cont_permission",
     funtions: () => {
@@ -20,7 +20,7 @@ const config = {
 }
 searchFilter("#SearchRol", (e) => {
     if (e.target.value == "") print(config)
-    else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value }, "rol") })
+    else print({ ...config, search: () => searchParam({ active: 1, nombre_like: e.target.value }, "roles") })
 })
 //funcion para el check all
 let check_all = document.querySelector(".check-all")
@@ -99,14 +99,14 @@ check_all.addEventListener("change", () => {
             formData.append("id_rol", idRol);
             formData.append("modulo", modulo);
             formData.append("permisos", actionsInsert.join(","));
-            let send = await fetch("permissions/add", { method: "POST", body: formData });
+            let send = await fetch("permisos/add", { method: "POST", body: formData });
         } else {
             idEditPermission = pet[0].id;
             let permisos = actionsUpdate.join(",");
             let formData = new FormData();
             formData.append("id", idEditPermission);
             formData.append("permisos", permisos);
-            let send = await fetch("permissions/update", { method: "POST", body: formData });
+            let send = await fetch("permisos/update", { method: "POST", body: formData });
         }
     });
 })
@@ -130,11 +130,11 @@ form_check_input.forEach(input => {
 //funcion del select
 let select = document.querySelector(".select_rol")
 const SelectRol = async (select) => {
-    let option = await searchParam({ active: 1 }, "rol")
+    let option = await searchParam({ active: 1 }, "roles")
     option.forEach((element) => { select.insertAdjacentHTML("beforeend", `<option value="${element.id}">${element.nombre}</option>`) })
     select.addEventListener("change", async (e) => {
-        let idRol = e.target.value
-        let pet = await searchParam({ id_rol: idRol }, "permissions", 100000000)
+        let pet = myfecth("roles/obtener_permisos", {}, {id_rol:e.target.value}).json()
+        // let pet = await searchParam({ id_rol: idRol }, "permisos", 100000000)
         if (pet.length != 0) {
             cargarPermisos(pet)
         } else {
@@ -185,7 +185,7 @@ const actionRol = () => {
                             formData.append("id_rol", idRol)
                             formData.append("modulo", modulo)
                             formData.append("permisos", actionsInsert.join(","))
-                            let send = await fetch("permissions/add", { method: "POST", body: formData })
+                            let send = await fetch("permisos/add", { method: "POST", body: formData })
                             console.log(await send.json());
                         } else {
                             idEditPermission = pet[0].id
@@ -227,7 +227,7 @@ const actionRol = () => {
                                 formData.append("id_rol", idRol)
                                 formData.append("modulo", modulo)
                                 formData.append("permisos", actionsInsert.join(","))
-                                let send = await fetch("permissions/add", { method: "POST", body: formData })
+                                let send = await fetch("permisos/add", { method: "POST", body: formData })
                                 console.log(await send.json());
                             } else {
                                 idEditPermission = pet[0].id
@@ -242,7 +242,7 @@ const actionRol = () => {
                                 let formData = new FormData()
                                 formData.append("id", idEditPermission)
                                 formData.append("permisos", permisos)
-                                let send = await fetch("permissions/update", { method: "POST", body: formData })
+                                let send = await fetch("permisos/update", { method: "POST", body: formData })
                                 console.log(await send.json());
                             }
                         })
@@ -323,7 +323,7 @@ if (!form.dataset.listenerAttached) {
             let data = new FormData(form)
             data.append("lista[0][nombre]", form.querySelector("#input-name-permission").value)
             data.append("lista[0][descripcion]", form.querySelector("#input-description-permission").value)
-            add(config, "rol", data, () => nuevaBitacora('Rol', 'Agregar', 'Se creo un rol'));
+            add(config, "roles", data, () => nuevaBitacora('Rol', 'Agregar', 'Se creo un rol'));
             bootstrap.Modal.getOrCreateInstance('#register-rol').hide()
             SelectRol(select)
         }
@@ -366,7 +366,7 @@ const editData = async (response) => {
                 data.append("id", document.querySelector("#input-id-permission").value)
                 data.append("nombre", document.querySelector("#input-name-permission-edit").value)
                 data.append("descripcion", document.querySelector("#input-description-permission-edit").value)
-                update(config, "rol", data, () => nuevaBitacora('Rol', 'Editar', 'Se actualizo un rol'));
+                update(config, "roles", data, () => nuevaBitacora('Rol', 'Editar', 'Se actualizo un rol'));
                 bootstrap.Modal.getOrCreateInstance('#edit-rol').hide()
             }
         })

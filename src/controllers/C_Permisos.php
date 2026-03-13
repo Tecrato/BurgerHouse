@@ -10,8 +10,8 @@ if (!$session->usuario) {
 }
 
 if (count($url) < 2 || $url[1] === 'view') {
-    if (file_exists(__DIR__ . '/../views/permisos.php')) {
-        include_once __DIR__ . '/../views/permisos.php';
+    if (file_exists(__DIR__ . '/../views/permissions.php')) {
+        include_once __DIR__ . '/../views/permissions.php';
     } else {
         make_url_error("No se encontró la vista permisos.php", 404);
     }
