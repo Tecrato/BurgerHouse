@@ -1,6 +1,9 @@
 <?php
 use Shtch\Burgerhouse\function\AuthSession;
 use Shtch\Burgerhouse\models\Permiso;
+use Shtch\Burgerhouse\models\Detalle_modulo_permiso;
+use Shtch\Burgerhouse\models\Modulo;
+use Shtch\Burgerhouse\models\Rol_modulo_permiso;
 
 $session = new AuthSession();
 $resultado_final = '';
@@ -92,6 +95,60 @@ if ($url[1] === 'get_all') {
     try {
         $modelo = new Permiso(...$_POST);
         $resultado_final = $modelo->count();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'get_modulos') {
+    if (!$session->has_permission('permisos', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    try {
+        $modelo = new Modulo(...$_POST);
+        $resultado_final = $modelo->search();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'get_permisos_by_rol_modulo') {
+    if (!$session->has_permission('permisos', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    if (!isset($_POST['id_rol']) || !isset($_POST['id_modulo'])) {
+        make_url_error("Faltan parametros id_rol o id_modulo.", 400, ajax: true);
+    }
+
+    try {
+        $modelo = new Detalle_modulo_permiso(
+            null,
+            $_POST['id_rol'],
+            $_POST['id_modulo'],
+            null
+        );
+        $resultado_final = $modelo->search();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'toggle_permiso') {
+    if (!$session->has_permission('permisos', 'editar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    if (!isset($_POST['id_rol']) || !isset($_POST['id_modulo']) || !isset($_POST['id_permiso'])) {
+        make_url_error("Faltan parametros necesarios (id_rol, id_modulo, id_permiso).", 400, ajax: true);
+    }
+
+    try {
+        $modelo = new Rol_modulo_permiso(
+            null,
+            $_POST['id_rol'],
+            $_POST['id_modulo'],
+            $_POST['id_permiso']
+        );
+        $resultado_final = $modelo->toggle();
     } catch (Exception $e) {
         make_url_error($e->getMessage(), 400, ajax: true);
     }

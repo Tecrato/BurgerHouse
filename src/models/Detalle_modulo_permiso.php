@@ -15,7 +15,7 @@ class Detalle_modulo_permiso extends Db_base {
         $id_modulo = null,
         $id_permiso = null
     ) {
-        parent::__construct("credito");
+        parent::__construct("roles_modulos_permisos", 2);
         
         $this->id = $id;
         $this->id_rol = $id_rol;

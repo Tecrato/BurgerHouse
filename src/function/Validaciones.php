@@ -204,6 +204,10 @@ class Validaciones {
         return (bool)preg_match($GLOBALS['expresiones_regulares']['id_cliente'], $id_cliente);
     }
 
+    public static function validar_id_modulo($id_modulo) {
+        return (bool)preg_match($GLOBALS['expresiones_regulares']['id_modulo'], $id_modulo);
+    }
+
     // ========== Date Validations ==========
     public static function validar_fecha_compra($fecha_compra) {
         return (bool)preg_match($GLOBALS['expresiones_regulares']['fecha_compra'], $fecha_compra);

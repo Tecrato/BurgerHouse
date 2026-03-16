@@ -23,6 +23,11 @@ class AuthSession
         } else {
             $this->usuario = null;
         }
+
+        if ( $this->usuario && $_SESSION['session_id'] !== $this->usuario['session_id']) {
+            session_destroy();
+            $this->usuario = null;
+        }
     }
     public function is_admin(): bool
     {

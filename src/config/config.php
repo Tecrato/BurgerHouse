@@ -103,6 +103,7 @@ $GLOBALS['expresiones_regulares'] = [
     'id_paquete' => '/^[0-9]+$/',
     'id_caja' => '/^[0-9]+$/',
     'id_cliente' => '/^[0-9]+$/',
+    'id_modulo' => '/^[0-9]+$/',
 
 
     //fechas
