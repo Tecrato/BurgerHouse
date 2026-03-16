@@ -13,18 +13,26 @@ class AuthSession
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        if (isset($_SESSION['id'])) {
-            $modelo = new Usuario(id: $_SESSION['id']);
-            $result = $modelo->search()[0] ?? null;
-            $this->usuario = $result;
-            $modelo_rol = new Rol(id: $this->usuario['id_rol']);
+        if (!isset($_SESSION['id'])) {
+            $this->usuario = null;
+            return;
+        }
+        $modelo = new Usuario(id: $_SESSION['id']);
+        $result = $modelo->search()[0] ?? null;
+        if (!$result) {
+            session_destroy();
+            $this->usuario = null;
+            return;
+        }
+        if ($result['id_rol'] !== $_SESSION['id_rol']) {
+            $this->permisos = [];
+        } else {
+            $modelo_rol = new Rol(id: $result['id_rol']);
             $this->permisos = $modelo_rol->obtener_permisos();
             $_SESSION['permisos'] = $this->permisos;
-        } else {
-            $this->usuario = null;
         }
-
-        if ( $this->usuario && $_SESSION['session_id'] !== $this->usuario['session_id']) {
+        $this->usuario = $result;
+        if ($this->usuario['session_id'] !== $_SESSION['session_id']) {
             session_destroy();
             $this->usuario = null;
         }
@@ -35,6 +43,8 @@ class AuthSession
     }
     public function has_permission($modulo, $permiso)
     {
+        $modulo = strtolower($modulo);
+        $permiso = strtolower($permiso);
         if (!$this->usuario) {
             return false;
         }

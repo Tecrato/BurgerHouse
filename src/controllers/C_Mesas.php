@@ -92,10 +92,9 @@ if ($url[1] === 'get_all') {
             make_url_error("Error al subir la imagen.", 500, ajax: true);
         }
     } elseif (isset($_POST['imagen']) && is_string($_POST['imagen'])) {
-        // Para el caso de actualización donde no se sube nueva imagen
-        // $_POST['imagen'] ya contiene el nombre del archivo existente
     } else {
-        $_POST['imagen'] = null;
+        $_POST['imagen'] = "banner_productos.png";
+        $_POST['imagen_name'] = "banner_productos.png";
     }
 
     try {
@@ -181,9 +180,8 @@ if ($url[1] === 'get_all') {
             make_url_error("Error al mover la imagen. Verifica permisos del directorio.", 500, ajax: true);
         }
     } else {
-        // Para actualización, si no se sube nueva imagen, no modificar el campo imagen
-        // Eliminar imagen de $_POST para que no se actualice en la BD
-        unset($_POST['imagen']);
+        // Si no se sube nueva imagen, poner en null para que no se modifique en la BD
+        $_POST['imagen'] = null;
     }
 
     try {

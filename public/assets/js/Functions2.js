@@ -51,14 +51,11 @@ export function myfecth(url, parametros_get = {}, parametros_post = null, callba
 
   // Agregar parámetros GET a la URL
   let url_with_params = url;
+  let first = url.indexOf('?') === -1;
   if (parametros_get !== null && Object.keys(parametros_get).length > 0) {
-    url_with_params += '?';
-    let first = true;
+    url_with_params += first ? '?' : '&';
     for (let key in parametros_get) {
-      if (!first) {
-        url_with_params += '&';
-      }
-      url_with_params += `${key}=${parametros_get[key]}`;
+      url_with_params += `${first ? '' : '&'}${key}=${parametros_get[key]}`;
       first = false;
     }
   }

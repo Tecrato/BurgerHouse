@@ -106,7 +106,7 @@ if ($url[1] === 'get_all') {
 
     try {
         $modelo = new Modulo(...$_POST);
-        $resultado_final = $modelo->search();
+        $resultado_final = $modelo->search(0, 10000);
     } catch (Exception $e) {
         make_url_error($e->getMessage(), 400, ajax: true);
     }

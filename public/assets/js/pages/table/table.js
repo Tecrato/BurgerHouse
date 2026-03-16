@@ -9,6 +9,7 @@ const { table } = introTooltip()
 const { setValidationStyles, validateField, reindex, resetForm, viewImage, searchParam, print, add, update, permission, searchFilter, sessionInfo, binnacle, edit, Delete, pagination } = functionGeneral();
 const { elemenFormTables, targetTable } = Templates()
 let session = await sessionInfo()
+console.log(session);
 table('navbarDropdown')
 permission("mesas")
 const config = {
@@ -56,26 +57,28 @@ if (!form.dataset.listenerAttached) {
         let formHasError = false;
         let data = new FormData()
 
+        let imagenFile = form.querySelector(`input[name="imagen"]`) ? form.querySelector(`input[name="imagen"]`).files[0] : "";
+        
         data.append("nombre",form.querySelector(`input[name="nombre"]`).value)
         data.append("sillas",form.querySelector(`input[name="sillas"]`).value)
         data.append("vip",form.querySelector(`input[name="vip"]`).checked ? 1 : 0)
-        data.append("imagen",form.querySelector(`input[name="imagen"]`) ? form.querySelector(`input[name="imagen"]`).files[0] : "")
-        data.append("imagen_name",form.querySelector(`input[name="imagen"]`) ? form.querySelector(`input[name="imagen"]`).files[0].name : "")
+        if (imagenFile) {
+            data.append("imagen", imagenFile)
+            data.append("imagen_name", imagenFile.name)
+        }
 
         const errors = validate({
             nombre: data.get("nombre"),
             sillas: data.get("sillas"),
-            imagen: data.get("imagen"),
             vip: data.get("vip"),
         }, reglas_validaciones);
         const nombreElement = document.getElementById("input_nombre_mesa");
         const sillasElement = document.getElementById("input_numero_sillas_mesa");
-        const imagenElement = document.getElementById("input_imagen_mesa");
             
         if (nombreElement) setValidationStyles("input_nombre_mesa", errors?.nombre ? errors.nombre[0] : null);
         if (sillasElement) setValidationStyles("input_numero_sillas_mesa", errors?.sillas ? errors.sillas[0] : null);
-        if (imagenElement) setValidationStyles(`input_imagen_mesa`, errors?.imagen ? errors.imagen[0] : null);
-        if (errors?.nombre || errors?.sillas || errors?.imagen) {
+        
+        if (errors?.nombre || errors?.sillas) {
             formHasError = true;
         }
 
@@ -100,7 +103,7 @@ let hasError = false
 const editData = (response) => {
     document.querySelector("#input_nombre_mesa_editar").value = response[0].nombre;
     document.querySelector("#input_numero_sillas_mesa_editar").value = response[0].sillas;
-    document.querySelector("#img_mesa_respuesta").src = "media/mesas/" + response[0].imagen;
+    document.querySelector("#img_mesa_respuesta").src = response[0].imagen ? "media/mesas/" + response[0].imagen : "";
     document.querySelector("#input_vip_mesa_editar").checked = response[0].vip == 1 ? true : false;
     document.querySelector("#input_id_mesa").value = response[0].id;
     const data = {
@@ -127,8 +130,14 @@ if (!formEdit.dataset.listenerAttached) {
         const errors = validate(data, reglas_validaciones);
         setValidationStyles(`input_nombre_mesa_editar`, errors?.nombre ? errors.nombre[0] : null);
         setValidationStyles(`input_numero_sillas_mesa_editar`, errors?.sillas ? errors.sillas[0] : null);
-        setValidationStyles(`input_imagen_mesa_editar`, errors?.imagen ? errors.imagen[0] : null);
-        if (errors?.nombre || errors?.sillas || errors?.imagen) hasError = true;
+        
+        // Solo validar imagen si se seleccionó una nueva
+        if (data.imagen && data.imagen instanceof File) {
+            setValidationStyles(`input_imagen_mesa_editar`, errors?.imagen ? errors.imagen[0] : null);
+            if (errors?.imagen) hasError = true;
+        }
+        
+        if (errors?.nombre || errors?.sillas) hasError = true;
         else hasError = false;
 
         if (!hasError) {
@@ -139,7 +148,7 @@ if (!formEdit.dataset.listenerAttached) {
             dataFinal.append(`vip`, data.vip == true ? 1 : 0);
             if (data.imagen && data.imagen instanceof File) {
                 dataFinal.append(`imagen`, data.imagen);
-                dataFinal.append(`imagen_name`, data.imagen.name); // El controlador lo sobreescribirá
+                dataFinal.append(`imagen_name`, data.imagen.name);
             }
             update(config, "mesas", dataFinal, () => nuevaBitacora("Mesas", "Edicion", "Se Edito un mesa"))
             bootstrap.Modal.getOrCreateInstance('#editar_mesa').hide()
