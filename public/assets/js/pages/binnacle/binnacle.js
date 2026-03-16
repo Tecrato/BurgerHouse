@@ -25,29 +25,26 @@ let table = $('.table_binnacle_user').DataTable({
         } catch (e) {
             total = parseInt(totalRaw) || 0;
         }
-        const body = new FormData();
-        body.append('id_usuario', session.message.id);
-        fetch(`bitacora/get_all/${page}/${size}/${settings.aoColumns[data.order[0].column].data}/${data.order[0].dir}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: body,
-        })
-            .then(res => res.json())
-            .then(resp => {
-                console.log(resp);
-                
-                const out = {
+        myfecth(
+            `bitacora/get_all/${page}/${size}/${settings.aoColumns[data.order[0].column].data}/${data.order[0].dir}`,
+            {},
+            { id_usuario: session.message.id },
+            function (resp) {
+                resp = resp.json()
+                callback({
                     draw: data.draw,
                     data: resp.data || resp || [],
-                    recordsTotal: total || resp.total || resp.recordsTotal || (Array.isArray(resp) ? resp.length : 0),
-                    recordsFiltered: total || resp.total || resp.recordsFiltered || (Array.isArray(resp) ? resp.length : 0)
-                };
-                callback(out);
-            })
-            .catch(err => {
+                    recordsTotal: total,
+                    recordsFiltered: total
+                });
+            },
+            'POST',
+            true,
+            function (err) {
                 console.error(err);
-                callback({ draw: data.draw, data: [], recordsTotal: total || 0, recordsFiltered: total || 0 });
-            });
+                callback({ draw: data.draw, data: [], recordsTotal: 0, recordsFiltered: 0 });
+            }
+        )
     },
     columns: [
         { data: "id" },
@@ -77,21 +74,26 @@ let table2 = $('.table_binnacle_system').DataTable({
         } catch (e) {
             total = parseInt(totalRaw) || 0;
         }
-        fetch(`bitacora/get_all/${page}/${size}/id/asc`, { method: 'POST' })
-            .then(res => res.json())
-            .then(resp => {
-                const out = {
+        myfecth(
+            `bitacora/get_all/${page}/${size}/${settings.aoColumns[data.order[0].column].data}/${data.order[0].dir}`,
+            {},
+            {},
+            function (resp) {
+                resp = resp.json()
+                callback({
                     draw: data.draw,
                     data: resp.data || resp || [],
-                    recordsTotal: total || resp.total || resp.recordsTotal || (Array.isArray(resp) ? resp.length : 0),
-                    recordsFiltered: total || resp.total || resp.recordsFiltered || (Array.isArray(resp) ? resp.length : 0)
-                };
-                callback(out);
-            })
-            .catch(err => {
+                    recordsTotal: total,
+                    recordsFiltered: total
+                });
+            },
+            'POST',
+            true,
+            function (err) {
                 console.error(err);
-                callback({ draw: data.draw, data: [], recordsTotal: total || 0, recordsFiltered: total || 0 });
-            });
+                callback({ draw: data.draw, data: [], recordsTotal: 0, recordsFiltered: 0 });
+            }
+        )
     },
     columns: [
         { data: "id" },

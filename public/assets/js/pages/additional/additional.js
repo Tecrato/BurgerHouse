@@ -22,11 +22,39 @@ let n = $(".table_additional").DataTable({
     language: {
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
-    ajax: {
-        url: 'adicionales/get_all/0/10000000/id/asc',
-        dataSrc: '',
-        type: 'POST',
-        data: { active: 1, tipo: "adicional" },
+    processing: true,
+    serverSide: true,
+    pageLength: 10,
+    ajax: function (data, callback, settings) {
+        let page = Math.floor(data.start / data.length);
+        let size = data.length;
+        let totalRaw = myfecth("adicionales/count", {}, { active: 1, tipo: "adicional" }, null, 'POST');
+        let total = 0;
+        try {
+            total = JSON.parse(totalRaw);
+        } catch (e) {
+            total = parseInt(totalRaw) || 0;
+        }
+        myfecth(
+            `adicionales/get_all/${page}/${size}/${settings.aoColumns[data.order[0].column].data}/${data.order[0].dir}`,
+            {},
+            { active: 1, tipo: "adicional" },
+            function (resp) {
+                resp = resp.json()
+                callback({
+                    draw: data.draw,
+                    data: resp.data || resp || [],
+                    recordsTotal: total,
+                    recordsFiltered: total
+                });
+            },
+            'POST',
+            true,
+            function (err) {
+                console.error(err);
+                callback({ draw: data.draw, data: [], recordsTotal: 0, recordsFiltered: 0 });
+            }
+        )
     },
     columns: [
         { data: 'nombre' },

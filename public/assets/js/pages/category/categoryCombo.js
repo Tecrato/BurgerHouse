@@ -13,13 +13,39 @@ let n = $(".table_combo").DataTable({
     language: {
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
-    ajax: {
-        url: 'categoria_producto/get_all/0/10000000/id/asc',
-        dataSrc: '',
-        type: 'POST',
-        data: {
-            active: 1,
-        },
+    processing: true,
+    serverSide: true,
+    pageLength: 10,
+    ajax: function (data, callback, settings) {
+        let page = Math.floor(data.start / data.length);
+        let size = data.length;
+        let totalRaw = myfecth("categoria_producto/count", {}, { active: 1 }, null, 'POST');
+        let total = 0;
+        try {
+            total = JSON.parse(totalRaw);
+        } catch (e) {
+            total = parseInt(totalRaw) || 0;
+        }
+        myfecth(
+            `categoria_producto/get_all/${page}/${size}/${settings.aoColumns[data.order[0].column].data}/${data.order[0].dir}`,
+            {},
+            { active: 1 },
+            function (resp) {
+                resp = resp.json()
+                callback({
+                    draw: data.draw,
+                    data: resp.data || resp || [],
+                    recordsTotal: total,
+                    recordsFiltered: total
+                });
+            },
+            'POST',
+            true,
+            function (err) {
+                console.error(err);
+                callback({ draw: data.draw, data: [], recordsTotal: 0, recordsFiltered: 0 });
+            }
+        )
     },
     columns: [
         { data: 'id' },

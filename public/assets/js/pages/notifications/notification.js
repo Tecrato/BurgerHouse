@@ -1,4 +1,5 @@
 import FunctionGeneral from "../../Functions.js";
+import { myfecth } from "../../Functions2.js";
 const { fecha, binnacle, sessionInfo } = FunctionGeneral()
 const session = await sessionInfo()
 let tableActive = $(".table_notifications").DataTable({
@@ -6,10 +7,39 @@ let tableActive = $(".table_notifications").DataTable({
     language: {
         url: './assets/libs/extra-libs/datatables.net/js/es-Es.json'
     },
-    ajax: {
-        url: 'notification/get_all/0/10000000/id/asc',
-        dataSrc: '',
-        type: 'POST',
+    processing: true,
+    serverSide: true,
+    pageLength: 10,
+    ajax: function (data, callback, settings) {
+        let page = Math.floor(data.start / data.length);
+        let size = data.length;
+        let totalRaw = myfecth("notification/count", {}, {}, null, 'POST');
+        let total = 0;
+        try {
+            total = JSON.parse(totalRaw);
+        } catch (e) {
+            total = parseInt(totalRaw) || 0;
+        }
+        myfecth(
+            `notification/get_all/${page}/${size}/${settings.aoColumns[data.order[0].column].data}/${data.order[0].dir}`,
+            {},
+            {},
+            function (resp) {
+                resp = resp.json()
+                callback({
+                    draw: data.draw,
+                    data: resp.data || resp || [],
+                    recordsTotal: total,
+                    recordsFiltered: total
+                });
+            },
+            'POST',
+            true,
+            function (err) {
+                console.error(err);
+                callback({ draw: data.draw, data: [], recordsTotal: 0, recordsFiltered: 0 });
+            }
+        )
     },
     columns: [
         {
