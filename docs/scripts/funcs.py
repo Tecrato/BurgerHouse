@@ -1,24 +1,24 @@
 """
-Generador de imágenes Mermaid
-Genera PNG desde archivos .md con diagramas Mermaid
-
-Uso:
-    python mermaid_generator.py
-
-Requiere:
-    pip install requests
+Funciones comunes para generadores de diagramas Mermaid
 """
 
-import os
-import time
 import re
-from pathlib import Path
 import requests
 import json
-from urllib.parse import quote
 
-def extract_mermaid_diagrams(md_content):
-    """Extrae todos los bloques mermaid con su encabezado ##"""
+
+def extract_mermaid_sections(md_content, diagram_types=None):
+    """
+    Extrae bloques mermaid con su encabezado ## y tipo de diagrama.
+    
+    Args:
+        md_content: Contenido del archivo markdown
+        diagram_types: Lista de tipos a filtrar (None = todos)
+                      Opciones: 'flowchart', 'sequenceDiagram', 'classDiagram'
+    
+    Returns:
+        Lista de dicts con 'heading' y 'diagram'
+    """
     sections = []
     lines = md_content.split('\n')
     current_heading = None
@@ -35,22 +35,35 @@ def extract_mermaid_diagrams(md_content):
                 diagram_lines.append(lines[j])
                 j += 1
             diagram = '\n'.join(diagram_lines).strip()
-            if 'sequenceDiagram' in diagram or 'classDiagram' in diagram:
-                sections.append({
-                    'heading': current_heading or f'diagrama_{len(sections)+1}',
-                    'diagram': diagram
-                })
+            
+            if diagram_types:
+                if not any(dtype in diagram for dtype in diagram_types):
+                    continue
+            else:
+                if not any(dtype in diagram for dtype in ['flowchart', 'sequenceDiagram', 'classDiagram']):
+                    continue
+            
+            sections.append({
+                'heading': current_heading or f'diagrama_{len(sections)+1}',
+                'diagram': diagram
+            })
     
     return sections
 
-def generate_mermaid_image_mermaid_ink(mermaid_code, output_path):
+
+def generate_mermaid_image(mermaid_code, output_path):
     """
-    Genera imagen usando la API de Kroki (más robusto para código largo)
+    Genera imagen PNG usando APIs de Mermaid (Kroki o Mermaid.ink).
+    
+    Args:
+        mermaid_code: Codigo Mermaid
+        output_path: Ruta donde guardar la imagen
+    
+    Returns:
+        True si exitoso, False si falla
     """
-    # Limpiar el código
     clean_code = mermaid_code.strip()
     
-    # Método 1: Kroki.io (mejor para código largo)
     try:
         kroki_url = "https://kroki.io/mermaid/png"
         response = requests.post(
@@ -66,12 +79,11 @@ def generate_mermaid_image_mermaid_ink(mermaid_code, output_path):
         if response.status_code == 200:
             with open(output_path, 'wb') as f:
                 f.write(response.content)
-            print(f"✓ Generado (kroki): {output_path}")
+            print(f"  OK {output_path.name}")
             return True
-    except Exception as e:
+    except Exception:
         pass
     
-    # Método 2: Mermaid.ink con POST
     try:
         api_url = "https://mermaid.ink/img"
         response = requests.post(
@@ -87,96 +99,75 @@ def generate_mermaid_image_mermaid_ink(mermaid_code, output_path):
         if response.status_code == 200 and 'image' in response.headers.get('Content-Type', ''):
             with open(output_path, 'wb') as f:
                 f.write(response.content)
-            print(f"✓ Generado (ink): {output_path}")
+            print(f"  OK {output_path.name}")
             return True
-    except Exception as e:
+    except Exception:
         pass
     
-    print(f"✗ Error al generar: {output_path}")
+    print(f"  FAIL {output_path.name}")
     return False
 
-def main():
-    base_dir = Path(__file__).parent
-    docs_dir = base_dir / "docs"
-    secuencia_dir = docs_dir / "secuencia"
-    output_dir = docs_dir / "secuencia_images"
+
+def process_md_files(source_dir, output_dir, diagram_types=None):
+    """
+    Procesa archivos .md y genera imagenes PNG.
     
-    # Crear directorio de salida
+    Args:
+        source_dir: Directorio con archivos .md
+        output_dir: Directorio donde guardar imagenes
+        diagram_types: Tipos de diagrama a incluir
+    
+    Returns:
+        Tupla (count, errors, skipped)
+    """
+    from pathlib import Path
+    import shutil
+    
     if output_dir.exists():
-        import shutil
         shutil.rmtree(output_dir)
     output_dir.mkdir(exist_ok=True)
-    
-    print("=" * 60)
-    print("   Generador de Diagramas Mermaid")
-    print("=" * 60)
-    print(f"Entrada:  {secuencia_dir}")
-    print(f"Salida:   {output_dir}")
-    print("=" * 60)
     
     count = 0
     errors = 0
     skipped = 0
     
-    # Buscar todos los archivos .md en secuencia
-    md_files = list(secuencia_dir.rglob("*.md"))
+    md_files = list(source_dir.rglob("*.md")) if source_dir.is_dir() else [source_dir]
     
     for md_file in sorted(md_files):
-        # Ignorar README.md
-        if md_file.name.upper() == "README.MD":
-            print(f"\n📄 Saltando: {md_file.name} (README)")
+        if md_file.name.lower() == "readme.md":
             continue
         
-        relative_path = md_file.relative_to(secuencia_dir)
-        print(f"\n📄 Procesando: {relative_path}")
+        relative_path = md_file.relative_to(source_dir) if source_dir.is_dir() else md_file.name
+        print(f"\n> {relative_path}")
         
-        # Leer contenido
         try:
             with open(md_file, 'r', encoding='utf-8') as f:
                 content = f.read()
         except Exception as e:
-            print(f"  ✗ Error leyendo archivo: {e}")
+            print(f"  X Error: {e}")
             errors += 1
             continue
         
-        # Extraer diagramas con sus encabezados
-        diagrams = extract_mermaid_diagrams(content)
+        diagrams = extract_mermaid_sections(content, diagram_types)
         
         if not diagrams:
-            print("  (sin diagramas de secuencia/clase)")
+            print("  - Sin diagramas")
             skipped += 1
             continue
         
-        print(f"  {len(diagrams)} diagrama(s) encontrado(s)")
+        print(f"  {len(diagrams)} diagrama(s)")
         
-        # Crear subcarpeta para el modulo
         module_dir = output_dir / md_file.parent.name
         module_dir.mkdir(exist_ok=True)
         
-        # Generar cada diagrama
         for section in diagrams:
             heading = section['heading']
             diagram = section['diagram']
-            
-            # Nombre del archivo: stem_accion.png
             output_file = module_dir / f"{md_file.stem}_{heading}.png"
             
-            # Generar imagen
-            if generate_mermaid_image_mermaid_ink(diagram, output_file):
+            if generate_mermaid_image(diagram, output_file):
                 count += 1
             else:
                 errors += 1
-            
-            # Rate limiting
-            # time.sleep(0.5)
     
-    print("\n" + "=" * 60)
-    print(f"   Resultado:")
-    print(f"   ✓ {count} imágenes generadas")
-    print(f"   ✗ {errors} errores")
-    print(f"   ⊘ {skipped} archivos sin diagramas")
-    print(f"   📁 Ubicación: {output_dir}")
-    print("=" * 60)
-
-if __name__ == "__main__":
-    main()
+    return count, errors, skipped
