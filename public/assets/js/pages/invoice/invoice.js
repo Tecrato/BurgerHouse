@@ -312,10 +312,8 @@ const detailsProduct = async (id_order) => {
     let dataProductPrepared = []
     let templateProductPrepared = ""
     let templateProductProcess = ""
-    let pet1 = await fetch("Detalle_orden_producto_preparado/get_all", { method: "POST", body: data })
-    let pet2 = await fetch("Detalle_orden_producto_procesado/get_all", { method: "POST", body: data })
-    let res = await pet1.json()
-    let res2 = await pet2.json()
+    let res = myfecth("Detalle_orden_producto_preparado/get_all", {}, data).json()
+    let res2 = myfecth("Detalle_orden_producto_procesado/get_all", {}, data).json()
     let group = {}
     res.forEach((productPrepared) => { if (productPrepared.tipo == "producto") dataProductPrepared.push(productPrepared) })
     dataProductPrepared.forEach((productPrepared) => {
@@ -354,8 +352,7 @@ const detailsPay = async (id_venta) => {
     data.append("id_venta", id_venta)
     let dataPayment = []
     let templatePayment = ""
-    let pet = await fetch("paymentSale/get_all/0/10000000/id/asc", { method: "POST", body: data })
-    let res = await pet.json()
+    let res = myfecth("paymentSale/get_all/0/10000000/id/asc", {}, data).json()
     console.log(res);
     res.forEach((payment) => {
         let type = payment.metodo_pago.toLowerCase() != "divisa" ? "bs" : "usd"
@@ -373,8 +370,7 @@ const detailsPayRes = async (id_reservation) => {
     let data = new FormData();
     data.append("id_reserva", id_reservation)
     let templatePayment = ""
-    let pet = await fetch("paymentReservation/get_all/0/10000000/id/asc", { method: "POST", body: data })
-    let res = await pet.json()
+    let res = myfecth("paymentReservation/get_all/0/10000000/id/asc", {}, data).json()
     res.forEach((payment) => {
         templatePayment += `
       <div class="col-md-7 mt-3 d-flex align-items-center justify-content-between">
@@ -428,8 +424,7 @@ const printInvoice = async () => {
             }
             let dataPayment = new FormData();
             dataPayment.append("id_venta", document.querySelector(".btn-print-invoice").getAttribute("data-id-sale"))
-            let pet = await fetch("paymentSale/get_all/0/10000000/id/asc", { method: "POST", body: dataPayment })
-            let payments = await pet.json()
+            let payments = myfecth("paymentSale/get_all/0/10000000/id/asc", {}, dataPayment).json()
             invoice(detailsPrepered, detailsProcess, clientData, id, info[0].direccion, amountTotal, info, { payments, reservation: [] }, id_venta)
         } else {
             let id = btn.getAttribute("data-id-order")

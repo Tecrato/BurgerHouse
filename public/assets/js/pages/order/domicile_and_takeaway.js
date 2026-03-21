@@ -268,15 +268,13 @@ export default async function domicile_and_takeaway(functions, templates, report
         } else {
             let data = new FormData()
             data.append("cedula", formClient.querySelector("input").value);
-            let pet = await fetch(`login/cedula`, { method: "POST", body: data })
-            let res = await pet.json()
+            let res = myfecth(`login/cedula`, {}, data).json()
             if (res.success == true) {
                 let data = new FormData()
                 data.append("nombre", res.message.primer_nombre);
                 data.append("apellido", res.message.primer_apellido);
                 data.append("documento", res.message.nacionalidad + "-" + res.message.cedula);
-                let pet2 = await fetch(`clientes/add`, { method: "POST", body: data })
-                let res2 = await pet2.json()
+                let res2 = myfecth(`clientes/add`, {}, data).json()
                 if (res2.success == true) {
                     let pet3 = await searchParam({ active: 1, id: res2.last_id }, "clientes", 1);
                     let template = targetClienteOrder(pet3[0])
@@ -663,9 +661,7 @@ export default async function domicile_and_takeaway(functions, templates, report
                 let DataTelClient = new FormData();
                 DataTelClient.append("id", clientData.id_cliente);
                 DataTelClient.append("telefono", clientData.telefonoClient);
-                let updateTelClient = await fetch("clientes/update", { method: "POST", body: DataTelClient })
-                let responseTelClient = await updateTelClient.json()
-                console.log(responseTelClient);
+                console.log(myfecth("clientes/update", {}, DataTelClient).json());
                 let order = new FormData();
                 let nro_orden = Math.floor(Math.random() * (99999999 - 10000000 + 1)) + 10000000
                 order.append("id_cliente", clientData.id_cliente);
@@ -721,8 +717,7 @@ export default async function domicile_and_takeaway(functions, templates, report
                         paymentData.append(`lista[${index}][imagen]`, payment.imagen)
                         paymentData.append(`lista[${index}][imagen_name]`, payment.imagen.name)
                     })
-                    let petPayment = await fetch("pagos/add_many", { method: "POST", body: paymentData })
-                    let resPayment = await petPayment.json()
+                    let resPayment = myfecth("pagos/add_many", {}, paymentData).json()
                     console.log(resPayment);
                     let id_payments = resPayment.lista
                     let dataPaymentDetails = new FormData();
@@ -731,16 +726,13 @@ export default async function domicile_and_takeaway(functions, templates, report
                         dataPaymentDetails.append(`lista[${index}][id_pago]`, payment)
                         dataPaymentDetails.append(`lista[${index}][id_venta]`, id_venta)
                     })
-                    // let resPaymentDetails = myfecth
-                    let petPaymentDetails = await fetch("pago_venta/add_many", { method: "POST", body: dataPaymentDetails })
-                    let resPaymentDetails = await petPaymentDetails.json()
+                    let resPaymentDetails = myfecth("pago_venta/add_many", {}, dataPaymentDetails).json()
                     console.log(resPaymentDetails);
                     const paymentInvoice = dataPayment.map(PAY => ({ ...PAY, id_venta: id_venta, metodo_pago: PAY.metodo, monto: PAY.cantidad }));
                     let invoice = await report(productPreparedData, productProcessData, clientData, window.id_orden_invoice, directionSale, amountTotal, "invoice", null, null, paymentInvoice)
                     let invoiceData = new FormData();
                     invoiceData.append("pdf", invoice, "factura.pdf");
-                    let send = await fetch("orden/sendInvoice", { method: "POST", body: invoiceData });
-                    let dataResInvoice = await send.json();
+                    let dataResInvoice = myfecth("orden/sendInvoice", {}, invoiceData).json();
                     const mensaje = `*FACTURA DE ORDEN* \n\n*${clientData.nameClient}*\n\n${dataResInvoice.url}`;
                     const url = `https://wa.me/${clientData.telefonoClient}?text=${encodeURIComponent(mensaje)}`;
                     if (dataResInvoice.url) {

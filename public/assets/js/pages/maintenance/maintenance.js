@@ -27,8 +27,7 @@ document.body.addEventListener("click", (e) => {
                 let db = btn.getAttribute("data-db")
                 data.append("route", type);
                 data.append("db", db);
-                let pet = await fetch(`mantenimiento/export`, { method: "POST", body: data });
-                let response = await pet.json();
+                let response = myfecth(`mantenimiento/export`, {}, data).json();
                 if (response.success == true) {
                     Swal.close();
                     Swal.fire({
@@ -109,8 +108,7 @@ let table_backup_system = $('.table_db_backup_system').DataTable({
                             data.append("id", session.message.id);
                             data.append("archive", id);
                             data.append("route", "system");
-                            let pet = await fetch(`maintenance/delete`, { method: "POST", body: data });
-                            let response = await pet.json();
+                            let response = myfecth(`maintenance/delete`, {}, data).json();
                             return response;
                         } else {
                             data.append("password", password);
@@ -118,8 +116,7 @@ let table_backup_system = $('.table_db_backup_system').DataTable({
                             data.append("archive", id);
                             data.append("route", "system");
                             data.append("db", "agenda");
-                            let pet = await fetch(`mantenimiento/import`, { method: "POST", body: data });
-                            let response = await pet.json();
+                            let response = myfecth(`mantenimiento/import`, {}, data).json();
                             return response;
                         }
                     },
@@ -208,8 +205,7 @@ let table_backup_user = $('.table_db_backup_users').DataTable({
                             data.append("id", session.message.id);
                             data.append("archive", id);
                             data.append("route", "users");
-                            let pet = await fetch(`mantenimiento/delete`, { method: "POST", body: data });
-                            let response = await pet.json();
+                            let response = myfecth(`mantenimiento/delete`, {}, data).json();
                             return response;
                         } else {
                             data.append("password", password);
@@ -217,8 +213,7 @@ let table_backup_user = $('.table_db_backup_users').DataTable({
                             data.append("archive", id);
                             data.append("route", "users");
                             data.append("db", "agenda");
-                            let pet = await fetch(`mantenimiento/import`, { method: "POST", body: data });
-                            let response = await pet.json();
+                            let response = myfecth(`mantenimiento/import`, {}, data).json();
                             return response;
                         }
                     },

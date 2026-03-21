@@ -45,19 +45,22 @@ class TestAdicionales extends BaseTest {
         $this->wait(2);
         
         try {
-            $addBtn = $this->driver->findElement(WebDriverBy::cssSelector('[data-bs-target="#registrar_adicional"]'));
+            $addBtn = $this->driver->findElement(WebDriverBy::cssSelector('[data-bs-target="#register-additional"]'));
             $addBtn->click();
         } catch (NoSuchElementException $e) {
-            $addBtn = $this->driver->findElement(WebDriverBy::cssSelector('.btn-add'));
+            $addBtn = $this->driver->findElement(WebDriverBy::cssSelector('[data-module-add="Adicionales"]'));
             $addBtn->click();
         }
         $this->wait(1);
         
-        $this->fillForm($this->testData);
+        $this->fillForm([
+            'nombre' => $this->testData['nombre'],
+            'precio' => $this->testData['precio']
+        ]);
         $this->wait(1);
         
         try {
-            $this->driver->findElement(WebDriverBy::cssSelector('#enviar_adicional'))->click();
+            $this->driver->findElement(WebDriverBy::cssSelector('#submit-additional'))->click();
         } catch (NoSuchElementException $e) {
             $this->driver->getKeyboard()->pressKey(WebDriverKeys::ENTER);
         }
@@ -77,11 +80,15 @@ class TestAdicionales extends BaseTest {
     private function testUpdate(): void {
         $this->openEditModal($this->testData['nombre']);
         $this->wait(1);
-        $this->fillForm($this->testDataEdit);
+        
+        $this->fillForm([
+            'nombre' => $this->testDataEdit['nombre'],
+            'precio' => $this->testDataEdit['precio']
+        ]);
         $this->wait(1);
         
         try {
-            $this->driver->findElement(WebDriverBy::cssSelector('#enviar_adicional_editar'))->click();
+            $this->driver->findElement(WebDriverBy::cssSelector('#submit-edit-additional'))->click();
         } catch (NoSuchElementException $e) {
             $this->driver->getKeyboard()->pressKey(WebDriverKeys::ENTER);
         }

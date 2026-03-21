@@ -279,8 +279,7 @@ if (!formEditPassword.dataset.listenerAttached) {
             dataEmail.append("email", session.message.correo);
             dataEmail.append("id", session.message.id);
             dataEmail.append("name", session.message.nombre);
-            let pet = await fetch(`changepass/sendEmail`, { method: "POST", body: dataEmail });
-            let res = await pet.json();
+            let res = myfecth(`changepass/sendEmail`, {}, dataEmail).json();
             if (res.success == true) {
                 formEditPassword.querySelector("button").disabled = false
                 formEditPassword.querySelector("button").firstElementChild.classList.add("d-none")

@@ -176,11 +176,7 @@ async function reference() {
                 let id = element.getAttribute("data-id");
                 let data = new FormData();
                 data.append("id_entrada", id);
-                let pet = await fetch(`Entry_rawmaterial_payment/get_all/0/100000`, {
-                    method: "POST",
-                    body: data,
-                });
-                let response = await pet.json();
+                let response = myfecth(`Entry_rawmaterial_payment/get_all/0/100000`, {}, data).json()
                 let template = ""
                 response.forEach((element) => {
                     template += `
@@ -839,8 +835,7 @@ if (!form.dataset.listenerAttached) {
                 })
             })
             let send = async () => {
-                let pet = await fetch(`Entrada_materia_prima/add_many`, { method: "POST", body: data, })
-                let response = await pet.json()
+                let response = myfecth(`Entrada_materia_prima/add_many`, {}, data).json()
                 console.log(response);
                 if (response.success == true) {
                     Swal.close()
@@ -883,8 +878,7 @@ const editEntrys = () => {
             let id = element.getAttribute("data-id");
             const data = new FormData();
             data.append("id_entrada", id);
-            const pet = await fetch('entrada_materia_prima_detalles/get_all/0/1000', { method: "POST", body: data });
-            const response = await pet.json();
+            const response = myfecth('entrada_materia_prima_detalles/get_all/0/1000', {}, data).json()
 
             document.getElementById("input-supplier-entryEdit").value = response[0].nombre_proveedor;
             document.getElementById("input-supplier-entryEdit").setAttribute("data-id", response[0].id_proveedor);
@@ -896,8 +890,7 @@ const editEntrys = () => {
             })
             let dataPayment = new FormData();
             dataPayment.append("id_entrada", response[0].id_entrada);
-            let petPayment = await fetch(`Entry_rawmaterial_payment/get_all/0/100000`, { method: "POST", body: data });
-            let petRes = await petPayment.json();
+            let petRes = myfecth(`Entry_rawmaterial_payment/get_all/0/100000`, {}, data).json()
             let templatePayment = ""
             for (const element of petRes) {
                 templatePayment += elementFormPaymentEntrysRawMaterialEdit(indexPayment, element)
@@ -929,8 +922,7 @@ const editEntrys = () => {
                                 const id = payRemove.id
                                 let data = new FormData();
                                 data.append("id", id);
-                                let pet = await fetch("Entry_rawmaterial_payment/delete", { method: "POST", body: data });
-                                let petRes = await pet.json();
+                                let petRes = myfecth("Entry_rawmaterial_payment/delete", {}, data).json()
                                 if (petRes.success == true) {
                                     payRemove.closest(".payment_entry_edit").remove()
                                     indexPayment--
@@ -1195,8 +1187,7 @@ if (!formEdit.dataset.listenerAttached) {
                     EntryInsert.append(`lista[${index}][fecha_vencimiento]`, element.fecha_vencimiento)
                     EntryInsert.append(`lista[${index}][id_materia_prima]`, element.id_materia_prima)
                 })
-                let updateEntry = await fetch("Entrada_materia_prima_detalles/add_many", { method: "POST", body: EntryInsert })
-                let responseEntry = await updateEntry.json()
+                let responseEntry = myfecth("Entrada_materia_prima_detalles/add_many", {}, EntryInsert).json()
                 console.log(responseEntry);
             }
             if (dataPaymentsInsert.length != 0) {
@@ -1208,17 +1199,13 @@ if (!formEdit.dataset.listenerAttached) {
                     dataPayInsert.append(`lista[${index}][imagen]`, element.imagen)
                     dataPayInsert.append(`lista[${index}][imagen_name]`, element.imagen.name)
                 })
-                let insertPayment = await fetch("Entry_rawmaterial_payment/add_many", { method: "POST", body: dataPayInsert })
-                let responseInsertPayment = await insertPayment.json()
+                let responseInsertPayment = myfecth("Entry_rawmaterial_payment/add_many", {}, dataPayInsert).json()
                 console.log(responseInsertPayment);
             }
-            let updateEntry = await fetch("Entrada_materia_prima_detalles/updateMany", { method: "POST", body: EntryUpdate })
-            let responseEntry = await updateEntry.json()
-            let updatePayment = await fetch("Entry_rawmaterial_payment/updateMany", { method: "POST", body: dataPayUpdate })
-            let responsePayment = await updatePayment.json()
+            let responseEntry = myfecth("Entrada_materia_prima_detalles/updateMany", {}, EntryUpdate).json()
+            let responsePayment = myfecth("Entry_rawmaterial_payment/updateMany", {}, dataPayUpdate).json()
             console.log(responsePayment);
-            let updateEntrySupplier = await fetch("Entrada_materia_prima_detalles/update", { method: "POST", body: dataSupplier })
-            let responseEntrySupplier = await updateEntrySupplier.json()
+            let responseEntrySupplier = myfecth("Entrada_materia_prima_detalles/update", {}, dataSupplier).json()
             console.log(responseEntrySupplier);
 
             if (responseEntry.success == true && responsePayment.success == true && responseEntrySupplier.success == true) {

@@ -108,8 +108,7 @@ const modalDetail = () => {
                 let id = btn.getAttribute("data-id")
                 let data = new FormData();
                 data.append("id", id);
-                let pet = await fetch(`caja/detailCash`, { method: "POST", body: data })
-                let response = await pet.json()
+                let response = myfecth(`caja/detailCash`, {}, data).json()
                 let group = {}
                 let detailsCash = {}
                 response.forEach((item) => {
@@ -178,8 +177,7 @@ const closeCash = () => {
                     let id = btn.getAttribute("data-id")
                     let data = new FormData();
                     data.append("id", id);
-                    let pet = await fetch(`caja/closeCash`, { method: "POST", body: data })
-                    let response = await pet.json()
+                    let response = myfecth(`caja/closeCash`, {}, data).json()
                     console.log(response);
                     if (response.success) {
                         swal.fire({

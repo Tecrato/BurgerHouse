@@ -11,8 +11,7 @@ const searchProcedure = async (anio = new Date().getFullYear(), semana = getNume
     data.append("anio", anio)
     data.append("semana", semana)
     data.append("mes", mes)
-    let pet = await fetch(`estadisticas/${statistics}`, { method: "POST", body: data });
-    let response = await pet.json()
+    let response = myfecth(`estadisticas/${statistics}`, {}, data).json()
     return response
 }
 const leyendGrapic1 = async (max, maxLabel, min, minLabel, promedio, moda) => {

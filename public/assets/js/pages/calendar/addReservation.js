@@ -58,15 +58,13 @@ export async function payReservation(functions, templates, calendar) {
             } else {
                 let data = new FormData()
                 data.append("cedula", formClient.querySelector("input").value);
-                let pet = await fetch(`login/cedula`, { method: "POST", body: data })
-                let res = await pet.json()
+                let res = myfecth("login/cedula", {}, data).json()
                 if (res.success == true) {
                     let data = new FormData()
                     data.append("nombre", res.message.primer_nombre);
                     data.append("apellido", res.message.primer_apellido);
                     data.append("documento", res.message.nacionalidad + "-" + res.message.cedula);
-                    let pet2 = await fetch(`clientes/add`, { method: "POST", body: data })
-                    let res2 = await pet2.json()
+                    let res2 = myfecth("clientes/add", {}, data).json()
                     if (res2.success == true) {
                         let pet3 = await searchParam({ active: 1, id: res2.last_id }, "clientes", 1);
                         let template = targetClienteOrder(pet3[0])
@@ -373,8 +371,7 @@ export async function payReservation(functions, templates, calendar) {
                     let DataTelClient = new FormData();
                     DataTelClient.append("id", clientData.id_cliente);
                     DataTelClient.append("telefono", clientData.telefonoClient);
-                    let updateTelClient = await fetch("clientes/update", { method: "POST", body: DataTelClient })
-                    let responseTelClient = await updateTelClient.json()
+                    let responseTelClient = myfecth("clientes/update", {}, DataTelClient).json()
                     console.log(responseTelClient);
                     let order = new FormData();
                     let nro_orden = Math.floor(Math.random() * (99999999 - 10000000 + 1)) + 10000000
@@ -382,8 +379,7 @@ export async function payReservation(functions, templates, calendar) {
                     order.append("tipo", "reserva");
                     order.append("nro_orden", nro_orden)
                     order.append("status", "confirmada")
-                    let petOrder = await fetch("orden/add", { method: "POST", body: order })
-                    let resOrder = await petOrder.json()
+                    let resOrder = myfecth("orden/add", {}, order).json()
                     console.log(resOrder);
                     let id_order = resOrder.last_id
                     let reservationData = new FormData();
@@ -394,8 +390,7 @@ export async function payReservation(functions, templates, calendar) {
                     reservationData.append("fecha_bloqueo", dateReservation.fecha_bloqueo);
                     reservationData.append("metodo_pedido", "Sistema");
                     reservationData.append("status", "confirmada");
-                    let petReservation = await fetch("calendario/add", { method: "POST", body: reservationData })
-                    let resReservation = await petReservation.json()
+                    let resReservation = myfecth("calendario/add", {}, reservationData).json()
                     console.log(resReservation);
                     let paymentData = new FormData();
                     dataPayment.forEach((payment, index) => {
@@ -406,8 +401,7 @@ export async function payReservation(functions, templates, calendar) {
                         paymentData.append(`lista[${index}][imagen]`, payment.imagen)
                         paymentData.append(`lista[${index}][imagen_name]`, payment.imagen.name)
                     })
-                    let petPayment = await fetch("pago/add_many", { method: "POST", body: paymentData })
-                    let resPayment = await petPayment.json()
+                    let resPayment = myfecth("pago/add_many", {}, paymentData).json()
                     console.log(resPayment);
                     let id_payments = resPayment.lista
                     let dataPaymentDetails = new FormData();
@@ -415,8 +409,7 @@ export async function payReservation(functions, templates, calendar) {
                         dataPaymentDetails.append(`lista[${index}][id_pago]`, payment)
                         dataPaymentDetails.append(`lista[${index}][id_reserva]`, resReservation.last_id)
                     })
-                    let petPaymentDetails = await fetch("pago_reserva/add_many", { method: "POST", body: dataPaymentDetails })
-                    let resPaymentDetails = await petPaymentDetails.json()
+                    let resPaymentDetails = myfecth("pago_reserva/add_many", {}, dataPaymentDetails).json()
                     console.log(resPaymentDetails);
 
                     if (resPaymentDetails.success == true) {

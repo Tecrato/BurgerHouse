@@ -284,15 +284,13 @@ export async function payOrderReservation(functions, templates, invoice, reload)
                                     let dataOrder = new FormData();
                                     dataOrder.append("id", window.IdOrderPaymentLocal)
                                     dataOrder.append("status", "pagado")
-                                    let petOrder = await fetch("orden/update", { method: "POST", body: dataOrder })
-                                    console.log(await petOrder.json());
+                                    console.log(myfecth("orden/update", {}, dataOrder).json());
 
                                     let dataRes = new FormData();
                                     dataRes.append("id", window.IdReservationPaymentLocal)
                                     dataRes.append("status", "finalizada")
                                     dataRes.append("fecha_final", DataFormat(new Date()))
-                                    let petRes = await fetch("calendario/update", { method: "POST", body: dataRes })
-                                    let resSale = await petRes.json()
+                                    let resSale = myfecth("calendario/update", {}, dataRes).json()
                                     console.log(resSale);
 
                                     let paymentData = new FormData();
@@ -304,8 +302,7 @@ export async function payOrderReservation(functions, templates, invoice, reload)
                                         paymentData.append(`lista[${index}][imagen]`, payment.imagen)
                                         paymentData.append(`lista[${index}][imagen_name]`, payment.imagen.name)
                                     })
-                                    let petPayment = await fetch("payment/add_many", { method: "POST", body: paymentData })
-                                    let resPayment = await petPayment.json()
+                                    let resPayment = myfecth("payment/add_many", {}, paymentData).json()
                                     console.log(resPayment);
                                     let id_payments = resPayment.lista
                                     let dataPaymentDetails = new FormData();
@@ -313,8 +310,7 @@ export async function payOrderReservation(functions, templates, invoice, reload)
                                         dataPaymentDetails.append(`lista[${index}][id_pago]`, payment)
                                         dataPaymentDetails.append(`lista[${index}][id_reserva]`, window.IdReservationPaymentLocal)
                                     })
-                                    let petPaymentDetails = await fetch("PaymentSale/add_many", { method: "POST", body: dataPaymentDetails })
-                                    let resPaymentDetails = await petPaymentDetails.json()
+                                    let resPaymentDetails = myfecth("PaymentSale/add_many", {}, dataPaymentDetails).json()
                                     console.log(resPaymentDetails);
                                     let infoOrderActualizada = await searchParam({ id: window.IdOrderPaymentLocal }, "orden")
                                     let detailsPrepered = await searchParam({ id_orden: window.IdOrderPaymentLocal }, "Detalle_orden_producto_preparado")
@@ -352,8 +348,7 @@ export async function payOrderReservation(functions, templates, invoice, reload)
                                     let invoiceBlob = await invoice(detailsPrepered, detailsProcess, clientData, window.IdOrderPaymentLocal, directionSale, amountTotal, "invoice", null, above)
                                     let invoiceData = new FormData();
                                     invoiceData.append("pdf", invoiceBlob, "factura.pdf");
-                                    let send = await fetch("orden/sendInvoice", { method: "POST", body: invoiceData });
-                                    let dataResInvoice = await send.json();
+                                    let dataResInvoice = myfecth("orden/sendInvoice", {}, invoiceData).json();
                                     const mensaje = `*FACTURA DE ORDEN* \n\n*${clientData.nameClient}*\n\n${dataResInvoice.url}`;
                                     const url = `https://wa.me/${clientData.telefonoClient}?text=${encodeURIComponent(mensaje)}`;
                                     if (dataResInvoice.url) {

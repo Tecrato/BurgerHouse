@@ -108,8 +108,7 @@ if (!form.dataset.listenerAttached) {
                 data.append(`lista[${index}][cantidad]`, item.cantidad);
             })
             const add = async () => {
-                let pet = await fetch('recipe/add', { method: 'POST', body: data })
-                let res = await pet.json()
+                let res = myfecth('recipe/add', {}, data).json()
                 if (res.success == true) {
                     Swal.fire({
                         title: `Exito!`,
@@ -264,8 +263,7 @@ let n = $(".table_recipe").DataTable({
                                     let id = item.getAttribute("data-id");
                                     let data = new FormData();
                                     data.append(`id`, id);
-                                    let pet = await fetch(`Detalle_receta/delete`, { method: "POST", body: data });
-                                    let petRes = await pet.json();
+                                    let petRes = myfecth(`Detalle_receta/delete`, {}, data).json()
                                     if (petRes.success == true) {
                                         item.closest(".recipe-edit").remove();
                                         reindex("#recipe-edit-container .recipe-edit", "recipe-edit", index, "Item");
@@ -324,8 +322,7 @@ let n = $(".table_recipe").DataTable({
                                 dataInsert.append(`lista[${index}][id_materia_prima]`, item.id_rawmaterial);
                                 dataInsert.append(`lista[${index}][id_receta]`, item.id_receta);
                             });
-                            let petInsert = await fetch(`Detalle_receta/add_many`, { method: "POST", body: dataInsert });
-                            let petResInsert = await petInsert.json();
+                            let petResInsert = myfecth(`Detalle_receta/add_many`, {}, dataInsert).json()
                             petInsertAlert = petResInsert
                         }
                         let dataUpdate = new FormData();
@@ -334,8 +331,7 @@ let n = $(".table_recipe").DataTable({
                             dataUpdate.append(`lista[${index}][id_materia_prima]`, item.id_rawmaterial);
                             dataUpdate.append(`lista[${index}][id]`, item.id);
                         });
-                        let petUpdate = await fetch(`Detalle_receta/updateMany`, { method: "POST", body: dataUpdate });
-                        let petResUpdate = await petUpdate.json();
+                        let petResUpdate = myfecth(`Detalle_receta/updateMany`, {}, dataUpdate).json()
                         console.log(petResUpdate);
 
                         if (petResUpdate.success == true) {

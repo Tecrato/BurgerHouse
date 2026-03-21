@@ -55,8 +55,7 @@ const saleBTN = async (config, binnacleSale) => {
                         Swal.close();
                     } else {
                         data.append("status", "en camino")
-                        let pet = await fetch('orden/update', { method: "POST", body: data })
-                        let res = await pet.json()
+                        let res = myfecth('orden/update', {}, data).json()
                         if (res.success == true) {
                             Swal.close();
                             Swal.fire({
@@ -70,7 +69,7 @@ const saleBTN = async (config, binnacleSale) => {
                             let deliveryData = new FormData();
                             deliveryData.append("id_venta", item.getAttribute("id_venta"))
                             deliveryData.append("id_usuario_delivery", session.message.id)
-                            let deliveryName = await fetch("delivery/add", { method: "POST", body: deliveryData })
+                            let deliveryName = myfecth("delivery/add", {}, deliveryData).json()
                             notification({
                                 id_usuario: session.message.id,
                                 titulo: `Orden tomada`,

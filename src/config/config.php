@@ -1,5 +1,6 @@
 <?php
 
+date_default_timezone_set('America/Caracas');
 
 // ENVIRONMENT VARIABLES
 $envPath = __DIR__ . '/../../.env';

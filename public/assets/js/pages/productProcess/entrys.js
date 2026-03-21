@@ -128,11 +128,7 @@ async function reference() {
                 let id = element.getAttribute("data-id");
                 let data = new FormData();
                 data.append("id_entrada", id);
-                let pet = await fetch(`Entry_product_process_payment/get_all/0/100000`, {
-                    method: "POST",
-                    body: data,
-                });
-                let response = await pet.json();
+                let response = myfecth(`Entry_product_process_payment/get_all/0/100000`, {}, data).json()
                 let template = ""
                 response.forEach((element) => {
                     template += `
@@ -832,11 +828,7 @@ if (!form.dataset.listenerAttached) {
                 })
             })
             let send = async () => {
-                let pet = await fetch(`Entrada_producto_procesado/add_many`, {
-                    method: "POST",
-                    body: data,
-                })
-                let response = await pet.json()
+                let response = myfecth(`Entrada_producto_procesado/add_many`, {}, data).json()
                 console.log(response);
                 if (response.success == true) {
                     Swal.close()
@@ -882,8 +874,7 @@ editDataTables(".table_entrys_active", async (response) => {
     let data = new FormData();
     let index = 1
     data.append("id_entrada", response[0].id);
-    let pet = await fetch(`Entry_product_process_payment/get_all/0/100000`, { method: "POST", body: data });
-    let petRes = await pet.json();
+    let petRes = myfecth(`Entry_product_process_payment/get_all/0/100000`, {}, data).json()
     let template = ""
     for (const element of petRes) {
         template += elementFormPaymentEntrysProductProcessEdit(index, element)
@@ -914,8 +905,7 @@ editDataTables(".table_entrys_active", async (response) => {
                         const id = payRemove.id
                         let data = new FormData();
                         data.append("id", id);
-                        let pet = await fetch("Entry_product_process_payment/delete", { method: "POST", body: data });
-                        let petRes = await pet.json();
+                        let petRes = myfecth("Entry_product_process_payment/delete", {}, data).json()
                         if (petRes.success == true) {
                             payRemove.closest(".payment_entry_edit").remove()
                             index--
@@ -1109,15 +1099,12 @@ if (!formEdit.dataset.listenerAttached) {
                     dataPayInsert.append(`lista[${index}][imagen]`, element.imagen)
                     dataPayInsert.append(`lista[${index}][imagen_name]`, element.imagen.name)
                 })
-                let insertPayment = await fetch("Entry_product_process_payment/add_many", { method: "POST", body: dataPayInsert })
-                let responseInsertPayment = await insertPayment.json()
+                let responseInsertPayment = myfecth("Entry_product_process_payment/add_many", {}, dataPayInsert).json()
                 console.log(responseInsertPayment);
             }
-            let updateEntry = await fetch("Entrada_producto_procesado/update", { method: "POST", body: dataEntry })
-            let responseEntry = await updateEntry.json()
+            let responseEntry = myfecth("Entrada_producto_procesado/update", {}, dataEntry).json()
             console.log(responseEntry);
-            let updatePayment = await fetch("Entry_product_process_payment/updateMany", { method: "POST", body: dataPayUpdate })
-            let responsePayment = await updatePayment.json()
+            let responsePayment = myfecth("Entry_product_process_payment/updateMany", {}, dataPayUpdate).json()
             console.log(responsePayment);
 
             if (responseEntry.success == true && responsePayment.success == true) {

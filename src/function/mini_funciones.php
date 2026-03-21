@@ -1,4 +1,5 @@
 <?php
+use Pusher\Pusher;
 
 function make_url_error($message, $code = 400, $ajax = false) {
     if (
@@ -10,10 +11,8 @@ function make_url_error($message, $code = 400, $ajax = false) {
         $ajax = true;
     }
     header('HTTP/1.0 ' . $code . ' ' . ERROR_DICT[$code]);
-    if ($ajax) {
-        header('Content-Type: application/json; charset=utf-8');
-    }
     if ($ajax === true) {
+        header('Content-Type: application/json; charset=utf-8');
         echo json_encode(["success" => false, "message" => $message]);
         exit;
     }
@@ -160,4 +159,30 @@ function parseUrl()
     $uri = parse_url($uri, PHP_URL_PATH);
     $uri = str_replace('/BurgerHouse', '', $uri);
     return explode('/', filter_var(trim($uri, '/'), FILTER_SANITIZE_URL));
+}
+
+function sendNotificationPusher(string $message, string $channel = 'General', string $event = 'notificaciones'): array
+{
+    $pusher = new Pusher(
+        '2a7ca356d030e2945ae9',
+        '3c3f676721576bb7c676',
+        '2016820',
+        [
+            'cluster' => 'us2',
+            'useTLS' => true
+        ]
+    );
+
+    $data = [
+        'message' => $message,
+        'time' => date('Y-m-d H:i:s'),
+        'event' => $event
+    ];
+
+    try {
+        $pusher->trigger($channel, $event, $data);
+        return ['success' => true];
+    } catch (Exception $e) {
+        return ['success' => false, 'error' => $e->getMessage()];
+    }
 }

@@ -1,10 +1,10 @@
-export async function local(functions, templates, reload) {
+export async function local(functions, templates, reload, myfecth) {
     const { searchParam, amountDolar, viewImage, InputPrice, selectOptionAll, validateField, setValidationStyles, reindex, CheckCash, sessionInfo, binnacle, resetForm } = functions()
     const { tagFilterProduct, selectProduct, targetDetailProductOrder, targetDetailOtherOrder, targetClienteOrder, optionsRol, elemenFormPaymentOrder, selectTable } = templates()
     viewImage(".input-image")
     stepper2
     InputPrice("[input_price]");
-    selectOptionAll(".select_options_payment", "metodo_pago", optionsRol);
+    selectOptionAll(".select_options_payment", "metodos_de_pago", optionsRol);
     const resetFormModal = () => {
         document.querySelector(".cont-select-product-order_local_more").innerHTML = ""
         const container = document.querySelector(".cont_category_product_orders_local_more");
@@ -155,7 +155,7 @@ export async function local(functions, templates, reload) {
     }
     const categoryFilter = async () => {
         let template = "";
-        let category = await searchParam({ active: 1 }, "categoryProducto", 100)
+        let category = myfecth("categoria_producto/get_all", {}, { active: 1 }).json();
         category.forEach((category) => { template += tagFilterProduct(category); })
         document.querySelector(".cont_category_product_orders_local").insertAdjacentHTML("beforeend", template)
         filter()
@@ -237,7 +237,7 @@ export async function local(functions, templates, reload) {
         })
     }
     const tablesOrder = async () => {
-        let pet = await searchParam({ active: 1, estado: "LIBRE" }, "table", 100)
+        let pet = await searchParam({ active: 1, estado: "LIBRE" }, "mesas", 100)
         let template = "";
         pet.forEach((table) => { template += selectTable(table) })
         document.querySelector(".cont_table").innerHTML = template
@@ -383,36 +383,79 @@ export async function local(functions, templates, reload) {
                 if (await CheckCash() == null) {
                     toas("error", "No hay cajas abiertas")
                 } else {
-                    let petOrder = await fetch("orden/add", { method: "POST", body: order })
-                    let resOrder = await petOrder.json()
-                    let lastId = resOrder.last_id
-                    let order_table = tablesData.map((table) => { return { id_mesa: table.id, id_order: lastId } })
-                    let tablesBlock = new FormData();
-                    order_table.forEach(async (table, index) => {
-                        tablesBlock.append(`lista[${index}][id_mesa]`, table.id_mesa);
-                        tablesBlock.append(`lista[${index}][id_orden]`, table.id_order);
-                    })
-                    let blockTable = await fetch("order_table/add_many", { method: "POST", body: tablesBlock })
-                    let resBlockTable = await blockTable.json()
-                    console.log(resBlockTable);
-                    if (resBlockTable.success == true) {
-                        Swal.close()
-                        Swal.fire({
-                            title: `Exito!`,
-                            text: "Se creo la orden con exito",
-                            icon: "success",
-                        });
-                        nuevaBitacora('Orden local', 'Creacion', `Se creo una orden local`)
-                        reload()
+                    let resOrder = myfecth("orden/add", {}, order).json()
+                    console.log(resOrder);
+                    if (resOrder.success == true) {
+                        let lastId = resOrder.last_id
+                        let order_table = tablesData.map((table) => { return { id_mesa: table.id, id_orden: lastId } })
+                        let tablesBlock = new FormData();
+                        order_table.forEach((table, index) => {
+                            tablesBlock.append(`lista[${index}][id_mesa]`, table.id_mesa);
+                            tablesBlock.append(`lista[${index}][id_orden]`, table.id_orden);
+                        })
+                        let resBlockTable = myfecth("orden_mesa/add_many", {}, tablesBlock).json()
+                        console.log(resBlockTable);
+                        if (resBlockTable.success == true) {
+                            Swal.close()
+                            Swal.fire({
+                                title: `Exito!`,
+                                text: "Se creo la orden con exito",
+                                icon: "success",
+                            });
+                            nuevaBitacora('Orden local', 'Creacion', `Se creo una orden local`)
+                            reload()
+                        } else {
+                            Swal.close()
+                            Swal.fire({
+                                title: `Error!`,
+                                text: "Hubo un error al asignar la mesa",
+                                icon: "error",
+                            })
+                        }
+                        resetFormModal()
                     } else {
-                        Swal.close()
+                        Swal.close();
+                        const error = resOrder.message
+                        const product = []
+                        if (error.detalle_preparado) {
+                            error.detalle_preparado.forEach((item) => {
+                                if (!product.includes(item.producto)) product.push(item.producto)
+                            });
+                        }
+
+                        if (error.detalle_procesado) {
+                            error.detalle_procesado.forEach((item) => {
+                                if (!product.includes(item.producto)) product.push(item.producto)
+                            });
+                        }
+                        let title
+                        if (product.includes("No hay una receta asignada")) {
+                            title = `
+                                <p>Actualmente, algunos productos no cuentan con una <strong class="text-danger">receta asignada</strong></p>
+                                <p class="mt-2 fst-italic text-secondary">Por favor, revise las recetas registradas.</p>
+                        `
+                        } else if (product.includes("No hay existencia en inventario")) {
+                            title = `
+                             <p>No se encontro existencia en inventario para algunos productos</p>
+                            <p class="mt-2 fst-italic text-secondary">Por favor, revise el inventario y las recetas.</p>
+                            `
+                        } else {
+                            title = `
+                                <p>Los siguientes productos no tienen <strong class="text-danger">stock suficiente</strong>:</p>
+                                <p>
+                                    ${product.map(p => `<span class="badge bg-danger me-1">${p}</span>`).join('')}
+                                </p>
+                                <p class="mt-2 fst-italic text-secondary">Por favor, revise el inventario.</p>
+                                `
+                        }
+
                         Swal.fire({
                             title: `Error!`,
-                            text: "Hubo un error al crear la orden",
+                            html: title,
                             icon: "error",
-                        })
+                        });
+                        resetFormModal()
                     }
-                    resetFormModal()
                 }
             })
             btn.dataset.listenerAttached = "true"
@@ -424,7 +467,7 @@ export async function local(functions, templates, reload) {
     tablesOrder()
 }
 
-export async function more_product_local_order(functions, templates, reload) {
+export async function more_product_local_order(functions, templates, reload, myfecth) {
     const { searchParam, amountDolar, viewImage, InputPrice, selectOptionAll, validateField, setValidationStyles, reindex, CheckCash, sessionInfo, binnacle, resetForm } = functions()
     const { tagFilterProduct, selectProduct, targetDetailProductOrder, targetDetailOtherOrder, targetClienteOrder, optionsRol, elemenFormPaymentOrder, selectTable } = templates()
     viewImage(".input-image")
@@ -581,7 +624,7 @@ export async function more_product_local_order(functions, templates, reload) {
     }
     const categoryFilter = async () => {
         let template = "";
-        let category = await searchParam({ active: 1 }, "categoryProducto", 100)
+        let category = myfecth("categoria_producto/get_all", { active: 1 }).json();
         category.forEach((category) => { template += tagFilterProduct(category); })
         document.querySelector(".cont_category_product_orders_local_more").insertAdjacentHTML("beforeend", template)
         filter()
@@ -791,13 +834,12 @@ export async function more_product_local_order(functions, templates, reload) {
                     productDetails.append(`lista_detalle_preparado[${index}][id_orden]`, window.id_orden);
                     index++
                 })
-                let petAddProduct = await fetch("orden/add_process_and_prepared", { method: "POST", body: productDetails })
-                let res = await petAddProduct.json()
+                let res = myfecth("orden/add_process_and_prepared", {}, productDetails).json()
                 if (res.success == true) {
                     let data = new FormData()
                     data.append("id", window.id_orden)
                     data.append("status", "en cocina")
-                    let pet = await fetch("orden/update", { method: "POST", body: data })
+                    myfecth("orden/update", {}, data)
                     Swal.close();
                     Swal.fire({
                         title: 'Exito!',
@@ -921,15 +963,13 @@ export async function payOrder(functions, templates, invoice, reload) {
         } else {
             let data = new FormData()
             data.append("cedula", formClient.querySelector("input").value);
-            let pet = await fetch(`login/cedula`, { method: "POST", body: data })
-            let res = await pet.json()
+            let res = myfecth(`login/cedula`, {}, data).json()
             if (res.success == true) {
                 let data = new FormData()
                 data.append("nombre", res.message.primer_nombre);
                 data.append("apellido", res.message.primer_apellido);
                 data.append("documento", res.message.nacionalidad + "-" + res.message.cedula);
-                let pet2 = await fetch(`clientes/add`, { method: "POST", body: data })
-                let res2 = await pet2.json()
+                let res2 = myfecth(`clientes/add`, {}, data).json()
                 if (res2.success == true) {
                     let pet3 = await searchParam({ active: 1, id: res2.last_id }, "clientes", 1);
                     let template = targetClienteOrder(pet3[0])
@@ -1228,16 +1268,14 @@ export async function payOrder(functions, templates, invoice, reload) {
                                     dataOrder.append("id", window.IdOrderPaymentLocal)
                                     dataOrder.append("id_cliente", document.querySelector(".cont_client-order-local").querySelector("h4[id]").getAttribute("id"))
                                     dataOrder.append("status", "pagado")
-                                    let petOrder = await fetch("orden/update", { method: "POST", body: dataOrder })
-                                    console.log(await petOrder.json());
+                                    console.log(myfecth("orden/update", {}, dataOrder).json());
                                     let infoOrderActualizada = await searchParam({ id: window.IdOrderPaymentLocal }, "orden")
                                     let dataSale = new FormData();
                                     dataSale.append("id_orden", window.IdOrderPaymentLocal)
                                     dataSale.append("id_caja", await CheckCash())
                                     dataSale.append("monto_final", window.amountTotalOrderLocalPayment.total_dolares.replace("TOTAL: ", ""))
                                     dataSale.append("direccion", "BURGER HOUSE")
-                                    let petSale = await fetch("sale/add", { method: "POST", body: dataSale })
-                                    let resSale = await petSale.json()
+                                    let resSale = myfecth("sale/add", {}, dataSale).json()
                                     console.log(resSale);
                                     let id_venta = resSale.last_id
                                     let paymentData = new FormData();
@@ -1249,8 +1287,7 @@ export async function payOrder(functions, templates, invoice, reload) {
                                         paymentData.append(`lista[${index}][imagen]`, payment.imagen)
                                         paymentData.append(`lista[${index}][imagen_name]`, payment.imagen.name)
                                     })
-                                    let petPayment = await fetch("payment/add_many", { method: "POST", body: paymentData })
-                                    let resPayment = await petPayment.json()
+                                    let resPayment = myfecth("payment/add_many", {}, paymentData).json()
                                     console.log(resPayment);
                                     let id_payments = resPayment.lista
                                     let dataPaymentDetails = new FormData();
@@ -1258,8 +1295,7 @@ export async function payOrder(functions, templates, invoice, reload) {
                                         dataPaymentDetails.append(`lista[${index}][id_pago]`, payment)
                                         dataPaymentDetails.append(`lista[${index}][id_venta]`, id_venta)
                                     })
-                                    let petPaymentDetails = await fetch("paymentSale/add_many", { method: "POST", body: dataPaymentDetails })
-                                    let resPaymentDetails = await petPaymentDetails.json()
+                                    let resPaymentDetails = myfecth("paymentSale/add_many", {}, dataPaymentDetails).json()
                                     console.log(resPaymentDetails);
 
                                     let detailsPrepered = await searchParam({ id_orden: window.IdOrderPaymentLocal }, "Detalle_orden_producto_preparado")
@@ -1288,8 +1324,7 @@ export async function payOrder(functions, templates, invoice, reload) {
                                     let invoiceBlob = await invoice(detailsPrepered, detailsProcess, clientData, window.IdOrderPaymentLocal, directionSale, amountTotal, "invoice", null, null, dataPaymentInvoice)
                                     let invoiceData = new FormData();
                                     invoiceData.append("pdf", invoiceBlob, "factura.pdf");
-                                    let send = await fetch("orden/sendInvoice", { method: "POST", body: invoiceData });
-                                    let dataResInvoice = await send.json();
+                                    let dataResInvoice = myfecth("orden/sendInvoice", {}, invoiceData).json();
                                     const mensaje = `*FACTURA DE ORDEN* \n\n*${clientData.nameClient}*\n\n${dataResInvoice.url}`;
                                     const url = `https://wa.me/${clientData.telefonoClient}?text=${encodeURIComponent(mensaje)}`;
                                     if (dataResInvoice.url) {

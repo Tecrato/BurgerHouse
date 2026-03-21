@@ -1,5 +1,6 @@
 <?php
 use Shtch\Burgerhouse\function\AuthSession;
+use Shtch\Burgerhouse\function\sendNotificationPusher;
 use Shtch\Burgerhouse\models\Orden;
 use Shtch\Burgerhouse\models\DetalleOrdenProductoPreparado;
 use Shtch\Burgerhouse\models\DetalleOrdenProductoProcesado;
@@ -10,7 +11,6 @@ use Shtch\Burgerhouse\models\Detalle_entrada_materia_prima;
 use Shtch\Burgerhouse\models\Entrada_producto_procesado;
 use Shtch\Burgerhouse\models\Materia_prima;
 use Shtch\Burgerhouse\models\Notificacion;
-use Pusher\Pusher;
 use Kunnu\Dropbox\DropboxApp;
 use Kunnu\Dropbox\Dropbox;
 
@@ -31,6 +31,10 @@ if (count($url) < 2 || $url[1] === 'view') {
 }
 
 if ($url[1] === 'get_all') {
+    if (!$session->has_permission('ordenes', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
     try {
         $modelo = new Orden(...$_POST);
         $resultado_final = $modelo->search(...$parametros_paginacion);
@@ -39,6 +43,9 @@ if ($url[1] === 'get_all') {
     }
     $ajax = true;
 } else if ($url[1] === 'add' || $url[1] === 'add_process_and_prepared') {
+    if (!$session->has_permission('ordenes', 'agregar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
     try {
         $result_detalle_preparado = true;
         $result_detalle_procesado = true;
@@ -125,7 +132,6 @@ if ($url[1] === 'get_all') {
                 }
             }
 
-            date_default_timezone_set('America/Caracas');
             $entradas_process = new Entrada_producto_procesado();
             $entradas_process->__construct(active: 1);
             $result_entrys = $entradas_process->search(0, 100, "fecha_vencimiento", "ASC");
@@ -205,7 +211,6 @@ if ($url[1] === 'get_all') {
                     $clase_detalle_producto_preparado->agregar();
                 }
 
-                date_default_timezone_set('America/Caracas');
                 $entradas_materia_prima = new Detalle_entrada_materia_prima();
                 $entradas_materia_prima->__construct(active: 1);
                 $result_entrys = $entradas_materia_prima->search(0, 100, "fecha_vencimiento", "ASC");
@@ -256,21 +261,7 @@ if ($url[1] === 'get_all') {
                                 status: 0
                             );
                             $notification->agregar();
-                            date_default_timezone_set('America/Caracas');
-                            $channel = 'General';
-                            $event = "notificaciones";
-                            $message = "El producto " . $producto['nombre'] . " tiene un stock bajo";
-                            $pusher = new Pusher(
-                                '2a7ca356d030e2945ae9',
-                                '3c3f676721576bb7c676',
-                                '2016820',
-                                [
-                                    'cluster' => 'us2',
-                                    'useTLS' => true
-                                ]
-                            );
-                            $data = ['message' => $message, 'time' => date('Y-m-d H:i:s'), 'event' => $event];
-                            $pusher->trigger($channel, $event, $data);
+                            sendNotificationPusher("El producto " . $producto['nombre'] . " tiene un stock bajo");
                         }
                     }
                 }
@@ -286,7 +277,6 @@ if ($url[1] === 'get_all') {
                     $clase_detalle_producto_procesado->agregar();
                 }
 
-                date_default_timezone_set('America/Caracas');
                 $entradas_process = new Entrada_producto_procesado();
                 $entradas_process->__construct(active: 1);
                 $result_entrys = $entradas_process->search(0, 100, "fecha_vencimiento", "ASC");
@@ -337,21 +327,7 @@ if ($url[1] === 'get_all') {
                                 status: 0
                             );
                             $notification->agregar();
-                            date_default_timezone_set('America/Caracas');
-                            $channel = 'General';
-                            $event = "notificaciones";
-                            $message = "El producto " . $producto['nombre'] . " tiene un stock bajo";
-                            $pusher = new Pusher(
-                                '2a7ca356d030e2945ae9',
-                                '3c3f676721576bb7c676',
-                                '2016820',
-                                [
-                                    'cluster' => 'us2',
-                                    'useTLS' => true
-                                ]
-                            );
-                            $data = ['message' => $message, 'time' => date('Y-m-d H:i:s'), 'event' => $event];
-                            $pusher->trigger($channel, $event, $data);
+                            sendNotificationPusher("El producto " . $producto['nombre'] . " tiene un stock bajo");
                         }
                     }
                 }
@@ -376,6 +352,23 @@ if ($url[1] === 'get_all') {
     }
     $ajax = true;
 } else if ($url[1] === 'update') {
+    $active = $_POST['active'] ?? null;
+
+    if ($active !== null && (string)$active === '0') {
+        if (!$session->has_permission('ordenes', 'eliminar')) {
+            make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+        }
+    } else if ($active !== null && (string)$active === '1') {
+        if (
+            !$session->has_permission('Papelera', 'restaurar') &&
+            !$session->has_permission('ordenes', 'eliminar')
+        ) {
+            make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+        }
+    } else if (!$session->has_permission('ordenes', 'editar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
     try {
         $modelo = new Orden(...$_POST);
         $resultado_final = $modelo->actualizar();
@@ -384,6 +377,10 @@ if ($url[1] === 'get_all') {
     }
     $ajax = true;
 } else if ($url[1] === 'delete') {
+    if (!$session->has_permission('ordenes', 'eliminar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
     try {
         if (!isset($_POST['id'])) {
             make_url_error("No se recibio el id para eliminar.", 400, ajax: true);
@@ -395,6 +392,10 @@ if ($url[1] === 'get_all') {
     }
     $ajax = true;
 } else if ($url[1] === 'count' || $url[1] === 'total') {
+    if (!$session->has_permission('ordenes', 'consultar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
     try {
         $modelo = new Orden(...$_POST);
         $resultado_final = $modelo->count();
@@ -403,6 +404,19 @@ if ($url[1] === 'get_all') {
     }
     $ajax = true;
 } else if ($url[1] === 'sendInvoice') {
+    if (!$session->has_permission('ordenes', 'agregar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    if (!isset($_FILES['pdf']) || $_FILES['pdf']['error'] !== UPLOAD_ERR_OK) {
+        make_url_error("No se recibio el archivo PDF o hubo un error al subirlo.", 400, ajax: true);
+    }
+
+    $allowedTypes = ['application/pdf'];
+    if (!in_array($_FILES['pdf']['type'], $allowedTypes)) {
+        make_url_error("El archivo debe ser un PDF.", 400, ajax: true);
+    }
+
     try {
         $tmpPath = $_FILES['pdf']['tmp_name'];
         $filename = $_FILES['pdf']['name'];

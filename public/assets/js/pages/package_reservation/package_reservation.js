@@ -140,8 +140,7 @@ if (!form.dataset.listenerAttached) {
                 let packageData = new FormData()
                 packageData.append("nombre", form.querySelector("#input-name-package-1").value)
                 packageData.append("precio", (form.querySelector("#input-price-package-1").value).replace(/\./g, '').replace(',', '.'))
-                let send = await fetch("paquete_reservacion/add", { method: "POST", body: packageData })
-                let response = await send.json()
+                let response = myfecth("paquete_reservacion/add", {}, packageData).json()
                 let idPackage = response.last_id
                 let tablesData = new FormData()
                 dataTables.forEach((table, index) => {
@@ -194,8 +193,7 @@ async function editData(response) {
                     let id_package = response[0].id
                     let data = new FormData()
                     data.append("lista[0][id_mesa]", id_table), data.append("lista[0][id_paquete]", id_package)
-                    let send = await fetch("paquete_mesa/add_many", { method: "POST", body: data })
-                    let responseData = await send.json()
+                    let responseData = myfecth("paquete_mesa/add_many", {}, data).json()
                 } else {
                     let id_table = btn.getAttribute("data-id")
                     let search = await searchParam({ id_mesa: id_table }, "paquete_mesa")
@@ -209,8 +207,7 @@ async function editData(response) {
                         toas("error", "Debe haber al menos 1 mesa asociadas al paquete")
                         btn.checked = true
                     } else if (count >= 2) {
-                        let send = await fetch("paquete_mesa/delete", { method: "POST", body: data })
-                        let response = await send.json()
+                        let response = myfecth("paquete_mesa/delete", {}, data).json()
                     }
                 }
             })

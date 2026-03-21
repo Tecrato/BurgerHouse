@@ -15,8 +15,7 @@ const session = await sessionInfo();
 permission("reservaciones")
 
 const events = async () => {
-    const pet = await fetch('calendario/get_all/0/10000000/id/asc', { method: 'POST' })
-    let res = await pet.json()
+    let res = myfecth('calendario/get_all/0/10000000/id/asc', { method: 'POST' }).json()
     return res.map(item => {
         let color = '#FFB200';
         if (item.status === 'confirmada') color = '#FF4B00';
@@ -115,8 +114,7 @@ if (!btnAddReservation.dataset.listenerAttached) {
 const detailsClient = async (id) => {
     let data = new FormData();
     data.append("id", id)
-    let pet = await fetch("orden/get_all", { method: "POST", body: data })
-    let res = await pet.json()
+    let res = myfecth("orden/get_all", {}, data).json()
     document.querySelector(".name_client_edit_reservation").textContent = "CLIENTE: " + res[0].cliente_nombre + " " + res[0].cliente_apellido
     document.querySelector(".document_client_edit_reservation").textContent = "DOCUMENTO: " + res[0].cliente_documento
     document.querySelector(".phone_client_edit_reservation").textContent = "TELEFONO: " + res[0].cliente_telefono
@@ -124,12 +122,10 @@ const detailsClient = async (id) => {
 const detailsReservation = async (id_reserva) => {
     let data = new FormData();
     data.append("id", id_reserva)
-    let pet = await fetch("calendario/get_all", { method: "POST", body: data })
-    let res = await pet.json()
+    let res = myfecth("calendario/get_all", {}, data).json()
     let dataPackage = new FormData();
     dataPackage.append("id_paquete", res[0].id_paquete)
-    let tables = await fetch("package_mesa/get_all", { method: "POST", body: dataPackage })
-    let resTables = await tables.json()
+    let resTables = myfecth("package_mesa/get_all", {}, dataPackage).json()
     document.querySelector(".date_edit_reservation").textContent = fecha(res[0].fecha_inicio) + " a las " + hora(res[0].fecha_inicio)
     document.querySelector(".cont_edit_package_reservation").textContent = res[0].paquete + " por " + res[0].precio_paquete + " USD" + " para " + resTables.reduce((acc, item) => acc + parseInt(item.sillas), 0) + " personas"
 }
@@ -137,8 +133,7 @@ const detailsPay = async (id_reserva) => {
     let data = new FormData();
     data.append("id_reserva", id_reserva)
     let templatePayment = ""
-    let pet = await fetch("paymentReservation/get_all/0/10000000/id/asc", { method: "POST", body: data })
-    let res = await pet.json()
+    let res = myfecth("paymentReservation/get_all/0/10000000/id/asc", {}, data).json()
     res.forEach((payment) => {
         templatePayment += `
       <div class="col-md-4 mt-3 border p-3 border-2 text-center">
@@ -153,8 +148,7 @@ const detailsPay = async (id_reserva) => {
 document.querySelector(".edit_client_edit_reservation").addEventListener("click", async () => {
     let data = new FormData();
     data.append("id", document.querySelector('.edit_client_edit_reservation').getAttribute('data-id'))
-    const pet = await fetch('calendario/get_all/0/10000000/id/asc', { method: 'POST', body: data })
-    let res = await pet.json()
+    let res = myfecth('calendario/get_all/0/10000000/id/asc', {}, data).json()
     window.dataClient = {
         documento: res[0].documento.split('-')[1],
         nombre: res[0].nombre_cliente,
@@ -183,8 +177,7 @@ document.querySelector(".edit_client_edit_reservation").addEventListener("click"
 document.querySelector(".edit_date_reservationEdit").addEventListener("click", async () => {
     let data = new FormData();
     data.append("id", document.querySelector('.edit_date_reservationEdit').getAttribute('data-id'))
-    const pet = await fetch('calendario/get_all/0/10000000/id/asc', { method: 'POST', body: data })
-    let res = await pet.json()
+    let res = myfecth('calendario/get_all/0/10000000/id/asc', {}, data).json()
     window.editDateReservation = { date: res[0].fecha_inicio, id: res[0].id }
 
     const dbDate = new Date(res[0].fecha_inicio.replace(" ", "T"))
@@ -253,12 +246,10 @@ document.querySelector(".btn-null-reservation").addEventListener("click", () => 
             let dataOrder = new FormData()
             dataReservation.append("id", id_reserva)
             dataReservation.append("status", "anulada")
-            let petReservation = await fetch("calendario/update", { method: "POST", body: dataReservation })
-            let responseReservation = await petReservation.json()
+            let responseReservation = myfecth("calendario/update", {}, dataReservation).json()
             dataOrder.append("id", id_orden)
             dataOrder.append("status", "anulada")
-            let petOrder = await fetch("orden/update", { method: "POST", body: dataOrder })
-            let responseOrder = await petOrder.json()
+            let responseOrder = myfecth("orden/update", {}, dataOrder).json()
             if (responseOrder.success == true && responseReservation.success == true) {
                 Swal.fire({
                     title: `Exito!`,
@@ -303,12 +294,10 @@ document.querySelector(".btn-verify-reservation").addEventListener("click", () =
             let dataOrder = new FormData()
             dataReservation.append("id", id_reserva)
             dataReservation.append("status", "confirmada")
-            let petReservation = await fetch("calendario/update", { method: "POST", body: dataReservation })
-            let responseReservation = await petReservation.json()
+            let responseReservation = myfecth("calendario/update", {}, dataReservation).json()
             dataOrder.append("id", id_orden)
             dataOrder.append("status", "pendiente")
-            let petOrder = await fetch("orden/update", { method: "POST", body: dataOrder })
-            let responseOrder = await petOrder.json()
+            let responseOrder = myfecth("orden/update", {}, dataOrder).json()
             if (responseOrder.success == true && responseReservation.success == true) {
                 Swal.fire({
                     title: `Exito!`,

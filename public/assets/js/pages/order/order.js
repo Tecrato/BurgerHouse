@@ -1,14 +1,14 @@
 import functionGeneral from "../../Functions.js";
 import Templates from "../../templates.js"
-import { myfecth, nuevaBitacora } from "../../Functions2.js"
+import { myfecth, nuevaBitacora, formatear_fecha, formatear_hora, sessionInfo } from "../../Functions2.js"
 import domicile_and_takeaway from "./domicile_and_takeaway.js";
 import { local, more_product_local_order, payOrder } from "./local.js";
 import { payOrderReservation } from "./reservationOrder.js"
 import { report, invoice } from "./report.js"
-const { searchParam, fecha, hora, sessionInfo, resetForm, permission, amountDolar } = functionGeneral()
+const { resetForm, permission, amountDolar } = functionGeneral()
 import introTooltip from "../../intro-tooltip.js"
 const { order } = introTooltip()
-let session = await sessionInfo();
+// let [session, permisos] = await sessionInfo();
 order('navbarDropdown')
 
 permission("Ordenes (llevar)")
@@ -233,8 +233,8 @@ let tableOrderDomicileoPendings = $('.table-order-domicilio-pendientes').DataTab
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
     { data: null, render: function (data) { return data.cliente_nombre + " " + data.cliente_apellido } },
-    { data: null, render: function (data) { return fecha(data.fecha) } },
-    { data: null, render: function (data) { return hora(data.fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
     {
       data: null,
       orderable: false,
@@ -304,8 +304,8 @@ let tableOrderDomicileProcess = $('.table-order-domicilio-procesadas').DataTable
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
     { data: null, render: function (data) { return data.cliente_nombre + " " + data.cliente_apellido } },
-    { data: null, render: function (data) { return fecha(data.fecha) } },
-    { data: null, render: function (data) { return hora(data.fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
     {
       data: null,
       orderable: false,
@@ -367,8 +367,8 @@ let tableOrderDomicileNull = $('.table-order-domicilio-null').DataTable({
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
     { data: null, render: function (data) { return data.cliente_nombre + " " + data.cliente_apellido } },
-    { data: null, render: function (data) { return fecha(data.fecha) } },
-    { data: null, render: function (data) { return hora(data.fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
     {
       data: null,
       orderable: false,
@@ -439,8 +439,8 @@ let tableOrderParaLlevarPendingsVeryfy = $('.table-order-llevar-pendientes').Dat
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
     { data: null, render: function (data) { return data.cliente_nombre + " " + data.cliente_apellido } },
-    { data: null, render: function (data) { return fecha(data.fecha) } },
-    { data: null, render: function (data) { return hora(data.fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
     {
       data: null,
       orderable: false,
@@ -501,8 +501,8 @@ let tableOrderParaLlevarProcess = $('.table-order-llevar-procesadas').DataTable(
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
     { data: null, render: function (data) { return data.cliente_nombre + " " + data.cliente_apellido } },
-    { data: null, render: function (data) { return fecha(data.fecha) } },
-    { data: null, render: function (data) { return hora(data.fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
     {
       data: null,
       orderable: false,
@@ -559,8 +559,8 @@ let tableOrderParaLlevarNull = $('.table-order-llevar-anuladas').DataTable({
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
     { data: null, render: function (data) { return data.cliente_nombre + " " + data.cliente_apellido } },
-    { data: null, render: function (data) { return fecha(data.fecha) } },
-    { data: null, render: function (data) { return hora(data.fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
     {
       data: null,
       orderable: false,
@@ -624,8 +624,8 @@ let tableOrderLocalPendingsVeryfy = $('.table-order-local-pendientes').DataTable
       ` }
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
-    { data: null, render: function (data) { return fecha(data.fecha) } },
-    { data: null, render: function (data) { return hora(data.fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
     {
       data: null,
       orderable: false,
@@ -686,8 +686,8 @@ let tableOrderLocalProcess = $('.table-order-local-procesadas').DataTable({
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
     { data: null, render: function (data) { return data.cliente_nombre + " " + data.cliente_apellido } },
-    { data: null, render: function (data) { return fecha(data.fecha) } },
-    { data: null, render: function (data) { return hora(data.fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
     {
       data: null,
       orderable: false,
@@ -753,8 +753,8 @@ let tableOrderResPendingsVeryfy = $('.table-order-res-pendientes').DataTable({
       ` }
     },
     { data: null, render: function (data) { return data.id_orden.toString().padStart(7, '0') } },
-    { data: null, render: function (data) { return fecha(data.fecha_inicio) } },
-    { data: null, render: function (data) { return hora(data.fecha_inicio) } },
+    { data: null, render: function (data) { return formatear_fecha(data.fecha_inicio) } },
+    { data: null, render: function (data) { return formatear_hora(data.fecha_inicio) } },
     {
       data: null,
       orderable: false,
@@ -821,8 +821,8 @@ let tableOrderResProcessVeryfy = $('.table-order-res-procesadas').DataTable({
       ` }
     },
     { data: null, render: function (data) { return data.id_orden.toString().padStart(7, '0') } },
-    { data: null, render: function (data) { return fecha(data.fecha_inicio) } },
-    { data: null, render: function (data) { return hora(data.fecha_inicio) } },
+    { data: null, render: function (data) { return formatear_fecha(data.fecha_inicio) } },
+    { data: null, render: function (data) { return formatear_hora(data.fecha_inicio) } },
     {
       data: null,
       orderable: false,
@@ -879,10 +879,8 @@ const detailOrder = async (btn) => {
     let dataProductPrepared = []
     let templateProductPrepared = ""
     let templateProductProcess = ""
-    let pet1 = await fetch("Detalle_orden_producto_preparado/get_all", { method: "POST", body: data })
-    let pet2 = await fetch("Detalle_orden_producto_procesado/get_all", { method: "POST", body: data })
-    let res = await pet1.json()
-    let res2 = await pet2.json()
+    let res = myfecth("Detalle_orden_producto_preparado/get_all", {}, data).json()
+    let res2 = myfecth("Detalle_orden_producto_procesado/get_all", {}, data).json()
     let group = {}
     res.forEach((productPrepared) => { if (productPrepared.tipo == "producto") dataProductPrepared.push(productPrepared) })
     dataProductPrepared.forEach((productPrepared) => {
@@ -916,8 +914,7 @@ const detailOrder = async (btn) => {
     data.append("id_venta", id_sale)
     let dataPayment = []
     let templatePayment = ""
-    let pet = await fetch("paymentSale/get_all/0/10000000/id/asc", { method: "POST", body: data })
-    let res = await pet.json()
+    let res = myfecth("paymentSale/get_all/0/10000000/id/asc", {}, data).json()
     res.forEach((payment) => {
       templatePayment += `
       <div class="col-md-6">
@@ -945,8 +942,7 @@ const actionOrder = async (btn, status) => {
         let id_order = btn.getAttribute("id_order");
         data.append("id", id_order);
         data.append("status", "en cocina");
-        let pet = await fetch(`orden/update`, { method: "POST", body: data });
-        let response = await pet.json();
+        let response = myfecth(`orden/update`, {}, data).json();
         if (response.success) {
           if (response.success == true) {
             Swal.fire({
@@ -978,8 +974,7 @@ const actionOrder = async (btn, status) => {
     let id_order = btn.getAttribute("id_order");
     let dataVerify = new FormData();
     dataVerify.append("id", id_order);
-    let petVerify = await fetch(`orden/get_all`, { method: "POST", body: dataVerify });
-    let resVerify = await petVerify.json();
+    let resVerify = myfecth(`orden/get_all`, {}, dataVerify).json();
     if (resVerify[0].status == "en preparacion" || resVerify[0].status == "en cocina" || resVerify[0].status == "por verificar" || resVerify[0].status == "anulado" || resVerify[0].status == "pendiente" || resVerify[0].status == "pagado") {
       Swal.fire({
         title: `Error!`,
@@ -999,8 +994,7 @@ const actionOrder = async (btn, status) => {
           let id_order = btn.getAttribute("id_order");
           data.append("id", id_order);
           data.append("status", status);
-          let pet = await fetch(`orden/update`, { method: "POST", body: data });
-          let response = await pet.json();
+          let response = myfecth(`orden/update`, {}, data).json();
           if (response.success == true) {
             Swal.fire({
               title: `Exito!`,
@@ -1037,14 +1031,14 @@ const actionOrder = async (btn, status) => {
     let id = btn.getAttribute('id_order')
     let id_reservation = 0
     if (btn.getAttribute('data_id_reservation')) id_reservation = btn.getAttribute('data_id_reservation')
-    let info = await searchParam({ id: id }, "orden")
-    let detailsPrepered = await searchParam({ id_orden: id }, "Detalle_orden_producto_preparado")
-    let detailsProcess = await searchParam({ id_orden: id }, "Detalle_orden_producto_procesado")
+    let info = myfecth(`orden/get_all`, {}, { id: id }).json();
+    let detailsPrepered = myfecth(`Detalle_orden_producto_preparado/get_all`, {}, { id_orden: id }).json();
+    let detailsProcess = myfecth(`Detalle_orden_producto_procesado/get_all`, {}, { id_orden: id }).json();
     let totalAmountPrepared = detailsPrepered.map(item => item.precio * item.cantidad).reduce((a, b) => a + b, 0)
     let totalAmountProcess = detailsProcess.map(item => item.precio * item.cantidad).reduce((a, b) => a + b, 0)
     let iva = (totalAmountPrepared + totalAmountProcess) * 0.16
-    let dataPaymentAbove = await searchParam({ id_reserva: id_reservation }, "PaymentReservation")
-    let dataPayment = await searchParam({ id_venta:  info[0].id_venta }, "paymentSale", 10000)
+    let dataPaymentAbove = myfecth("pago_reserva/get_all", {}, { id_reserva: id_reservation }).json()
+    let dataPayment = myfecth("pago_venta/get_all/0/10000", {}, { id_venta: info[0].id_venta }).json()
     console.log(dataPayment);
     let amountBs = []
     let amountUSD = []
@@ -1099,8 +1093,7 @@ const actionOrder = async (btn, status) => {
         let id_order = btn.getAttribute("id_order");
         data.append("id", id_order);
         data.append("status", "anulada");
-        let pet = await fetch(`orden/update`, { method: "POST", body: data });
-        let response = await pet.json();
+        let response = myfecth(`orden/update`, {}, data).json();
         if (response.success) {
           if (response.success == true) {
             Swal.fire({
@@ -1129,28 +1122,28 @@ const actionOrder = async (btn, status) => {
       }
     });
   } else if (action == "pay_order") {
-    const DataFormat = (fecha) => {
-      const fechaFormat = new Date(fecha);
+    const DataFormat = (formatear_fecha) => {
+      const fechaFormat = new Date(formatear_fecha);
       const año = fechaFormat.getFullYear();
       const mes = String(fechaFormat.getMonth() + 1).padStart(2, '0');
       const dia = String(fechaFormat.getDate()).padStart(2, '0');
-      const hora = String(fechaFormat.getHours()).padStart(2, '0');
+      const formatear_hora = String(fechaFormat.getHours()).padStart(2, '0');
       const minutos = String(fechaFormat.getMinutes()).padStart(2, '0');
       const segundos = String(fechaFormat.getSeconds()).padStart(2, '0');
 
-      const fechaMysql = `${año}-${mes}-${dia} ${hora}:${minutos}:${segundos}`;
+      const fechaMysql = `${año}-${mes}-${dia} ${formatear_hora}:${minutos}:${segundos}`;
       return fechaMysql
     }
     let id = btn.getAttribute('id_order')
     let id_reservation = 0
     if (btn.getAttribute('id_reservation')) id_reservation = btn.getAttribute('id_reservation')
-    let info = await searchParam({ id: id }, "orden")
-    let detailsPrepered = await searchParam({ id_orden: id }, "Detalle_orden_producto_preparado")
-    let detailsProcess = await searchParam({ id_orden: id }, "Detalle_orden_producto_procesado")
+    let info = myfecth(`orden/get_all`, {}, { id: id }).json()
+    let detailsPrepered = myfecth("Detalle_orden_producto_preparado", {}, { id_orden: id }).json()
+    let detailsProcess = myfecth("Detalle_orden_producto_procesado", {}, { id_orden: id }).json()
     let totalAmountPrepared = detailsPrepered.map(item => item.precio * item.cantidad).reduce((a, b) => a + b, 0)
     let totalAmountProcess = detailsProcess.map(item => item.precio * item.cantidad).reduce((a, b) => a + b, 0)
     let iva = (totalAmountPrepared + totalAmountProcess) * 0.16
-    let dataPaymentAbove = await searchParam({ id_reserva: id_reservation }, "PaymentReservation")
+    let dataPaymentAbove = myfecth("pago_reserva", {}, { id_reserva: id_reservation }).json()
     let montoBs = []
     let montoUSD = []
     dataPaymentAbove.forEach(item => {
@@ -1205,14 +1198,12 @@ const actionOrder = async (btn, status) => {
           let data = new FormData();
           data.append("id", id);
           data.append("status", "pagado");
-          let pet = await fetch(`orden/update`, { method: "POST", body: data });
-          let response = await pet.json();
+          let response = myfecth(`orden/update`, {}, data).json();
           let dataReservation = new FormData();
           dataReservation.append("id", id_reservation);
           dataReservation.append("status", "finalizada");
           dataReservation.append("fecha_final", DataFormat(new Date()));
-          let petReservation = await fetch(`calendario/update`, { method: "POST", body: dataReservation });
-          let petResponse = await petReservation.json();
+          let petResponse = myfecth(`calendario/update`, {}, dataReservation).json();
           if (response.success == true && petResponse.success == true) {
             if (response.success == true) {
               Swal.fire({
@@ -1365,7 +1356,8 @@ document.querySelector(".btn_order_local").addEventListener("click", () => {
   local(functionGeneral, Templates, () => {
     tableOrderLocalPendingsVeryfy.ajax.reload()
     tableOrderLocalProcess.ajax.reload()
-    targetUpdate("local")
+    targetUpdate("local"),
+    myfecth
   })
   setTimeout(() => { bootstrap.Modal.getOrCreateInstance('#product_and_table').show() }, 300)
 })

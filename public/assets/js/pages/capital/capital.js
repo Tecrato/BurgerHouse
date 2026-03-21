@@ -55,8 +55,7 @@ let n = $(".table_movimientos_capital").DataTable({
 })
 $("#searchCapital").on('keyup', function () { n.search(this.value).draw() })
 const target = async () => {
-    let pet = await fetch('capital/getCapital')
-    let data = await pet.json()
+    let data = myfecth('capital/getCapital', {}, {}).json()
     document.querySelector(".capital_ingresos").textContent = data[0].ingresos + " $"
     document.querySelector(".capital_ventas").textContent = data[0].ventas + " $"
     document.querySelector(".capital_gastos").textContent = data[0].gastos.toString().replace("-", "") + " $"

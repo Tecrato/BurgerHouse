@@ -1,9 +1,8 @@
 import { Poppins_normal } from "../../../libs/libs/jspdf/poppins.js"
 import { poppins_bold } from "../../../libs/libs/jspdf/poppins_bold.js"
 const { jsPDF } = window.jspdf;
-const info = async () => {
-    let pet = await fetch(`entrada_materia_prima/inventario`);
-    let response = await pet.json();
+const info = () => {
+    let response = myfecth(`entrada_materia_prima/inventario`).json();
     return response
 }
 const doc = new jsPDF();

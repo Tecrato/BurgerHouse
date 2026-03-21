@@ -64,8 +64,7 @@ const preparedKitchen = () => {
                 data.append("id", id)
                 if (action == "en cocina") data.append("status", "en preparacion")
                 else data.append("status", "para despachar")
-                let pet = await fetch('orden/update', { method: "POST", body: data })
-                let res = await pet.json()
+                let res = myfecth('orden/update', {}, data).json()
                 if (res.success !== true) {
                     Swal.fire({
                         title: `Error!`,

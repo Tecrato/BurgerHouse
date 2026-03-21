@@ -116,7 +116,7 @@ let interval = () => {
 
     let resend = document.querySelector(".underline")
     resend.addEventListener("click", () => {
-        let sendEmail = fetch("changepass/sendEmail", { method: "POST", body: dataSendEmail });
+        myfecth("changepass/sendEmail", {}, dataSendEmail);
         timer = 150
         interval()
     })
@@ -135,8 +135,7 @@ nextButtons.forEach(button => {
                 dataSendEmail.append("id", pet[0].id);
                 dataSendEmail.append("name", pet[0].nombre);
                 interval();
-                let sendEmail = await fetch("changepass/sendEmail", { method: "POST", body: dataSendEmail });
-                let res = await sendEmail.json();
+                let res = myfecth("changepass/sendEmail", {}, dataSendEmail).json();
                 if (res.success == true) {
                     currentStep++;
                     updateSteps();
@@ -156,8 +155,7 @@ nextButtons.forEach(button => {
         } else if (data_validate == "token") {
             let token = button.closest('.stepes').querySelector("#token").value;
             dataSendToken.append("token", token);
-            let pet = await fetch(`changepass/validateToken`, { method: "POST", body: dataSendToken });
-            let result = await pet.json()
+            let result = myfecth(`changepass/validateToken`, {}, dataSendToken).json()
             if (result.success == true) {
                 currentStep++;
                 updateSteps();
@@ -184,8 +182,7 @@ btnUpdateUser.addEventListener('click', async () => {
         let newpass = new FormData()
         newpass.append("hash", document.querySelector("#password").value)
         newpass.append("id", idUser)
-        let send = await fetch("changepass/update", { method: "POST", body: newpass })
-        let result = await send.json()
+        let result = myfecth("changepass/update", {}, newpass).json()
         if (result.success == true) {
             toas("success", "Contraseña actualizada");
             nuevaBitacora(`Recuperar contraseña", "Actualizacion", "Se actualizo la contraseña del usuario ${idUser}`);

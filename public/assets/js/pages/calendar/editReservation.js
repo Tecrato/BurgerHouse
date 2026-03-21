@@ -74,15 +74,13 @@ export const editReservationClient = async (functionGeneral, Templates) => {
             } else {
                 let data = new FormData()
                 data.append("cedula", formClient.querySelector("input").value);
-                let pet = await fetch(`login/cedula`, { method: "POST", body: data })
-                let res = await pet.json()
+                let res = myfecth("login/cedula", {}, data).json()
                 if (res.success == true) {
                     let data = new FormData()
                     data.append("nombre", res.message.primer_nombre);
                     data.append("apellido", res.message.primer_apellido);
                     data.append("documento", res.message.nacionalidad + "-" + res.message.cedula);
-                    let pet2 = await fetch(`clientes/add`, { method: "POST", body: data })
-                    let res2 = await pet2.json()
+                    let res2 = myfecth("clientes/add", {}, data).json()
                     if (res2.success == true) {
                         let pet3 = await searchParam({ active: 1, id: res2.last_id }, "clientes", 1);
                         let template = targetClienteOrder(pet3[0])
@@ -118,14 +116,12 @@ export const editReservationClient = async (functionGeneral, Templates) => {
                 let data = new FormData()
                 data.append("id", window.dataClient.id_orden);
                 data.append("id_cliente", document.querySelector(".cont_client-reservation-edit").querySelector("h4[id]").getAttribute("id"));
-                let pet = await fetch(`orden/update`, { method: "POST", body: data })
-                let res = await pet.json()
+                let res = myfecth("orden/update", {}, data).json()
 
                 let dataCli = new FormData()
                 dataCli.append("id", document.querySelector(".cont_client-reservation-edit").querySelector("h4[id]").getAttribute("id"));
                 dataCli.append("telefono", iti.getNumber());
-                let updateClient = await fetch(`clients/update`, { method: "POST", body: dataCli })
-                let resClient = await updateClient.json()
+                let resClient = myfecth("clients/update", {}, dataCli).json()
                 if (res.success == true && resClient.success == true) {
                     Swal.fire({
                         title: `Exito!`,
@@ -230,9 +226,7 @@ export const editDateReservation = async (funtionGeneral, reload) => {
                 data.append("id", id);
                 data.append("fecha_inicio", date.fecha_inicio);
                 data.append("fecha_bloqueo", date.fecha_bloqueo);
-                let pet = await fetch(`calendario/update`, { method: "POST", body: data })
-                let res = await pet.json()
-                if (res.success == true) {
+                let res = myfecth("calendario/update", {}, data).json()
                     Swal.fire({
                         title: `Exito!`,
                         text: "La fecha de la reserva fue actualizada correctamente",
@@ -709,8 +703,7 @@ export const editPackageReservation = async (functionGeneral, Templates) => {
             let data = new FormData();
             data.append("id", id)
             data.append("id_paquete", id_paquete)
-            let pet = await fetch("calendario/update", { method: "POST", body: data })
-            let res = await pet.json()
+            let res = myfecth("calendario/update", {}, data).json()
             if (res.success == true) {
                 Swal.close();
                 Swal.fire({
@@ -762,8 +755,7 @@ export const editPackageReservation = async (functionGeneral, Templates) => {
                 paymentDataNew.append(`lista[${index}][imagen]`, payment.imagen)
                 paymentDataNew.append(`lista[${index}][imagen_name]`, payment.imagen.name)
             })
-            let petPayment = await fetch("payment/add_many", { method: "POST", body: paymentDataNew })
-            let resPayment = await petPayment.json()
+            let resPayment = myfecth("payment/add_many", {}, paymentDataNew).json()
             console.log(resPayment);
             let id_payments = resPayment.lista
             let dataPaymentDetails = new FormData();
@@ -771,16 +763,14 @@ export const editPackageReservation = async (functionGeneral, Templates) => {
                 dataPaymentDetails.append(`lista[${index}][id_pago]`, payment)
                 dataPaymentDetails.append(`lista[${index}][id_reserva]`, packageData.id)
             })
-            let petPaymentDetails = await fetch("paymentReservation/add_many", { method: "POST", body: dataPaymentDetails })
-            let resPaymentDetails = await petPaymentDetails.json()
+            let resPaymentDetails = myfecth("paymentReservation/add_many", {}, dataPaymentDetails).json()
             console.log(resPaymentDetails);
 
             const { id, id_paquete } = window.infoEditPackage
             let data = new FormData();
             data.append("id", id)
             data.append("id_paquete", id_paquete)
-            let pet = await fetch("calendario/update", { method: "POST", body: data })
-            let res = await pet.json()
+            let res = myfecth("calendario/update", {}, data).json()
             console.log(res);
 
             if (resPaymentDetails.success == true && res.success == true) {

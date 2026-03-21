@@ -86,8 +86,7 @@ let tableActive = $(".table_notifications").DataTable({
                         let id = btn.getAttribute("data-id");
                         let data = new FormData()
                         data.append('id', id)
-                        let pet = await fetch('notification/delete', { method: "POST", body: data })
-                        let response = await pet.json()
+                        let response = myfecth('notification/delete', {}, data).json()
                         if (response.success == true) {
                             Swal.fire({
                                 title: "Exito!",
@@ -135,8 +134,7 @@ let tableActive = $(".table_notifications").DataTable({
                             items.forEach((item, index) => {
                                 if (item.checked) data.append(`lista[${index}][id]`, item.getAttribute("data-id"))
                             })
-                            let pet = await fetch('notification/delete_many', { method: "POST", body: data })
-                            let response = await pet.json()
+                            let response = myfecth('notification/delete_many', {}, data).json()
                             if (response.status == "success") {
                                 Swal.fire({
                                     title: "Exito!",
@@ -187,8 +185,7 @@ let tableActive = $(".table_notifications").DataTable({
                             items.forEach((item, index) => {
                                 if (item.checked) data.append(`lista[${index}][id]`, item.getAttribute("data-id"))
                             })
-                            let pet = await fetch('notification/check', { method: "POST", body: data })
-                            let response = await pet.json()
+                            let response = myfecth('notification/check', {}, data).json()
                             if (response.status == "success") {
                                 Swal.fire({
                                     title: "Exito!",

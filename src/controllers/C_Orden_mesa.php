@@ -43,14 +43,76 @@ if ($url[1] === 'get_all') {
         make_url_error($e->getMessage(), 400, ajax: true);
     }
     $ajax = true;
+} else if ($url[1] === 'add_many') {
+    if (!$session->has_permission('ordenes_mesa', 'agregar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    if (!isset($_POST['lista']) || !is_array($_POST['lista']) || count($_POST['lista']) === 0) {
+        make_url_error("No se recibio una lista valida para agregar.", 400, ajax: true);
+    }
+
+    try {
+        $ids = [];
+        foreach ($_POST['lista'] as $item) {
+            if (!is_array($item)) {
+                make_url_error("Cada item de la lista debe ser un arreglo valido.", 400, ajax: true);
+            }
+            $itemModel = new Orden_mesa(...$item);
+            $ids[] = $itemModel->agregar();
+        }
+        $resultado_final = ['success' => true, 'lista' => $ids];
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
 } else if ($url[1] === 'update') {
-    if (!$session->has_permission('ordenes_mesa', 'editar')) {
+    $active = $_POST['active'] ?? null;
+
+    if ($active !== null && (string)$active === '0') {
+        if (!$session->has_permission('ordenes_mesa', 'eliminar')) {
+            make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+        }
+    } else if ($active !== null && (string)$active === '1') {
+        if (
+            !$session->has_permission('Papelera', 'restaurar') &&
+            !$session->has_permission('ordenes_mesa', 'eliminar')
+        ) {
+            make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+        }
+    } else if (!$session->has_permission('ordenes_mesa', 'editar')) {
         make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
     }
 
     try {
         $modelo = new Orden_mesa(...$_POST);
         $resultado_final = $modelo->actualizar();
+    } catch (Exception $e) {
+        make_url_error($e->getMessage(), 400, ajax: true);
+    }
+    $ajax = true;
+} else if ($url[1] === 'updatemany' || $url[1] === 'update_many') {
+    if (!$session->has_permission('ordenes_mesa', 'editar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    if (!isset($_POST['lista']) || !is_array($_POST['lista']) || count($_POST['lista']) === 0) {
+        make_url_error("No se recibio una lista valida para actualizar.", 400, ajax: true);
+    }
+
+    $ok = true;
+    try {
+        foreach ($_POST['lista'] as $item) {
+            if (!is_array($item)) {
+                make_url_error("Cada item de la lista debe ser un arreglo valido.", 400, ajax: true);
+            }
+            $itemModel = new Orden_mesa(...$item);
+            $res = $itemModel->actualizar();
+            if (($res['success'] ?? false) !== true) {
+                $ok = false;
+            }
+        }
+        $resultado_final = ['success' => $ok];
     } catch (Exception $e) {
         make_url_error($e->getMessage(), 400, ajax: true);
     }
@@ -71,6 +133,44 @@ if ($url[1] === 'get_all') {
         make_url_error($e->getMessage(), 400, ajax: true);
     }
     $ajax = true;
+} else if ($url[1] === 'deletemany' || $url[1] === 'delete_many' || $url[1] === 'check') {
+    if (!$session->has_permission('ordenes_mesa', 'eliminar')) {
+        make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
+    }
+
+    $lista = null;
+    if (isset($_POST['lista']) && is_array($_POST['lista'])) {
+        $lista = $_POST['lista'];
+    } else if (isset($_POST['ids']) && is_array($_POST['ids'])) {
+        $lista = $_POST['ids'];
+    }
+
+    if (!is_array($lista) || count($lista) === 0) {
+        make_url_error("No se recibio una lista valida para eliminar.", 400, ajax: true);
+    }
+
+    $ok = true;
+    foreach ($lista as $item) {
+        $id = null;
+        if (is_array($item)) {
+            $id = $item['id'] ?? null;
+        } else if (is_numeric($item)) {
+            $id = $item;
+        }
+
+        if ($id === null) {
+            make_url_error("Cada item debe incluir un id valido.", 400, ajax: true);
+        }
+
+        $itemModel = new Orden_mesa(id: $id);
+        $deleted = $itemModel->borrar();
+        if ($deleted === 0 || $deleted === false) {
+            $ok = false;
+        }
+    }
+
+    $resultado_final = ['success' => $ok];
+    $ajax = true;
 } else if ($url[1] === 'count' || $url[1] === 'total') {
     if (!$session->has_permission('ordenes_mesa', 'consultar')) {
         make_url_error("No tienes permiso para acceder a este recurso.", 403, ajax: true);
@@ -84,7 +184,7 @@ if ($url[1] === 'get_all') {
     }
     $ajax = true;
 } else {
-    make_url_error("Accion no valida para orden_mesa.", 404, ajax: true);
+    make_url_error("Accion no valida para ordenes_mesa.", 404, ajax: true);
 }
 
 if ($ajax) {
