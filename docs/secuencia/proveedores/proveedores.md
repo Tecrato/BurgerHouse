@@ -10,27 +10,20 @@ sequenceDiagram
     participant Proveedor as Proveedor (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Proveedor: fetch("proveedor/add", {POST, formData})
+    JS->>C_Proveedor: fetch("proveedor/add", {POST formData})
     
     alt Validación de permisos
         C_Proveedor->>C_Proveedor: has_permission('proveedores', 'agregar')
     end
     
-    C_Proveedor->>Proveedor: new Proveedor(
-        nombre, 
-        razon_social, 
-        documento,
-        n_telefono1,
-        n_telefono2,
-        direccion
-    )
+    C_Proveedor->>Proveedor: new Proveedor(nombre, razon_social, documento, n_telefono1, n_telefono2, direccion)
     
     C_Proveedor->>Proveedor: agregar()
     Proveedor->>DB: INSERT INTO proveedores (...)
     DB-->>Proveedor: lastInsertId
     Proveedor-->>C_Proveedor: lastInsertId
     
-    C_Proveedor-->>JS: {success: true, last_id: id}
+    C_Proveedor-->>JS: {success true last_id id}
 ```
 
 ## Consultar Proveedores
@@ -43,11 +36,11 @@ sequenceDiagram
     participant Proveedor as Proveedor (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Proveedor: fetch("proveedor/get_all", {POST, page, limit, search})
+    JS->>C_Proveedor: fetch("proveedor/get_all", {POST page limit search})
     
     C_Proveedor->>C_Proveedor: has_permission('proveedores', 'consultar')
     
-    C_Proveedor->>Proveedor: new Proveedor(razon_social_like: search)
+    C_Proveedor->>Proveedor: new Proveedor(search)
     Proveedor->>DB: Query SELECT WHERE razon_social LIKE '%...%'
     DB-->>Proveedor: Array de proveedores
     Proveedor-->>C_Proveedor: Array de proveedores
@@ -65,7 +58,7 @@ sequenceDiagram
     participant Proveedor as Proveedor (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Proveedor: fetch("proveedor/update", {POST, id, datos})
+    JS->>C_Proveedor: fetch("proveedor/update", {POST id datos})
     
     alt Sin permiso
         C_Proveedor->>C_Proveedor: has_permission('proveedores', 'eliminar')
@@ -93,11 +86,11 @@ sequenceDiagram
     participant Proveedor as Proveedor (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Proveedor: fetch("proveedor/update", {POST, id, active: 0})
+    JS->>C_Proveedor: fetch("proveedor/update", {POST id active 0})
     
     C_Proveedor->>C_Proveedor: has_permission('proveedores', 'eliminar')
     
-    C_Proveedor->>Proveedor: new Proveedor(id, active: 0)
+    C_Proveedor->>Proveedor: new Proveedor(id, active)
     Proveedor->>DB: UPDATE proveedores SET active=0 WHERE id=?
     DB-->>Proveedor: {success: true}
     Proveedor-->>C_Proveedor: {success: true}

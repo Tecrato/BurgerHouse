@@ -10,7 +10,7 @@ sequenceDiagram
     participant ProductoPreparado as ProductoPreparado (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Producto_preparado: fetch("producto_preparado/add", {POST, formData})
+    JS->>C_Producto_preparado: fetch("producto_preparado/add", {POST formData})
     
     alt Validación de permisos
         C_Producto_preparado->>C_Producto_preparado: has_permission('producto_preparado', 'agregar')
@@ -31,7 +31,7 @@ sequenceDiagram
         C_Producto_preparado->>C_Producto_preparado: move_uploaded_file(imagen)
     end
     
-    C_Producto_preparado-->>JS: {success: true, last_id: id}
+    C_Producto_preparado-->>JS: {success true last_id id}
 ```
 
 ## Consultar Productos Preparados
@@ -96,7 +96,7 @@ sequenceDiagram
     participant ProductoPreparado as ProductoPreparado (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Producto_preparado: fetch("producto_preparado/add_many", {POST, lista: [...]})
+    JS->>C_Producto_preparado: fetch("producto_preparado/add_many", {POST lista [...]})
     
     C_Producto_preparado->>C_Producto_preparado: has_permission('producto_preparado', 'agregar')
     
@@ -108,5 +108,5 @@ sequenceDiagram
         C_Producto_preparado->>C_Producto_preparado: Agregar ID a array resultado
     end
     
-    C_Producto_preparado-->>JS: {success: true, last_ids: [1,2,3]}
+    C_Producto_preparado-->>JS: {success true last_ids [1,2,3]}
 ```

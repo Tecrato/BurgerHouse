@@ -11,7 +11,7 @@ sequenceDiagram
     participant Paquetes_mesa as Paquetes_mesa (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Reservacion: fetch("reservacion/add", {POST, formData})
+    JS->>C_Reservacion: fetch("reservacion/add", {POST formData})
     
     alt Validación de permisos
         C_Reservacion->>C_Reservacion: has_permission('reservaciones', 'agregar')
@@ -21,13 +21,7 @@ sequenceDiagram
         C_Reservacion->>C_Reservacion: fetch("orden/add", {...})
     end
     
-    C_Reservacion->>Reservacion: new Reservacion(
-        id_orden, 
-        id_paquete, 
-        fecha_inicio, 
-        fecha_final,
-        descripcion
-    )
+    C_Reservacion->>Reservacion: new Reservacion(id_orden, id_paquete, fecha_inicio, fecha_final, descripcion)
     
     Reservacion->>DB: INSERT INTO reservaciones (...)
     DB-->>Reservacion: lastInsertId
@@ -40,7 +34,7 @@ sequenceDiagram
         Paquetes_mesa-->>C_Reservacion: lastInsertId
     end
     
-    C_Reservacion-->>JS: {success: true, last_id: id}
+    C_Reservacion-->>JS: {success true last_id id}
 ```
 
 ## Consultar Reservaciones
@@ -53,7 +47,7 @@ sequenceDiagram
     participant Reservacion as Reservacion (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Reservacion: fetch("reservacion/get_all", {POST, page, limit, filtros})
+    JS->>C_Reservacion: fetch("reservacion/get_all", {POST page limit filtros})
     
     C_Reservacion->>C_Reservacion: has_permission('reservaciones', 'consultar')
     
@@ -80,12 +74,12 @@ sequenceDiagram
     participant Orden as Orden (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Reservacion: fetch("calendario/update", {POST, id, status: 'finalizada'})
+    JS->>C_Reservacion: fetch("calendario/update", {POST id status 'finalizada'})
     
     C_Reservacion->>C_Reservacion: has_permission('reservaciones', 'editar')
     
     alt Actualizar reservación
-        C_Reservacion->>Reservacion: new Reservacion(id, status: 'finalizada')
+        C_Reservacion->>Reservacion: new Reservacion(id, status)
         Reservacion->>DB: UPDATE reservaciones SET status='finalizada'
         DB-->>Reservacion: {success: true}
         Reservacion-->>C_Reservacion: {success: true}
@@ -97,7 +91,7 @@ sequenceDiagram
     end
     
     alt Actualizar orden a pagada
-        C_Reservacion->>Orden: new Orden(id, status: 'pagado')
+        C_Reservacion->>Orden: new Orden(id, status)
         Orden->>DB: UPDATE orden SET status='pagado'
         DB-->>Orden: {success: true}
         Orden-->>C_Reservacion: {success: true}
@@ -116,18 +110,15 @@ sequenceDiagram
     participant Reservacion as Reservacion (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Reservacion: fetch("reservacion/add", {POST, fecha_bloqueo, ...})
+    JS->>C_Reservacion: fetch("reservacion/add", {POST fecha_bloqueo ...})
     
     C_Reservacion->>C_Reservacion: has_permission('reservaciones', 'agregar')
     
-    C_Reservacion->>Reservacion: new Reservacion(
-        fecha_bloqueo, 
-        status: 'bloqueado'
-    )
+    C_Reservacion->>Reservacion: new Reservacion(fecha_bloqueo, status)
     
     Reservacion->>DB: INSERT INTO reservaciones (...)
     DB-->>Reservacion: lastInsertId
     Reservacion-->>C_Reservacion: lastInsertId
     
-    C_Reservacion-->>JS: {success: true, last_id: id}
+    C_Reservacion-->>JS: {success true last_id id}
 ```

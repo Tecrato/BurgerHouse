@@ -9,7 +9,7 @@ sequenceDiagram
     participant C_Users as C_Users.php
     participant Usuario as Usuario (Model)
     
-    JS->>C_Users: fetch("users/add", {POST, formData})
+    JS->>C_Users: fetch("users/add", {POST formData})
     
     alt Validación de permisos
         C_Users->>C_Users: has_permission('usuarios', 'agregar')
@@ -30,7 +30,7 @@ sequenceDiagram
         C_Users->>C_Users: move_uploaded_file(imagen)
     end
     
-    C_Users-->>JS: {success: true, last_id: id}
+    C_Users-->>JS: {success true last_id id}
 ```
 
 ## Consultar Usuarios
@@ -43,7 +43,7 @@ sequenceDiagram
     participant Usuario as Usuario (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Users: fetch("users/get_all", {POST, page, limit, order})
+    JS->>C_Users: fetch("users/get_all", {POST page limit order})
     
     C_Users->>C_Users: has_permission('usuarios', 'consultar')
     
@@ -65,7 +65,7 @@ sequenceDiagram
     participant Usuario as Usuario (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Users: fetch("users/update", {POST, id, datos})
+    JS->>C_Users: fetch("users/update", {POST id datos})
     
     alt Soft-delete
         C_Users->>C_Users: has_permission('usuarios', 'eliminar')
@@ -93,7 +93,7 @@ sequenceDiagram
     participant Usuario as Usuario (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Users: fetch("users/delete", {POST, id})
+    JS->>C_Users: fetch("users/delete", {POST id})
     
     C_Users->>C_Users: has_permission('usuarios', 'eliminar')
     
@@ -116,7 +116,7 @@ sequenceDiagram
     participant Auth as AuthSession
     participant DB as Conexion (DB)
     
-    JS->>C_Login: fetch("login/login", {POST, email, hash})
+    JS->>C_Login: fetch("login/login", {POST email hash})
     
     C_Login->>Usuario: new Usuario(email, hash)
     Usuario->>DB: SELECT WHERE email=? AND hash=?
@@ -124,16 +124,16 @@ sequenceDiagram
     Usuario-->>C_Login: usuario encontrado / null
 
     alt Usuario no encontrado
-        C_Login-->>JS: {success: false, message: "Credenciales incorrectas"}
+        C_Login-->>JS: {success false message "Credenciales incorrectas"}
     end
     
     alt Usuario encontrado
         C_Login->>Auth: crearSesion(usuario)
         Auth->>Auth: session_start()
-        Auth->>Auth: $_SESSION['id'] = usuario.id
-        Auth->>Auth: $_SESSION['rol'] = usuario.rol
+        Auth->>Auth: session.id = usuario.id
+        Auth->>Auth: session.rol = usuario.rol
         
-        C_Login-->>JS: {success: true, usuario: {...}}
+        C_Login-->>JS: {success true usuario {...}}
     end
 ```
 
@@ -150,7 +150,7 @@ sequenceDiagram
     
     C_Login->>Auth: destruirSesion()
     Auth->>Auth: session_destroy()
-    Auth->>Auth: $_SESSION = []
+    Auth->>Auth: session = []
     
     C_Login-->>JS: {success: true}
 ```
@@ -158,7 +158,7 @@ sequenceDiagram
     
     C_Login->>Auth: destruirSesion()
     Auth->>Auth: session_destroy()
-    Auth->>Auth: $_SESSION = []
+    Auth->>Auth: session = []
     
     C_Login-->>JS: {success: true}
 ```

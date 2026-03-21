@@ -10,7 +10,7 @@ sequenceDiagram
     participant Mesa as Mesa (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Mesas: fetch("mesas/add", {POST, formData})
+    JS->>C_Mesas: fetch("mesas/add", {POST formData})
     
     alt Validación de permisos
         C_Mesas->>C_Mesas: has_permission('mesas', 'agregar')
@@ -31,7 +31,7 @@ sequenceDiagram
     DB-->>Mesa: lastInsertId
     Mesa-->>C_Mesas: lastInsertId
     
-    C_Mesas-->>JS: {success: true, last_id: id}
+    C_Mesas-->>JS: {success true last_id id}
 ```
 
 ## Consultar Mesas
@@ -44,7 +44,7 @@ sequenceDiagram
     participant Mesa as Mesa (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Mesas: fetch("mesas/get_all", {POST, page, limit})
+    JS->>C_Mesas: fetch("mesas/get_all", {POST page limit})
     
     C_Mesas->>C_Mesas: has_permission('mesas', 'consultar')
     
@@ -93,7 +93,7 @@ sequenceDiagram
     participant Orden_mesa as Orden_mesa (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Orden_mesa: fetch("orden_mesa/add_many", {POST, lista: [...]})
+    JS->>C_Orden_mesa: fetch("orden_mesa/add_many", {POST lista [...]})
     
     C_Orden_mesa->>C_Orden_mesa: has_permission('ordenes_mesa', 'agregar')
     
@@ -104,9 +104,9 @@ sequenceDiagram
         Orden_mesa-->>C_Orden_mesa: lastInsertId
     end
     
-    C_Orden_mesa->>C_Mesas: fetch("mesas/update", {POST, id, estado: 'ocupada'})
+    C_Orden_mesa->>C_Mesas: fetch("mesas/update", {POST id estado 'ocupada'})
     
-    C_Orden_mesa-->>JS: {success: true, lista: [ids]}
+    C_Orden_mesa-->>JS: {success true lista [ids]}
 ```
 
 ## Liberar Mesa (al pagar orden)
@@ -119,7 +119,7 @@ sequenceDiagram
     participant Orden_mesa as Orden_mesa (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Orden_mesa: fetch("orden_mesa/delete", {POST, id})
+    JS->>C_Orden_mesa: fetch("orden_mesa/delete", {POST id})
     
     C_Orden_mesa->>C_Orden_mesa: has_permission('ordenes_mesa', 'eliminar')
     

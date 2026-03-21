@@ -14,13 +14,7 @@ sequenceDiagram
     
     Sistema->>Bitacora: nuevaBitacora(tabla, accion, descripcion)
     
-    Bitacora->>Bitacora: new Bitacora(
-        id_usuario: $_SESSION['id'],
-        tabla,
-        accion,
-        descripcion,
-        fecha: NOW()
-    )
+    Bitacora->>Bitacora: new Bitacora(id_usuario, tabla, accion, descripcion, fecha)
     
     Bitacora->>DB: INSERT INTO bitacora (...)
     DB-->>Bitacora: lastInsertId
@@ -37,7 +31,7 @@ sequenceDiagram
     participant Bitacora as Bitacora (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Bitacora: fetch("bitacora/get_all", {POST, page, limit, filtros})
+    JS->>C_Bitacora: fetch("bitacora/get_all", {POST page limit filtros})
     
     C_Bitacora->>C_Bitacora: has_permission('bitacora', 'consultar')
     
@@ -62,9 +56,9 @@ sequenceDiagram
     participant Bitacora as Bitacora (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Bitacora: fetch("bitacora/get_all", {POST, id_usuario: x})
+    JS->>C_Bitacora: fetch("bitacora/get_all", {POST id_usuario})
     
-    C_Bitacora->>Bitacora: new Bitacora(id_usuario: x)
+    C_Bitacora->>Bitacora: new Bitacora(id_usuario)
     Bitacora->>DB: Query SELECT WHERE id_usuario = ?
     DB-->>Bitacora: Array filtrado
     Bitacora-->>C_Bitacora: Array filtrado
@@ -82,9 +76,9 @@ sequenceDiagram
     participant Bitacora as Bitacora (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Bitacora: fetch("bitacora/get_all", {POST, tabla: 'ordenes'})
+    JS->>C_Bitacora: fetch("bitacora/get_all", {POST tabla})
     
-    C_Bitacora->>Bitacora: new Bitacora(tabla_str: 'ordenes')
+    C_Bitacora->>Bitacora: new Bitacora(tabla)
     Bitacora->>DB: Query SELECT WHERE tabla = 'ordenes'
     DB-->>Bitacora: Array filtrado
     Bitacora-->>C_Bitacora: Array filtrado

@@ -19,7 +19,7 @@ sequenceDiagram
     DB-->>Modulo: Array de módulos
     Modulo-->>C_Permisos: Array de módulos
     
-    C_Permisos-->>JS: {data: [...], recordsFiltered: n}
+    C_Permisos-->>JS: {data [...] recordsFiltered n}
 ```
 
 ## Consultar Permisos Disponibles
@@ -32,7 +32,7 @@ sequenceDiagram
     participant Permiso as Permiso (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Permisos: fetch("permisos/get_permisos_by_rol_modulo", {POST, id_rol, id_modulo})
+    JS->>C_Permisos: fetch("permisos/get_permisos_by_rol_modulo", {POST id_rol id_modulo})
     
     C_Permisos->>C_Permisos: has_permission('permisos', 'consultar')
     
@@ -42,7 +42,7 @@ sequenceDiagram
     Permiso-->>C_Permisos: Array de permisos
     
     C_Permisos->>C_Permisos: Verificar cuáles tiene asignados el rol
-    C_Permisos-->>JS: {permisos: [...], asignados: [ids]}
+    C_Permisos-->>JS: {permisos [...] asignados [ids]}
 ```
 
 ## Toggle Permiso (Asignar/Quitar)
@@ -55,7 +55,7 @@ sequenceDiagram
     participant Rol_modulo_permiso as Rol_modulo_permiso (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Permisos: fetch("permisos/toggle_permiso", {POST, id_rol, id_modulo, id_permiso})
+    JS->>C_Permisos: fetch("permisos/toggle_permiso", {POST id_rol id_modulo id_permiso})
     
     C_Permisos->>C_Permisos: has_permission('permisos', 'editar')
     
@@ -64,17 +64,17 @@ sequenceDiagram
     
     alt Relación ya existe
         Rol_modulo_permiso->>DB: DELETE FROM roles_modulos_permisos
-        DB-->>Rol_modulo_permiso: {success: true, action: 'removed'}
-        Rol_modulo_permiso-->>C_Permisos: {success: true, action: 'removed'}
+        DB-->>Rol_modulo_permiso: {success true action 'removed'}
+        Rol_modulo_permiso-->>C_Permisos: {success true action 'removed'}
     end
     
     alt Relación NO existe
         Rol_modulo_permiso->>DB: INSERT INTO roles_modulos_permisos
-        DB-->>Rol_modulo_permiso: {success: true, action: 'added', last_id}
-        Rol_modulo_permiso-->>C_Permisos: {success: true, action: 'added', last_id}
+        DB-->>Rol_modulo_permiso: {success true action 'added' last_id}
+        Rol_modulo_permiso-->>C_Permisos: {success true action 'added' last_id}
     end
     
-    C_Permisos-->>JS: {success: true, action: 'added'/'removed'}
+    C_Permisos-->>JS: {success true action 'added'/'removed'}
 ```
 
 ## Obtener Permisos de un Rol
@@ -87,7 +87,7 @@ sequenceDiagram
     participant Rol as Rol (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Permisos: fetch("permisos/get_by_rol", {POST, id_rol})
+    JS->>C_Permisos: fetch("permisos/get_by_rol", {POST id_rol})
     
     C_Permisos->>C_Permisos: has_permission('permisos', 'consultar')
     

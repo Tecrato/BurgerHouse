@@ -10,7 +10,7 @@ sequenceDiagram
     participant Cliente as Cliente (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Clientes: fetch("clientes/add", {POST, formData})
+    JS->>C_Clientes: fetch("clientes/add", {POST formData})
     
     alt Validación de permisos
         C_Clientes->>C_Clientes: has_permission('clientes', 'agregar')
@@ -27,7 +27,7 @@ sequenceDiagram
     DB-->>Cliente: lastInsertId
     Cliente-->>C_Clientes: lastInsertId
     
-    C_Clientes-->>JS: {success: true, last_id: id}
+    C_Clientes-->>JS: {success true last_id id}
 ```
 
 ## Consultar Clientes
@@ -40,11 +40,11 @@ sequenceDiagram
     participant Cliente as Cliente (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Clientes: fetch("clientes/get_all", {POST, page, limit, search})
+    JS->>C_Clientes: fetch("clientes/get_all", {POST page limit search})
     
     C_Clientes->>C_Clientes: has_permission('clientes', 'consultar')
     
-    C_Clientes->>Cliente: new Cliente(nombre_like: search)
+    C_Clientes->>Cliente: new Cliente(search)
     Cliente->>DB: Query SELECT WHERE nombre LIKE '%...%'
     DB-->>Cliente: Array de clientes
     Cliente-->>C_Clientes: Array de clientes
@@ -62,19 +62,19 @@ sequenceDiagram
     participant Cliente as Cliente (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Login: fetch("login/cedula", {POST, cedula})
+    JS->>C_Login: fetch("login/cedula", {POST cedula})
     
-    C_Login->>Cliente: new Cliente(documento: cedula)
+    C_Login->>Cliente: new Cliente(documento)
     Cliente->>DB: Query SELECT WHERE documento=?
     DB-->>Cliente: cliente encontrado / []
     Cliente-->>C_Login: cliente encontrado / []
     
     alt Cliente encontrado
-        C_Login-->>JS: {success: true, message: {primer_nombre, primer_apellido, nacionalidad, cedula}}
+        C_Login-->>JS: {success true message primer_nombre primer_apellido nacionalidad cedula}
     end
     
     alt Cliente NO encontrado
-        C_Login-->>JS: {success: false, message: "Cliente no registrado"}
+        C_Login-->>JS: {success false message "Cliente no registrado"}
     end
 ```
 
@@ -88,7 +88,7 @@ sequenceDiagram
     participant Cliente as Cliente (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Clientes: fetch("clientes/update", {POST, id, datos})
+    JS->>C_Clientes: fetch("clientes/update", {POST id datos})
     
     alt Soft-delete
         C_Clientes->>C_Clientes: has_permission('clientes', 'eliminar')
@@ -120,11 +120,11 @@ sequenceDiagram
     participant Cliente as Cliente (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Clientes: fetch("clientes/update", {POST, id, active: 0})
+    JS->>C_Clientes: fetch("clientes/update", {POST id active})
     
     C_Clientes->>C_Clientes: has_permission('clientes', 'eliminar')
     
-    C_Clientes->>Cliente: new Cliente(id, active: 0)
+    C_Clientes->>Cliente: new Cliente(id, active)
     Cliente->>DB: UPDATE clientes SET active=0 WHERE id=?
     DB-->>Cliente: {success: true}
     Cliente-->>C_Clientes: {success: true}

@@ -12,7 +12,7 @@ sequenceDiagram
     participant Orden_mesa as Orden_mesa (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Orden: fetch("orden/add", {POST, formData})
+    JS->>C_Orden: fetch("orden/add", {POST formData})
     
     alt Validación de permisos
         C_Orden->>C_Orden: has_permission('ordenes', 'agregar')
@@ -37,7 +37,7 @@ sequenceDiagram
     end
     
     alt Stock insuficiente
-        C_Orden-->>JS: {success: false, message: {detalle_preparado/procesado}}
+        C_Orden-->>JS: {success false message detalle_preparado/procesado}
     end
     
     alt Stock suficiente
@@ -55,7 +55,7 @@ sequenceDiagram
             Orden_mesa-->>C_Orden_mesa: lastInsertId
         end
         
-        C_Orden-->>JS: {success: true, last_id: id}
+        C_Orden-->>JS: {success true last_id id}
     end
 ```
 
@@ -133,7 +133,7 @@ sequenceDiagram
     participant Orden as Orden (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Orden: fetch("orden/get_all", {POST, page, limit, order})
+    JS->>C_Orden: fetch("orden/get_all", {POST page limit order})
     
     alt Validación de permisos
         C_Orden->>C_Orden: has_permission('ordenes', 'consultar')
@@ -147,7 +147,7 @@ sequenceDiagram
     DB-->>Orden: Array de órdenes
     Orden-->>C_Orden: Array de órdenes
     
-    C_Orden-->>JS: {data: [...], total: n}
+    C_Orden-->>JS: {data [...] total n}
 ```
 
 ## Actualizar Estado de Orden
@@ -159,7 +159,7 @@ sequenceDiagram
     participant C_Orden as C_Orden.php
     participant Orden as Orden (Model)
     
-    JS->>C_Orden: fetch("orden/update", {POST, id, status})
+    JS->>C_Orden: fetch("orden/update", {POST id status})
     
     alt Soft-delete (active = 0)
         C_Orden->>C_Orden: has_permission('ordenes', 'eliminar')
@@ -216,7 +216,7 @@ sequenceDiagram
     participant Dropbox as Dropbox API
     participant Email as PHPMailer
     
-    JS->>C_Orden: fetch("orden/sendInvoice", {POST, pdf})
+    JS->>C_Orden: fetch("orden/sendInvoice", {POST pdf})
     
     C_Orden->>C_Orden: has_permission('ordenes', 'agregar')
     
@@ -228,5 +228,5 @@ sequenceDiagram
     C_Orden->>Email: $email->send()
     Email-->>C_Orden: true/false
     
-    C_Orden-->>JS: {success: true, url: dropbox_url}
+    C_Orden-->>JS: {success true url dropbox_url}
 ```

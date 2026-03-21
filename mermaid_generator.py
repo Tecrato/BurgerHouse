@@ -18,10 +18,30 @@ import json
 from urllib.parse import quote
 
 def extract_mermaid_diagrams(md_content):
-    """Extrae todos los bloques mermaid de un archivo markdown"""
-    pattern = r'```mermaid\s+([\s\S]*?)```'
-    matches = re.findall(pattern, md_content)
-    return [m.strip() for m in matches if 'sequenceDiagram' in m or 'classDiagram' in m]
+    """Extrae todos los bloques mermaid con su encabezado ##"""
+    sections = []
+    lines = md_content.split('\n')
+    current_heading = None
+    
+    for i, line in enumerate(lines):
+        if line.startswith('## '):
+            current_heading = line.replace('## ', '').strip()
+            current_heading = re.sub(r'[^a-zA-Z0-9\s]', '', current_heading)
+            current_heading = re.sub(r'\s+', '_', current_heading).lower()
+        elif line.startswith('```mermaid'):
+            diagram_lines = []
+            j = i + 1
+            while j < len(lines) and not lines[j].startswith('```'):
+                diagram_lines.append(lines[j])
+                j += 1
+            diagram = '\n'.join(diagram_lines).strip()
+            if 'sequenceDiagram' in diagram or 'classDiagram' in diagram:
+                sections.append({
+                    'heading': current_heading or f'diagrama_{len(sections)+1}',
+                    'diagram': diagram
+                })
+    
+    return sections
 
 def generate_mermaid_image_mermaid_ink(mermaid_code, output_path):
     """
@@ -119,7 +139,7 @@ def main():
             errors += 1
             continue
         
-        # Extraer diagramas
+        # Extraer diagramas con sus encabezados
         diagrams = extract_mermaid_diagrams(content)
         
         if not diagrams:
@@ -129,17 +149,17 @@ def main():
         
         print(f"  {len(diagrams)} diagrama(s) encontrado(s)")
         
-        # Crear subcarpeta para el módulo
+        # Crear subcarpeta para el modulo
         module_dir = output_dir / md_file.parent.name
         module_dir.mkdir(exist_ok=True)
         
         # Generar cada diagrama
-        for i, diagram in enumerate(diagrams, 1):
-            # Nombre del archivo de salida
-            if len(diagrams) == 1:
-                output_file = module_dir / f"{md_file.stem}.png"
-            else:
-                output_file = module_dir / f"{md_file.stem}_{i}.png"
+        for section in diagrams:
+            heading = section['heading']
+            diagram = section['diagram']
+            
+            # Nombre del archivo: stem_accion.png
+            output_file = module_dir / f"{md_file.stem}_{heading}.png"
             
             # Generar imagen
             if generate_mermaid_image_mermaid_ink(diagram, output_file):
@@ -147,8 +167,8 @@ def main():
             else:
                 errors += 1
             
-            # Rate limiting amigable
-            time.sleep(0.5)
+            # Rate limiting
+            # time.sleep(0.5)
     
     print("\n" + "=" * 60)
     print(f"   Resultado:")

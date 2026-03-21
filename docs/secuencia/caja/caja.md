@@ -10,22 +10,17 @@ sequenceDiagram
     participant Caja as Caja (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Caja: fetch("caja/add", {POST, monto_inicial_dolar, monto_inicial_bs})
+    JS->>C_Caja: fetch("caja/add", {POST monto_inicial_dolar monto_inicial_bs})
     
     C_Caja->>C_Caja: has_permission('caja', 'agregar')
     
-    C_Caja->>Caja: new Caja(
-        id_usuario, 
-        monto_inicial_dolar, 
-        monto_inicial_bs,
-        estado: 'abierta'
-    )
+    C_Caja->>Caja: new Caja(id_usuario, monto_inicial_dolar, monto_inicial_bs, estado)
     
     Caja->>DB: INSERT INTO caja (...)
     DB-->>Caja: lastInsertId
     Caja-->>C_Caja: lastInsertId
     
-    C_Caja-->>JS: {success: true, last_id: id}
+    C_Caja-->>JS: {success true last_id id}
 ```
 
 ## Consultar Cajas Abiertas
@@ -38,11 +33,11 @@ sequenceDiagram
     participant Caja as Caja (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Caja: fetch("caja/get_all", {POST, estado: 'abierta'})
+    JS->>C_Caja: fetch("caja/get_all", {POST estado})
     
     C_Caja->>C_Caja: has_permission('caja', 'consultar')
     
-    C_Caja->>Caja: new Caja(estado: 'abierta')
+    C_Caja->>Caja: new Caja(estado)
     Caja->>DB: Query SELECT WHERE estado='abierta'
     DB-->>Caja: Array de cajas
     Caja-->>C_Caja: Array de cajas
@@ -64,7 +59,7 @@ sequenceDiagram
     participant DB as Conexion (DB)
     
     alt Registrar Venta
-        JS->>C_Venta: fetch("sale/add", {POST, id_orden, id_caja, monto_final})
+        JS->>C_Venta: fetch("sale/add", {POST id_orden id_caja monto_final})
         
         C_Venta->>Venta: new Venta(id_orden, id_caja, monto_final, IVA)
         Venta->>DB: INSERT INTO ventas (...)
@@ -74,7 +69,7 @@ sequenceDiagram
     
     alt Registrar Pagos
         loop Por cada método de pago
-            JS->>C_Venta: fetch("payment/add_many", {POST, lista: [...]})
+            JS->>C_Venta: fetch("payment/add_many", {POST lista [...]})
             
             C_Venta->>Pago: new Pago(id_metodo_pago, monto, tasa, referencia)
             Pago->>DB: INSERT INTO pagos (...)
@@ -88,7 +83,7 @@ sequenceDiagram
         end
     end
     
-    C_Venta-->>JS: {success: true, last_id: id_venta}
+    C_Venta-->>JS: {success true last_id id_venta}
 ```
 
 ## Cerrar Caja
@@ -101,11 +96,11 @@ sequenceDiagram
     participant Caja as Caja (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Caja: fetch("caja/update", {POST, id, estado: 'cerrada'})
+    JS->>C_Caja: fetch("caja/update", {POST id estado})
     
     C_Caja->>C_Caja: has_permission('caja', 'editar')
     
-    C_Caja->>Caja: new Caja(id, estado: 'cerrada')
+    C_Caja->>Caja: new Caja(id, estado)
     Caja->>DB: UPDATE caja SET estado='cerrada'
     DB-->>Caja: {success: true}
     Caja-->>C_Caja: {success: true}
@@ -116,7 +111,7 @@ sequenceDiagram
     DB-->>Caja: {monto_final, total_ventas, etc.}
     Caja-->>C_Caja: {monto_final, total_ventas, etc.}
     
-    C_Caja-->>JS: {success: true, summary: {...}}
+    C_Caja-->>JS: {success true summary {...}}
 ```
 
 ## Ver Detalles de Caja
@@ -129,7 +124,7 @@ sequenceDiagram
     participant Caja as Caja (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Caja: fetch("caja/get_all", {POST, id})
+    JS->>C_Caja: fetch("caja/get_all", {POST id})
     
     C_Caja->>Caja: new Caja(id)
     Caja->>DB: cajaDetails(id)

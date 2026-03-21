@@ -11,7 +11,7 @@ sequenceDiagram
     participant Detalle_receta as Detalle_receta (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Receta: fetch("receta/add", {POST, id_producto})
+    JS->>C_Receta: fetch("receta/add", {POST id_producto})
     
     alt Validación de permisos
         C_Receta->>C_Receta: has_permission('recetas', 'agregar')
@@ -25,17 +25,13 @@ sequenceDiagram
     Receta-->>C_Receta: id_receta
     
     loop Por cada ingrediente (materia prima)
-        C_Receta->>Detalle_receta: new Detalle_receta(
-            id_receta, 
-            id_materia_prima, 
-            cantidad
-        )
+        C_Receta->>Detalle_receta: new Detalle_receta(id_receta, id_materia_prima, cantidad)
         Detalle_receta->>DB: INSERT INTO detalles_receta
         DB-->>Detalle_receta: lastInsertId
         Detalle_receta-->>C_Receta: lastInsertId
     end
     
-    C_Receta-->>JS: {success: true, last_id: id_receta}
+    C_Receta-->>JS: {success true last_id id_receta}
 ```
 
 ## Consultar Recetas
@@ -48,7 +44,7 @@ sequenceDiagram
     participant Receta as Receta (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Receta: fetch("receta/get_all", {POST, page, limit})
+    JS->>C_Receta: fetch("receta/get_all", {POST page limit})
     
     C_Receta->>C_Receta: has_permission('recetas', 'consultar')
     
@@ -73,7 +69,7 @@ sequenceDiagram
     participant Detalle_receta as Detalle_receta (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Detalle_receta: fetch("detalle_receta/get_all", {POST, id_receta})
+    JS->>C_Detalle_receta: fetch("detalle_receta/get_all", {POST id_receta})
     
     C_Detalle_receta->>Detalle_receta: new Detalle_receta(id_receta)
     
@@ -133,12 +129,12 @@ sequenceDiagram
     participant Detalle_receta as Detalle_receta (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Receta: fetch("receta/delete", {POST, id})
+    JS->>C_Receta: fetch("receta/delete", {POST id})
     
     C_Receta->>C_Receta: has_permission('recetas', 'eliminar')
     
     alt Primero eliminar detalles
-        C_Receta->>Detalle_receta: new Detalle_receta(id_receta: id)
+        C_Receta->>Detalle_receta: new Detalle_receta(id)
         Detalle_receta->>DB: DELETE FROM detalles_receta WHERE id_receta=?
     end
     

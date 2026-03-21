@@ -10,7 +10,7 @@ sequenceDiagram
     participant ProductoProcesado as ProductoProcesado (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_PP: fetch("producto_procesado/add", {POST, formData})
+    JS->>C_PP: fetch("producto_procesado/add", {POST formData})
     
     alt Validación de permisos
         C_PP->>C_PP: has_permission('producto_procesado', 'agregar')
@@ -28,7 +28,7 @@ sequenceDiagram
     DB-->>ProductoProcesado: lastInsertId
     ProductoProcesado-->>C_PP: lastInsertId
     
-    C_PP-->>JS: {success: true, last_id: id}
+    C_PP-->>JS: {success true last_id id}
 ```
 
 ## Registrar Entrada de Producto Procesado
@@ -41,7 +41,7 @@ sequenceDiagram
     participant Entrada_PP as Entrada_producto_procesado (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Entrada_PP: fetch("entrada_producto_procesado/add", {POST, formData})
+    JS->>C_Entrada_PP: fetch("entrada_producto_procesado/add", {POST formData})
     
     C_Entrada_PP->>Entrada_PP: new Entrada_producto_procesado(...formData)
     Note right of Entrada_PP: Constructor recibe<br/>id_producto, id_proveedor,<br/>cantidad, precio_compra,<br/>fecha_vencimiento
@@ -54,7 +54,7 @@ sequenceDiagram
         C_Entrada_PP->>C_Entrada_PP: UPDATE productos_procesados<br/>SET existencia = existencia + cantidad
     end
     
-    C_Entrada_PP-->>JS: {success: true, last_id: id}
+    C_Entrada_PP-->>JS: {success true last_id id}
 ```
 
 ## Consultar Entradas de Productos Procesados
@@ -134,18 +134,13 @@ sequenceDiagram
     participant Pago_PP as Pago_entrada_producto_procesado (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Pago_PP: fetch("pago_entrada_producto_procesado/add", {POST, formData})
+    JS->>C_Pago_PP: fetch("pago_entrada_producto_procesado/add", {POST formData})
     
-    C_Pago_PP->>Pago_PP: new Pago_entrada_producto_procesado(
-        id_entrada,
-        id_metodo_pago,
-        precio_compra,
-        tasa
-    )
+    C_Pago_PP->>Pago_PP: new Pago_entrada_producto_procesado(id_entrada, id_metodo_pago, precio_compra, tasa)
     
     Pago_PP->>DB: INSERT INTO pagos_entrada_producto_procesado
     DB-->>Pago_PP: lastInsertId
     Pago_PP-->>C_Pago_PP: lastInsertId
     
-    C_Pago_PP-->>JS: {success: true, last_id: id}
+    C_Pago_PP-->>JS: {success true last_id id}
 ```

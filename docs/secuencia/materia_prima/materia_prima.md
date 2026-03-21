@@ -10,7 +10,7 @@ sequenceDiagram
     participant Materia_prima as Materia_prima (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Materia_prima: fetch("materia_prima/add", {POST, formData})
+    JS->>C_Materia_prima: fetch("materia_prima/add", {POST formData})
     
     alt Validación de permisos
         C_Materia_prima->>C_Materia_prima: has_permission('materia_prima', 'agregar')
@@ -27,7 +27,7 @@ sequenceDiagram
     DB-->>Materia_prima: lastInsertId
     Materia_prima-->>C_Materia_prima: lastInsertId
     
-    C_Materia_prima-->>JS: {success: true, last_id: id}
+    C_Materia_prima-->>JS: {success true last_id id}
 ```
 
 ## Registrar Entrada de Materia Prima
@@ -41,7 +41,7 @@ sequenceDiagram
     participant Detalle_mp as Detalle_entrada_materia_prima (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Entrada_mp: fetch("entrada_materia_prima/add", {POST, id_proveedor, fecha_compra})
+    JS->>C_Entrada_mp: fetch("entrada_materia_prima/add", {POST id_proveedor fecha_compra})
     
     C_Entrada_mp->>Entrada_mp: new Entrada_materia_prima(id_proveedor, fecha_compra)
     Entrada_mp->>DB: INSERT INTO entradas_materia_prima (...)
@@ -49,13 +49,7 @@ sequenceDiagram
     Entrada_mp-->>C_Entrada_mp: id_entrada
     
     loop Por cada item (materia prima)
-        C_Entrada_mp->>Detalle_mp: new Detalle_entrada_materia_prima(
-            id_entrada, 
-            id_materia_prima, 
-            cantidad, 
-            fecha_vencimiento, 
-            codigo
-        )
+        C_Entrada_mp->>Detalle_mp: new Detalle_entrada_materia_prima(id_entrada, id_materia_prima, cantidad, fecha_vencimiento, codigo)
         Detalle_mp->>DB: INSERT INTO detalles_entradas_materia_prima
         DB-->>Detalle_mp: lastInsertId
         Detalle_mp-->>C_Entrada_mp: lastInsertId
@@ -63,7 +57,7 @@ sequenceDiagram
         C_Entrada_mp->>C_Entrada_mp: Actualizar existencia de materia_prima
     end
     
-    C_Entrada_mp-->>JS: {success: true, last_id: id_entrada}
+    C_Entrada_mp-->>JS: {success true last_id id_entrada}
 ```
 
 ## Consultar Entradas de Materia Prima
@@ -102,14 +96,9 @@ sequenceDiagram
     participant Pago_mp as Pago_entrada_materia_prima (Model)
     participant DB as Conexion (DB)
     
-    JS->>C_Pago_mp: fetch("pago_entrada_materia_prima/add", {POST, formData})
+    JS->>C_Pago_mp: fetch("pago_entrada_materia_prima/add", {POST formData})
     
-    C_Pago_mp->>Pago_mp: new Pago_entrada_materia_prima(
-        id_entrada, 
-        id_metodo_pago, 
-        precio_compra, 
-        tasa
-    )
+    C_Pago_mp->>Pago_mp: new Pago_entrada_materia_prima(id_entrada, id_metodo_pago, precio_compra, tasa)
     
     Pago_mp->>DB: INSERT INTO pagos_entrada_materia_prima
     DB-->>Pago_mp: lastInsertId
@@ -119,7 +108,7 @@ sequenceDiagram
         C_Pago_mp->>C_Pago_mp: move_uploaded_file(comprobante)
     end
     
-    C_Pago_mp-->>JS: {success: true, last_id: id}
+    C_Pago_mp-->>JS: {success true last_id id}
 ```
 
 ## Actualizar Existencia (Descontar Stock)
