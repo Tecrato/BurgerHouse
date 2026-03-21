@@ -67,15 +67,13 @@ if ($url[1] === 'get_all') {
         $detalles_productos = [];
 
         if (isset($lista_detalle_preparado) && is_array($lista_detalle_preparado)) {
-            $receta = new Receta();
-            $detalle_receta = new Detalle_receta();
 
             for ($i = 0; $i < count($lista_detalle_preparado); $i++) {
                 $idProducto = $lista_detalle_preparado[$i]['id_producto'];
                 $cantidadPedido = $lista_detalle_preparado[$i]['cantidad'];
-                $receta->__construct(id_producto: $idProducto);
+                $receta = new Receta(id_producto: $idProducto);
                 foreach ($receta->search() as $key) {
-                    $detalle_receta->__construct(id_receta: $key['id']);
+                    $detalle_receta = new Detalle_receta(id_receta: $key['id']);
                     foreach ($detalle_receta->search() as $detalle) {
                         $detalle['cantidad'] = $detalle['cantidad'] * $cantidadPedido;
                         $detalles_receta[] = $detalle;
@@ -83,7 +81,6 @@ if ($url[1] === 'get_all') {
                 }
             }
 
-            date_default_timezone_set('America/Caracas');
             $date_now = new DateTime();
 
             $recetaPosible = true;
@@ -434,7 +431,6 @@ if ($url[1] === 'get_all') {
             'refresh_token' => $refreshToken
         ]));
         $response = curl_exec($ch);
-        curl_close($ch);
 
         $dataToken = json_decode($response, true);
         if (!isset($dataToken['access_token'])) {
