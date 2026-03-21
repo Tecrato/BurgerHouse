@@ -1,15 +1,15 @@
 import functionGeneral from "../../Functions.js";
-import { nuevaBitacora } from "../../Functions2.js"
+import { nuevaBitacora, myfecth } from "../../Functions2.js"
 import Templates from "../../templates.js";
 const { optionsSupplier, elemenFormEntrysProductProcess, optionsRol, elementFormPaymentEntrysProductProcess, elementFormPaymentEntrysProductProcessEdit, elementFormPaymentEntrysProductProcessEditNew } = Templates()
 const { InputPrice, selectOptionAll, viewImage, resetForm, setValidationStyles, validateField, fecha, searchParam, diasRestantesFechaVencimiento, sessionInfo, binnacle, editDataTables, updateDataTables, deleteDatatable, permission, amountDolar } = functionGeneral();
 let session = await sessionInfo();
 const dolar = await amountDolar()
 permission("Entradas de productos procesados")
-selectOptionAll(".select_options_supplier", "proveedor", optionsSupplier)
+selectOptionAll(".select_options_supplier", "proveedores", optionsSupplier)
 selectOptionAll(".select_options_product", "producto_procesado", optionsRol)
 selectOptionAll(".select_options_unit", "unidades", optionsRol)
-selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
+selectOptionAll(".select_options_payment", "metodos_de_pago", optionsRol)
 InputPrice("[input_price]")
 viewImage(".input-image")
 function reindexEntrys(elementAll, id, counter, name) {
@@ -128,7 +128,7 @@ async function reference() {
                 let id = element.getAttribute("data-id");
                 let data = new FormData();
                 data.append("id_entrada", id);
-                let response = myfecth(`Entry_product_process_payment/get_all/0/100000`, {}, data).json()
+                let response = myfecth(`entrada_producto_procesado_pago/get_all/0/100000`, {}, data).json()
                 let template = ""
                 response.forEach((element) => {
                     template += `
@@ -235,7 +235,7 @@ let tablePorVencer = $(".table_entrys_por_vencer").DataTable({
     },
     columns: [
         { data: 'codigo' },
-        { data: 'nombre_materia_prima' },
+        { data: 'nombre_producto' },
         { data: 'nombre_proveedor' },
         { data: null, render: function (data, type, row, meta) { return fecha(data.fecha_compra) } },
         { data: null, render: function (data, type, row, meta) { return fecha(data.fecha_vencimiento) } },
@@ -281,7 +281,7 @@ let tableVencidas = $(".table_entrys_vencidos").DataTable({
     },
     columns: [
         { data: 'codigo' },
-        { data: 'nombre_materia_prima' },
+        { data: 'nombre_producto' },
         { data: 'nombre_proveedor' },
         { data: null, render: function (data, type, row, meta) { return fecha(data.fecha_compra) } },
         { data: null, render: function (data, type, row, meta) { return fecha(data.fecha_vencimiento) } },
@@ -327,7 +327,7 @@ let tableSinStock = $(".table_entrys_sin_stock").DataTable({
 
     columns: [
         { data: 'codigo' },
-        { data: 'nombre_materia_prima' },
+        { data: 'nombre_producto' },
         { data: 'nombre_proveedor' },
         { data: null, render: function (data, type, row, meta) { return fecha(data.fecha_compra) } },
         { data: null, render: function (data, type, row, meta) { return fecha(data.fecha_vencimiento) } },
@@ -371,7 +371,7 @@ function addEntrys() {
         return elementFormPaymentEntrysProductProcess(paymentCount);
     }));
     feather.replace();
-    selectOptionAll(".select_options_supplier", "proveedor", optionsSupplier)
+    selectOptionAll(".select_options_supplier", "proveedores", optionsSupplier)
     selectOptionAll(".select_options_product", "producto_procesado", optionsRol)
     selectOptionAll(".select_options_unit", "unidades", optionsRol)
     selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
@@ -874,7 +874,7 @@ editDataTables(".table_entrys_active", async (response) => {
     let data = new FormData();
     let index = 1
     data.append("id_entrada", response[0].id);
-    let petRes = myfecth(`Entry_product_process_payment/get_all/0/100000`, {}, data).json()
+    let petRes = myfecth(`entrada_producto_procesado_pago/get_all/0/100000`, {}, data).json()
     let template = ""
     for (const element of petRes) {
         template += elementFormPaymentEntrysProductProcessEdit(index, element)
@@ -882,7 +882,7 @@ editDataTables(".table_entrys_active", async (response) => {
     }
     document.querySelector("#payment_entry_container_edit").innerHTML = template;
     feather.replace()
-    selectOptionAll(".select_options_supplier", "proveedor", optionsSupplier)
+    selectOptionAll(".select_options_supplier", "proveedores", optionsSupplier)
     selectOptionAll(".select_options_product", "producto_procesado", optionsRol)
     selectOptionAll(".select_options_unit", "unidades", optionsRol)
     selectOptionAll(".select_options_payment", "metodo_pago", optionsRol)
@@ -905,7 +905,7 @@ editDataTables(".table_entrys_active", async (response) => {
                         const id = payRemove.id
                         let data = new FormData();
                         data.append("id", id);
-                        let petRes = myfecth("Entry_product_process_payment/delete", {}, data).json()
+                        let petRes = myfecth("entrada_producto_procesado_pago/delete", {}, data).json()
                         if (petRes.success == true) {
                             payRemove.closest(".payment_entry_edit").remove()
                             index--
@@ -1099,12 +1099,12 @@ if (!formEdit.dataset.listenerAttached) {
                     dataPayInsert.append(`lista[${index}][imagen]`, element.imagen)
                     dataPayInsert.append(`lista[${index}][imagen_name]`, element.imagen.name)
                 })
-                let responseInsertPayment = myfecth("Entry_product_process_payment/add_many", {}, dataPayInsert).json()
+                let responseInsertPayment = myfecth("entrada_producto_procesado_pago/add_many", {}, dataPayInsert).json()
                 console.log(responseInsertPayment);
             }
             let responseEntry = myfecth("Entrada_producto_procesado/update", {}, dataEntry).json()
             console.log(responseEntry);
-            let responsePayment = myfecth("Entry_product_process_payment/updateMany", {}, dataPayUpdate).json()
+            let responsePayment = myfecth("entrada_producto_procesado_pago/updateMany", {}, dataPayUpdate).json()
             console.log(responsePayment);
 
             if (responseEntry.success == true && responsePayment.success == true) {

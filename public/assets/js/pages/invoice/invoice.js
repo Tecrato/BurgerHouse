@@ -1,6 +1,7 @@
 import functionGeneral from "../../Functions.js";
 import Templates from "../../templates.js";
 import { invoice } from "./report.js"
+import { myfecth } from "../../Functions2.js"
 const { print, searchParam, searchFilter, searchBetween, amountDolar, setValidationStyles } = functionGeneral()
 const { targetInvoice, targetInvoiceReservation } = Templates()
 const dolar = parseFloat(await amountDolar())

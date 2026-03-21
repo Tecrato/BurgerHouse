@@ -333,7 +333,7 @@ const modulesConfig = {
     },
     entry_raw_material: {
         ajax: {
-            url: 'Entrada_materia_prima/get_all/0/10000000/id/asc',
+            url: 'entrada_materia_prima_detalles/get_all/0/10000000/id/asc',
             dataSrc: '',
             type: 'POST',
             data: {

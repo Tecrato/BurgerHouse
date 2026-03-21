@@ -77,22 +77,19 @@ export async function local(functions, templates, reload, myfecth) {
         });
     }
     const initPopover = async () => {
-        let data = []
-        let elements = []
+        let allAdicionales = await searchParam({ active: 1 }, "adicionales", 5000)
         let recipeDetails = await searchParam({}, "recetas", 5000)
-        for (const item of recipeDetails) {
-            let pet = await searchParam({ active: 1, tipo: "adicional", id: item.id_producto }, "adicionales", 100);
-            for (const el of pet) {
-                elements.push(el)
-            }
-        }
-        elements.forEach((item) => {
-            data.push({
+        
+        let productIds = recipeDetails.map(r => r.id_producto)
+        
+        let data = allAdicionales
+            .filter(item => productIds.includes(parseInt(item.id_producto)))
+            .map(item => ({
                 value: item.nombre,
                 id: item.id,
                 precio: item.precio
-            });
-        })
+            }));
+        
         document.querySelectorAll('textarea[name="tags"]').forEach((input) => {
             let tagify = new Tagify(input, {
                 whitelist: data,
@@ -163,14 +160,19 @@ export async function local(functions, templates, reload, myfecth) {
     const products = async () => {
         let templatePrepared = "";
         let templateProcess = "";
-        let recipeDetails = await searchParam({}, "recetas", 5000)
-        for (const recipe of recipeDetails) {
-            const id = recipe.id_producto
-            let product = await searchParam({ id: id, tipo: "producto" }, "producto_preparado", 100)
-            product.forEach((product) => { templatePrepared += selectProduct(product, "producto_preparado"); })
-        }
-        let productProcess = await searchParam({ active: 1 }, "producto_procesado", 100)
-        productProcess.forEach((product) => { templateProcess += selectProduct(product, "producto_procesado"); })
+        let allPreparedProducts = await searchParam({ tipo: "producto" }, "producto_preparado", 5000)
+        let allCombos = await searchParam({ tipo: "combo" }, "producto_preparado", 5000)
+        let allProcess = await searchParam({ active: 1 }, "producto_procesado", 5000)
+        
+        allPreparedProducts.forEach((product) => { 
+            templatePrepared += selectProduct(product, "producto_preparado"); 
+        })
+        
+        allCombos.forEach((product) => { 
+            templatePrepared += selectProduct(product, "combo"); 
+        })
+        
+        allProcess.forEach((product) => { templateProcess += selectProduct(product, "producto_procesado"); })
         document.querySelector(".cont-select-product-order_local").innerHTML = "";
         document.querySelector(".cont-select-product-order_local").insertAdjacentHTML("beforeend", templatePrepared)
         document.querySelector(".cont-select-product-order_local").insertAdjacentHTML("beforeend", templateProcess)
@@ -546,22 +548,19 @@ export async function more_product_local_order(functions, templates, reload, myf
         });
     }
     const initPopover = async () => {
-        let data = []
-        let elements = []
+        let allAdicionales = await searchParam({ active: 1 }, "adicionales", 5000)
         let recipeDetails = await searchParam({}, "recetas", 5000)
-        for (const item of recipeDetails) {
-            let pet = await searchParam({ active: 1, tipo: "adicional", id: item.id_producto }, "adicionales", 100);
-            for (const el of pet) {
-                elements.push(el)
-            }
-        }
-        elements.forEach((item) => {
-            data.push({
+        
+        let productIds = recipeDetails.map(r => r.id_producto)
+        
+        let data = allAdicionales
+            .filter(item => productIds.includes(parseInt(item.id_producto)))
+            .map(item => ({
                 value: item.nombre,
                 id: item.id,
                 precio: item.precio
-            });
-        })
+            }));
+        
         document.querySelectorAll('textarea[name="tags"]').forEach((input) => {
             let tagify = new Tagify(input, {
                 whitelist: data,
@@ -632,14 +631,19 @@ export async function more_product_local_order(functions, templates, reload, myf
     const products = async () => {
         let templatePrepared = "";
         let templateProcess = "";
-        let recipeDetails = await searchParam({}, "recetas", 5000)
-        for (const recipe of recipeDetails) {
-            const id = recipe.id_producto
-            let product = await searchParam({ id: id, tipo: "producto" }, "producto_preparado", 1000)
-            product.forEach((product) => { templatePrepared += selectProduct(product, "producto_preparado") })
-        }
-        let productProcess = await searchParam({ active: 1 }, "producto_procesado", 100)
-        productProcess.forEach((product) => { templateProcess += selectProduct(product, "producto_procesado") })
+        let allPreparedProducts = await searchParam({ tipo: "producto" }, "producto_preparado", 5000)
+        let allCombos = await searchParam({ tipo: "combo" }, "producto_preparado", 5000)
+        let allProcess = await searchParam({ active: 1 }, "producto_procesado", 5000)
+        
+        allPreparedProducts.forEach((product) => { 
+            templatePrepared += selectProduct(product, "producto_preparado"); 
+        })
+        
+        allCombos.forEach((product) => { 
+            templatePrepared += selectProduct(product, "combo"); 
+        })
+        
+        allProcess.forEach((product) => { templateProcess += selectProduct(product, "producto_procesado") })
         document.querySelector(".cont-select-product-order_local_more").innerHTML = "";
         document.querySelector(".cont-select-product-order_local_more").insertAdjacentHTML("beforeend", templatePrepared)
         document.querySelector(".cont-select-product-order_local_more").insertAdjacentHTML("beforeend", templateProcess)
@@ -906,7 +910,7 @@ export async function more_product_local_order(functions, templates, reload, myf
     
 }
 
-export async function payOrder(functions, templates, invoice, reload) {
+export async function payOrder(functions, templates, invoice, reload, myfecth) {
     const { searchParam, amountDolar, viewImage, InputPrice, selectOptionAll, validateField, setValidationStyles, reindex, CheckCash, sessionInfo, binnacle, resetForm, notification, notificationAlert } = functions()
     const { tagFilterProduct, selectProduct, targetDetailProductOrder, targetDetailOtherOrder, targetClienteOrder, optionsRol, elemenFormPaymentOrderLocal, selectTable } = templates()
     viewImage(".input-image")

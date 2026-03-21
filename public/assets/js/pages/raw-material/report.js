@@ -1,5 +1,6 @@
 import { Poppins_normal } from "../../../libs/libs/jspdf/poppins.js"
 import { poppins_bold } from "../../../libs/libs/jspdf/poppins_bold.js"
+import { myfecth } from "../../Functions2.js"
 const { jsPDF } = window.jspdf;
 const info = () => {
     let response = myfecth(`entrada_materia_prima/inventario`).json();

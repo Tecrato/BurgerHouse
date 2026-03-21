@@ -1,4 +1,5 @@
 import { printPDF } from "./graphicPDF.js"
+import { myfecth } from "../../Functions2.js"
 
 const getNumeroSemana = (fecha) => {
     const inicioAño = new Date(fecha.getFullYear(), 0, 1);

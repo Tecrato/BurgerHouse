@@ -1,5 +1,5 @@
 import functionGeneral from "../../Functions.js";
-import { nuevaBitacora } from "../../Functions2.js"
+import { nuevaBitacora, myfecth } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
 import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
@@ -231,7 +231,7 @@ if (!formEdit.dataset.listenerAttached) {
         datafinal.append("imagen_name", document.querySelector("#input-image-combo").files[0].name)
         datafinal.append("imagen", document.querySelector("#input-image-combo").files[0])
       }
-      update(config, 'productProcess', datafinal, () => nuevaBitacora('Producto procesado', 'Actualizacion', 'Se agrego un producto procesado')
+      update(config, 'producto_procesado', datafinal, () => nuevaBitacora('Producto procesado', 'Actualizacion', 'Se agrego un producto procesado')
       )
       bootstrap.Modal.getOrCreateInstance('#edit-product').hide()
     }

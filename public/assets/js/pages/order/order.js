@@ -233,8 +233,8 @@ let tableOrderDomicileoPendings = $('.table-order-domicilio-pendientes').DataTab
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
     { data: null, render: function (data) { return data.cliente_nombre + " " + data.cliente_apellido } },
-    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
-    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.fecha) } },
     {
       data: null,
       orderable: false,
@@ -304,8 +304,8 @@ let tableOrderDomicileProcess = $('.table-order-domicilio-procesadas').DataTable
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
     { data: null, render: function (data) { return data.cliente_nombre + " " + data.cliente_apellido } },
-    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
-    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.fecha) } },
     {
       data: null,
       orderable: false,
@@ -367,8 +367,8 @@ let tableOrderDomicileNull = $('.table-order-domicilio-null').DataTable({
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
     { data: null, render: function (data) { return data.cliente_nombre + " " + data.cliente_apellido } },
-    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
-    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.fecha) } },
     {
       data: null,
       orderable: false,
@@ -439,8 +439,8 @@ let tableOrderParaLlevarPendingsVeryfy = $('.table-order-llevar-pendientes').Dat
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
     { data: null, render: function (data) { return data.cliente_nombre + " " + data.cliente_apellido } },
-    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
-    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.fecha) } },
     {
       data: null,
       orderable: false,
@@ -501,8 +501,8 @@ let tableOrderParaLlevarProcess = $('.table-order-llevar-procesadas').DataTable(
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
     { data: null, render: function (data) { return data.cliente_nombre + " " + data.cliente_apellido } },
-    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
-    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.fecha) } },
     {
       data: null,
       orderable: false,
@@ -559,8 +559,8 @@ let tableOrderParaLlevarNull = $('.table-order-llevar-anuladas').DataTable({
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
     { data: null, render: function (data) { return data.cliente_nombre + " " + data.cliente_apellido } },
-    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
-    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.fecha) } },
     {
       data: null,
       orderable: false,
@@ -624,8 +624,8 @@ let tableOrderLocalPendingsVeryfy = $('.table-order-local-pendientes').DataTable
       ` }
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
-    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
-    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.fecha) } },
     {
       data: null,
       orderable: false,
@@ -686,8 +686,8 @@ let tableOrderLocalProcess = $('.table-order-local-procesadas').DataTable({
     },
     { data: null, render: function (data) { return data.id.toString().padStart(7, '0') } },
     { data: null, render: function (data) { return data.cliente_nombre + " " + data.cliente_apellido } },
-    { data: null, render: function (data) { return formatear_fecha(data.formatear_fecha) } },
-    { data: null, render: function (data) { return formatear_hora(data.formatear_fecha) } },
+    { data: null, render: function (data) { return formatear_fecha(data.fecha) } },
+    { data: null, render: function (data) { return formatear_hora(data.fecha) } },
     {
       data: null,
       orderable: false,
@@ -1078,7 +1078,7 @@ const actionOrder = async (btn, status) => {
       targetUpdate("reserva")
       targetUpdate("local")
 
-    })
+    }, myfecth)
     bootstrap.Modal.getOrCreateInstance('#more_products').show()
   } else if (action == "null_order") {
     Swal.fire({
@@ -1231,14 +1231,14 @@ const actionOrder = async (btn, status) => {
         tableOrderResPendingsVeryfy.ajax.reload()
         tableOrderResProcessVeryfy.ajax.reload()
         targetUpdate("reserva")
-      })
+      }, myfecth)
       bootstrap.Modal.getOrCreateInstance('#payment_order_local_reservation').show()
     } else {
       payOrder(functionGeneral, Templates, invoice, () => {
         tableOrderLocalPendingsVeryfy.ajax.reload()
         tableOrderLocalProcess.ajax.reload()
         targetUpdate("local")
-      })
+      }, myfecth)
       bootstrap.Modal.getOrCreateInstance('#payment_order_local').show()
     }
   }
@@ -1356,9 +1356,8 @@ document.querySelector(".btn_order_local").addEventListener("click", () => {
   local(functionGeneral, Templates, () => {
     tableOrderLocalPendingsVeryfy.ajax.reload()
     tableOrderLocalProcess.ajax.reload()
-    targetUpdate("local"),
-    myfecth
-  })
+    targetUpdate("local")
+  }, myfecth)
   setTimeout(() => { bootstrap.Modal.getOrCreateInstance('#product_and_table').show() }, 300)
 })
 

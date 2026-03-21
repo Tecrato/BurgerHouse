@@ -1,5 +1,5 @@
 import functionGeneral from "../../Functions.js";
-import { nuevaBitacora } from "../../Functions2.js"
+import { nuevaBitacora, myfecth } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import introTooltip from "../../intro-tooltip.js"
 import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
@@ -113,7 +113,7 @@ if (!form.dataset.listenerAttached) {
         data.append(`lista[${index}][tipo]`, "producto");
       })
       resetForm("#products-container .product", form)
-      add(config, 'productPrepared', data, () => nuevaBitacora("Productos Preparados", "Agregar", "Se agrego un producto preparado")
+      add(config, 'producto_preparado', data, () => nuevaBitacora("Productos Preparados", "Agregar", "Se agrego un producto preparado")
       )
       bootstrap.Modal.getOrCreateInstance('#register-product').hide()
     }

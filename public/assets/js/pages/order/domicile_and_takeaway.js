@@ -87,22 +87,19 @@ export default async function domicile_and_takeaway(functions, templates, report
         });
     }
     const initPopover = async () => {
-        let data = []
-        let elements = []
+        let allAdicionales = myfecth("adicionales/get_all/0/5000", { active: 1 }).json()
         let recipeDetails = myfecth("recetas/get_all/0/5000").json()
-        for (const item of recipeDetails) {
-            let pet = myfecth("adicionales/get_all/0/5000", {}, {active:1, tipo:"adicional", id:item.id_producto}).json()
-            for (const el of pet) {
-                elements.push(el)
-            }
-        }
-        elements.forEach((item) => {
-            data.push({
+        
+        let productIds = recipeDetails.map(r => r.id_producto)
+        
+        let data = allAdicionales
+            .filter(item => productIds.includes(parseInt(item.id)))
+            .map(item => ({
                 value: item.nombre,
                 id: item.id,
                 precio: item.precio
-            });
-        })
+            }));
+        
         document.querySelectorAll('textarea[name="tags"]').forEach((input) => {
             let tagify = new Tagify(input, {
                 whitelist: data,
@@ -176,14 +173,22 @@ export default async function domicile_and_takeaway(functions, templates, report
     const products = async () => {
         let templatePrepared = "";
         let templateProcess = "";
-        let recipeDetails = await searchParam({}, "recetas", 5000)
-        for (const recipe of recipeDetails) {
-            const id = recipe.id_producto
-            let product = await searchParam({ id: id, tipo: "producto" }, "producto_preparado", 100)
-            product.forEach((product) => { templatePrepared += selectProduct(product, "producto_preparado") })
-        }
-        let productProcess = await searchParam({ active: 1 }, "producto_procesado", 100)
-        productProcess.forEach((product) => { templateProcess += selectProduct(product, "producto_procesado") })
+        let allPreparedProducts = await searchParam({ tipo: "producto" }, "producto_preparado", 5000)
+        let allCombos = await searchParam({ tipo: "combo" }, "producto_preparado", 5000)
+        let allProcess = await searchParam({ active: 1 }, "producto_procesado", 5000)
+        
+        let preparedProducts = allPreparedProducts.filter(p => p.tipo === "producto")
+        let comboProducts = allPreparedProducts.filter(p => p.tipo === "combo")
+        
+        preparedProducts.forEach((product) => { 
+            templatePrepared += selectProduct(product, "producto_preparado") 
+        })
+        
+        comboProducts.forEach((product) => { 
+            templatePrepared += selectProduct(product, "combo") 
+        })
+        
+        allProcess.forEach((product) => { templateProcess += selectProduct(product, "producto_procesado") })
 
         document.querySelector(".cont-select-product-order").innerHTML = "";
         document.querySelector(".cont-select-product-order").insertAdjacentHTML("beforeend", templatePrepared)

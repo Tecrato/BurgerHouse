@@ -1,4 +1,4 @@
-export async function payOrderReservation(functions, templates, invoice, reload) {
+export async function payOrderReservation(functions, templates, invoice, reload, myfecth) {
     const { searchParam, amountDolar, viewImage, InputPrice, selectOptionAll, validateField, setValidationStyles, reindex, CheckCash, sessionInfo, binnacle, resetForm, notification, notificationAlert } = functions()
     const { optionsRol, elemenFormPaymentReservationOrder } = templates()
     selectOptionAll(".select_options_payment_local_reservation", "metodo_pago", optionsRol);

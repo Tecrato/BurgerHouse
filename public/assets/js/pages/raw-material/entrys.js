@@ -1,5 +1,5 @@
 import functionGeneral from "../../Functions.js";
-import { nuevaBitacora } from "../../Functions2.js"
+import { nuevaBitacora, myfecth } from "../../Functions2.js"
 import Templates from "../../templates.js";
 import { tableRawMaterial } from "./raw_material.js"
 import { set_validaciones, reglas_validaciones, validate } from "../../Validaciones.js";
