@@ -14,8 +14,8 @@ from funcs import process_md_files
 
 
 def main():
-    base_dir = Path(__file__).parent.parent.parent
-    docs_dir = base_dir / "docs"
+    base_dir = Path(__file__).parent
+    docs_dir = base_dir.parent
     source_dir = docs_dir / "mapa_navegacional"
     output_dir = docs_dir / "mapa_navegacional" / "images"
     

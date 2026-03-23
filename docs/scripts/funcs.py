@@ -113,8 +113,8 @@ def process_md_files(source_dir, output_dir, diagram_types=None):
     Procesa archivos .md y genera imagenes PNG.
     
     Args:
-        source_dir: Directorio con archivos .md
-        output_dir: Directorio donde guardar imagenes
+        source_dir: Directorio con archivos .md (Path o string)
+        output_dir: Directorio donde guardar imagenes (Path o string)
         diagram_types: Tipos de diagrama a incluir
     
     Returns:
@@ -123,9 +123,10 @@ def process_md_files(source_dir, output_dir, diagram_types=None):
     from pathlib import Path
     import shutil
     
-    if output_dir.exists():
-        shutil.rmtree(output_dir)
-    output_dir.mkdir(exist_ok=True)
+    source_dir = Path(source_dir)
+    output_dir = Path(output_dir)
+    
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     count = 0
     errors = 0

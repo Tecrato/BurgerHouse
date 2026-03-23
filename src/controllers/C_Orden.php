@@ -201,9 +201,9 @@ if ($url[1] === 'get_all') {
             if (isset($lista_detalle_preparado) && is_array($lista_detalle_preparado)) {
                 for ($i = 0; $i < count($lista_detalle_preparado); $i++) {
                     if ($es_add_orden) {
-                        $clase_detalle_producto_preparado->__construct(...['id_orden' => $last_id, ...$lista_detalle_preparado[$i]]);
+                        $clase_detalle_producto_preparado = new DetalleOrdenProductoPreparado(...['id_orden' => $last_id, ...$lista_detalle_preparado[$i]]);
                     } else {
-                        $clase_detalle_producto_preparado->__construct(...$lista_detalle_preparado[$i]);
+                        $clase_detalle_producto_preparado = new DetalleOrdenProductoPreparado(...$lista_detalle_preparado[$i]);
                     }
                     $clase_detalle_producto_preparado->agregar();
                 }

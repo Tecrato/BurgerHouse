@@ -14,8 +14,9 @@ from funcs import process_md_files
 
 
 def main():
-    base_dir = Path(__file__).parent.parent
-    docs_dir = base_dir / "docs"
+    base_dir = Path(__file__).parent
+    # From scripts/, go to parent docs/ then to secuencia/
+    docs_dir = base_dir.parent
     source_dir = docs_dir / "secuencia"
     output_dir = docs_dir / "secuencia" / "images"
     
