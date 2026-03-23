@@ -3,7 +3,6 @@
 namespace Shtch\Burgerhouse\models;
 
 use Shtch\Burgerhouse\models\Conexion;
-use Shtch\Burgerhouse\function\Validaciones;
 use Exception;
 use PDO;
 
@@ -60,7 +59,6 @@ abstract class Db_base extends Conexion
         $this->joins = "";
         $this->select_query = " a.* ";
         $this->variables_interval = array();
-        $this->validaciones = new Validaciones();
         Conexion::__construct($db_n);
     }
     public function add_variables(array $variables): void
@@ -76,19 +74,28 @@ abstract class Db_base extends Conexion
                 throw new Exception("Clave de variable invalida");
             }
 
-            $k = "validar_" . $fieldName;
             if ($value == null) {
                 unset($this->variables[$key]);
                 continue;
             }
-            if (method_exists($this->validaciones, $k)) {
-                if ($this->validaciones->$k($value)) {
+            
+            $regex = $GLOBALS['expresiones_regulares'][$fieldName] ?? null;
+            
+            if ($fieldName === 'imagen' && is_array($value)) {
+                $permitidos = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+                if (in_array($value["type"], $permitidos)) {
+                    $this->variables[$key] = $value;
+                } else {
+                    throw new Exception("Error al validar imagen");
+                }
+            } elseif ($regex) {
+                if (preg_match($regex, $value)) {
                     $this->variables[$key] = $value;
                 } else {
                     throw new Exception("Error al validar $key($value)");
                 }
             } else {
-                throw new Exception("funcion $k no existe");
+                $this->variables[$key] = $value;
             }
         }
     }

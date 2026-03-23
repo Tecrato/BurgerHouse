@@ -1,6 +1,5 @@
 <?php
 use Shtch\Burgerhouse\function\AuthSession;
-use Shtch\Burgerhouse\function\sendNotificationPusher;
 use Shtch\Burgerhouse\models\Orden;
 use Shtch\Burgerhouse\models\DetalleOrdenProductoPreparado;
 use Shtch\Burgerhouse\models\DetalleOrdenProductoProcesado;
@@ -10,7 +9,6 @@ use Shtch\Burgerhouse\models\ProductoProcesado;
 use Shtch\Burgerhouse\models\Detalle_entrada_materia_prima;
 use Shtch\Burgerhouse\models\Entrada_producto_procesado;
 use Shtch\Burgerhouse\models\Materia_prima;
-use Shtch\Burgerhouse\models\Notificacion;
 use Kunnu\Dropbox\DropboxApp;
 use Kunnu\Dropbox\Dropbox;
 
@@ -59,9 +57,6 @@ if ($url[1] === 'get_all') {
 
         $lista_detalle_preparado = $_POST['lista_detalle_preparado'] ?? null;
         $lista_detalle_procesado = $_POST['lista_detalle_procesado'] ?? null;
-
-        $clase_detalle_producto_preparado = new DetalleOrdenProductoPreparado();
-        $clase_detalle_producto_procesado = new DetalleOrdenProductoProcesado();
 
         $detalles_receta = [];
         $detalles_productos = [];
@@ -241,27 +236,6 @@ if ($url[1] === 'get_all') {
                         }
                     }
                 }
-
-                $materia_prima = new Materia_prima();
-                $notification = new Notificacion();
-                $materia_prima->__construct(active: 1);
-                $result_productos = $materia_prima->search(0, 1000);
-
-                foreach ($detalles_receta as $detalle_receta_item) {
-                    foreach ($result_productos as $producto) {
-                        $stock_min = $producto['stock_min'];
-                        if ($producto['existencia'] <= $stock_min && $detalle_receta_item['id_materia_prima'] == $producto['id']) {
-                            $notification->__construct(
-                                id_usuario: $_SESSION['id'],
-                                titulo: "Producto con stock bajo",
-                                mensaje: "El producto " . $producto['nombre'] . " tiene un stock bajo",
-                                status: 0
-                            );
-                            $notification->agregar();
-                            sendNotificationPusher("El producto " . $producto['nombre'] . " tiene un stock bajo");
-                        }
-                    }
-                }
             }
 
             if (isset($lista_detalle_procesado) && is_array($lista_detalle_procesado)) {
@@ -304,27 +278,6 @@ if ($url[1] === 'get_all') {
                             if ($cantidad_a_descontar <= 0) {
                                 break;
                             }
-                        }
-                    }
-                }
-
-                $productos = new ProductoProcesado();
-                $notification = new Notificacion();
-                $productos->__construct(active: 1);
-                $result_productos = $productos->search(0, 1000);
-
-                foreach ($detalles_productos as $producto_order) {
-                    foreach ($result_productos as $producto) {
-                        $stock_min = $producto['stock_min'];
-                        if ($producto['existencia'] <= $stock_min && $producto_order['id_producto'] == $producto['id']) {
-                            $notification->__construct(
-                                id_usuario: $_SESSION['id'],
-                                titulo: "Producto con stock bajo",
-                                mensaje: "El producto " . $producto['nombre'] . " tiene un stock bajo",
-                                status: 0
-                            );
-                            $notification->agregar();
-                            sendNotificationPusher("El producto " . $producto['nombre'] . " tiene un stock bajo");
                         }
                     }
                 }
