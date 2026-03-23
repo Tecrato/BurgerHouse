@@ -1,37 +1,49 @@
-# Módulo Mesas - Diagrama de Secuencia
+# Modulo Mesas - Diagrama de Secuencia
 
 ## Agregar Mesa
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Mesas as C_Mesas.php
-    participant Mesa as Mesa (Model)
-    participant DB as Conexion (DB)
+    participant C_Mesas as C_Mesas
+    participant AuthSession as AuthSession
+    participant Mesa as Mesa
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Mesas: fetch("mesas/add", {POST formData})
+    C_Mesas->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    alt Validación de permisos
-        C_Mesas->>C_Mesas: has_permission('mesas', 'agregar')
-        alt Sin permiso
-            C_Mesas-->>JS: Error 403
-        end
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Mesas->>AuthSession: has_permission("mesas", "agregar")
+    AuthSession-->>C_Mesas: true/false
+    
+    alt Sin permiso
+        C_Mesas-->>C_Mesas: Error 403
     end
     
-    alt Sin imagen
-        C_Mesas->>C_Mesas: $_POST['imagen'] = "banner_mesas.png"
-    end
-    
-    C_Mesas->>Mesa: new Mesa(nombre, sillas, vip, imagen)
-    Note right of Mesa: Constructor recibe<br/>nombre, cantidad de sillas,<br/>si es VIP, imagen
-    
+    C_Mesas->>Mesa: new Mesa(parametros)
     C_Mesas->>Mesa: agregar()
-    Mesa->>DB: INSERT INTO mesas (...)
-    DB-->>Mesa: lastInsertId
+    Mesa->>Db_base: agregar()
+    Db_base->>Conexion: INSERT INTO mesas
+    Conexion-->>Db_base: lastInsertId
+    Db_base-->>Mesa: lastInsertId
     Mesa-->>C_Mesas: lastInsertId
     
-    C_Mesas-->>JS: {success true last_id id}
+    C_Mesas-->>C_Mesas: Exito
 ```
 
 ## Consultar Mesas
@@ -39,21 +51,44 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Mesas as C_Mesas.php
-    participant Mesa as Mesa (Model)
-    participant DB as Conexion (DB)
+    participant C_Mesas as C_Mesas
+    participant AuthSession as AuthSession
+    participant Mesa as Mesa
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Mesas: fetch("mesas/get_all", {POST page limit})
+    C_Mesas->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Mesas->>C_Mesas: has_permission('mesas', 'consultar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Mesas->>AuthSession: has_permission("mesas", "consultar")
+    AuthSession-->>C_Mesas: true/false
+    
+    alt Sin permiso
+        C_Mesas-->>C_Mesas: Error 403
+    end
     
     C_Mesas->>Mesa: new Mesa(filtros)
-    Mesa->>DB: Query SELECT mesas
-    DB-->>Mesa: Array de mesas
-    Mesa-->>C_Mesas: Array de mesas
+    Mesa->>Db_base: search()
+    Db_base->>Conexion: SELECT
+    Conexion-->>Db_base: array de mesas
+    Db_base-->>Mesa: array de mesas
+    Mesa-->>C_Mesas: array de mesas
     
-    C_Mesas-->>JS: {data: [...], recordsFiltered: n}
+    C_Mesas-->>C_Mesas: JSON (data, total)
 ```
 
 ## Actualizar Mesa
@@ -61,72 +96,141 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Mesas as C_Mesas.php
-    participant Mesa as Mesa (Model)
-    participant DB as Conexion (DB)
+    participant C_Mesas as C_Mesas
+    participant AuthSession as AuthSession
+    participant Mesa as Mesa
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    alt Sin nueva imagen
-        C_Mesas->>C_Mesas: $_POST['imagen'] = null
-        Note right of C_Mesas: Db_base ignora el campo<br/>conserva imagen anterior
+    C_Mesas->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
+    
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Mesas->>AuthSession: has_permission("mesas", "editar")
+    AuthSession-->>C_Mesas: true/false
+    
+    alt Sin permiso
+        C_Mesas-->>C_Mesas: Error 403
     end
     
-    alt Con nueva imagen
-        C_Mesas->>C_Mesas: move_uploaded_file()
-    end
+    C_Mesas->>Mesa: new Mesa(id, datos)
+    Mesa->>Db_base: actualizar()
+    Db_base->>Conexion: UPDATE
+    Conexion-->>Db_base: success
+    Db_base-->>Mesa: success
+    Mesa-->>C_Mesas: success
     
-    C_Mesas->>Mesa: new Mesa(id, nombre, sillas, estado, vip, ...)
-    Mesa->>DB: UPDATE mesas SET...
-    DB-->>Mesa: {success: true}
-    Mesa-->>C_Mesas: {success: true}
-    
-    C_Mesas-->>JS: {success: true}
+    C_Mesas-->>C_Mesas: JSON (success)
 ```
 
-## Bloquear Mesa (para orden local)
+## Bloquear Mesa
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Orden_mesa as C_Orden_mesa.php
-    participant Orden_mesa as Orden_mesa (Model)
-    participant DB as Conexion (DB)
+    participant C_Orden_mesa as C_Orden_mesa
+    participant AuthSession as AuthSession
+    participant Orden_mesa as Orden_mesa
+    participant Mesa as Mesa
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Orden_mesa: fetch("orden_mesa/add_many", {POST lista [...]})
+    C_Orden_mesa->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Orden_mesa->>C_Orden_mesa: has_permission('ordenes_mesa', 'agregar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Orden_mesa->>AuthSession: has_permission("ordenes_mesa", "agregar")
+    AuthSession-->>C_Orden_mesa: true/false
+    
+    alt Sin permiso
+        C_Orden_mesa-->>C_Orden_mesa: Error 403
+    end
     
     loop Por cada mesa-orden
         C_Orden_mesa->>Orden_mesa: new Orden_mesa(id_mesa, id_orden)
-        Orden_mesa->>DB: INSERT INTO orden_mesa (...)
-        DB-->>Orden_mesa: lastInsertId
-        Orden_mesa-->>C_Orden_mesa: lastInsertId
+        Orden_mesa->>Db_base: agregar()
+        Db_base->>Conexion: INSERT INTO orden_mesa
+        Conexion-->>Db_base: lastInsertId
+        Db_base-->>Orden_mesa: lastInsertId
+        Orden_mesa-->>C_Orden_mesa: ok
     end
     
-    C_Orden_mesa->>C_Mesas: fetch("mesas/update", {POST id estado 'ocupada'})
+    C_Orden_mesa->>Mesa: new Mesa(id, estado)
+    Mesa->>Db_base: actualizar()
+    Db_base->>Conexion: UPDATE estado
+    Conexion-->>Db_base: ok
+    Mesa-->>C_Orden_mesa: ok
     
-    C_Orden_mesa-->>JS: {success true lista [ids]}
+    C_Orden_mesa-->>C_Orden_mesa: Exito
 ```
 
-## Liberar Mesa (al pagar orden)
+## Liberar Mesa
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Orden_mesa as C_Orden_mesa.php
-    participant Orden_mesa as Orden_mesa (Model)
-    participant DB as Conexion (DB)
+    participant C_Orden_mesa as C_Orden_mesa
+    participant AuthSession as AuthSession
+    participant Orden_mesa as Orden_mesa
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Orden_mesa: fetch("orden_mesa/delete", {POST id})
+    C_Orden_mesa->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Orden_mesa->>C_Orden_mesa: has_permission('ordenes_mesa', 'eliminar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Orden_mesa->>AuthSession: has_permission("ordenes_mesa", "eliminar")
+    AuthSession-->>C_Orden_mesa: true/false
+    
+    alt Sin permiso
+        C_Orden_mesa-->>C_Orden_mesa: Error 403
+    end
     
     C_Orden_mesa->>Orden_mesa: new Orden_mesa(id)
-    Orden_mesa->>DB: DELETE FROM orden_mesa WHERE id=?
-    DB-->>Orden_mesa: true/false
+    Orden_mesa->>Db_base: borrar()
+    Db_base->>Conexion: DELETE
+    Conexion-->>Db_base: true/false
+    Db_base-->>Orden_mesa: true/false
     Orden_mesa-->>C_Orden_mesa: true/false
     
-    C_Orden_mesa-->>JS: {success: true}
+    C_Orden_mesa-->>C_Orden_mesa: JSON (success)
 ```

@@ -81,7 +81,8 @@ def generate_mermaid_image(mermaid_code, output_path):
                 f.write(response.content)
             print(f"  OK {output_path.name}")
             return True
-    except Exception:
+    except Exception as e:
+        print(f"  FAIL {output_path.name}: {e}")
         pass
     
     try:
@@ -101,7 +102,8 @@ def generate_mermaid_image(mermaid_code, output_path):
                 f.write(response.content)
             print(f"  OK {output_path.name}")
             return True
-    except Exception:
+    except Exception as e:
+        print(f"  FAIL {output_path.name}: {e}")
         pass
     
     print(f"  FAIL {output_path.name}")

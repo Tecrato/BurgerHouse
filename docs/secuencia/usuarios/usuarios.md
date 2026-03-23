@@ -1,36 +1,48 @@
-# Módulo Usuarios - Diagrama de Secuencia
+# Modulo Usuarios - Diagrama de Secuencia
 
 ## Agregar Usuario
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Users as C_Users.php
-    participant Usuario as Usuario (Model)
+    participant C_Users as C_Users
+    participant AuthSession as AuthSession
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Users: fetch("users/add", {POST formData})
+    C_Users->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    alt Validación de permisos
-        C_Users->>C_Users: has_permission('usuarios', 'agregar')
-        alt Sin permiso
-            C_Users-->>JS: Error 403
-        end
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Users->>AuthSession: has_permission("usuarios", "agregar")
+    AuthSession-->>C_Users: true/false
+    
+    alt Sin permiso
+        C_Users-->>C_Users: Error 403
     end
     
-    C_Users->>Usuario: new Usuario(nombre, hash, id_rol, ...)
-    Note right of Usuario: Constructor recibe<br/>todos los parámetros
-    
+    C_Users->>Usuario: new Usuario(parametros)
     C_Users->>Usuario: agregar()
-    Usuario->>DB: INSERT INTO usuario (...)
-    DB-->>Usuario: lastInsertId
+    Usuario->>Db_base: agregar()
+    Db_base->>Conexion: INSERT INTO usuario
+    Conexion-->>Db_base: lastInsertId
+    Db_base-->>Usuario: lastInsertId
     Usuario-->>C_Users: lastInsertId
     
-    alt Si hay imagen
-        C_Users->>C_Users: move_uploaded_file(imagen)
-    end
-    
-    C_Users-->>JS: {success true last_id id}
+    C_Users-->>C_Users: Exito
 ```
 
 ## Consultar Usuarios
@@ -38,21 +50,43 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Users as C_Users.php
-    participant Usuario as Usuario (Model)
-    participant DB as Conexion (DB)
+    participant C_Users as C_Users
+    participant AuthSession as AuthSession
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Users: fetch("users/get_all", {POST page limit order})
+    C_Users->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Users->>C_Users: has_permission('usuarios', 'consultar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Users->>AuthSession: has_permission("usuarios", "consultar")
+    AuthSession-->>C_Users: true/false
+    
+    alt Sin permiso
+        C_Users-->>C_Users: Error 403
+    end
     
     C_Users->>Usuario: new Usuario(filtros)
-    Usuario->>DB: SELECT ... INNER JOIN roles ON...
-    DB-->>Usuario: Array de usuarios
-    Usuario-->>C_Users: Array de usuarios
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: SELECT with JOIN
+    Conexion-->>Db_base: array de usuarios
+    Db_base-->>Usuario: array de usuarios
+    Usuario-->>C_Users: array de usuarios
     
-    C_Users-->>JS: {data: [...], recordsFiltered: n}
+    C_Users-->>C_Users: JSON (data, total)
 ```
 
 ## Actualizar Usuario
@@ -60,27 +94,50 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Users as C_Users.php
-    participant Usuario as Usuario (Model)
-    participant DB as Conexion (DB)
+    participant C_Users as C_Users
+    participant AuthSession as AuthSession
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Users: fetch("users/update", {POST id datos})
+    C_Users->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    alt Soft-delete
-        C_Users->>C_Users: has_permission('usuarios', 'eliminar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    alt active = 0 (soft-delete)
+        C_Users->>AuthSession: has_permission("usuarios", "eliminar")
     end
     
-    alt Edición normal
-        C_Users->>C_Users: has_permission('usuarios', 'editar')
+    alt Edicion normal
+        C_Users->>AuthSession: has_permission("usuarios", "editar")
     end
     
-    C_Users->>Usuario: new Usuario(id, ...)
-    Usuario->>DB: UPDATE usuario SET ...
-    DB-->>Usuario: success
-    Usuario-->>C_Users: {success: true}
+    AuthSession-->>C_Users: true/false
     
-    C_Users-->>JS: {success: true}
+    alt Sin permiso
+        C_Users-->>C_Users: Error 403
+    end
+    
+    C_Users->>Usuario: new Usuario(id, datos)
+    Usuario->>Db_base: actualizar()
+    Db_base->>Conexion: UPDATE
+    Conexion-->>Db_base: success
+    Db_base-->>Usuario: success
+    Usuario-->>C_Users: success
+    
+    C_Users-->>C_Users: JSON (success)
 ```
 
 ## Eliminar Usuario
@@ -88,21 +145,43 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Users as C_Users.php
-    participant Usuario as Usuario (Model)
-    participant DB as Conexion (DB)
+    participant C_Users as C_Users
+    participant AuthSession as AuthSession
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Users: fetch("users/delete", {POST id})
+    C_Users->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Users->>C_Users: has_permission('usuarios', 'eliminar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Users->>AuthSession: has_permission("usuarios", "eliminar")
+    AuthSession-->>C_Users: true/false
+    
+    alt Sin permiso
+        C_Users-->>C_Users: Error 403
+    end
     
     C_Users->>Usuario: new Usuario(id)
-    Usuario->>DB: DELETE FROM usuario WHERE id=?
-    DB-->>Usuario: true/false
+    Usuario->>Db_base: borrar()
+    Db_base->>Conexion: DELETE
+    Conexion-->>Db_base: true/false
+    Db_base-->>Usuario: true/false
     Usuario-->>C_Users: true/false
     
-    C_Users-->>JS: {success: true/false}
+    C_Users-->>C_Users: JSON (success)
 ```
 
 ## Login
@@ -110,30 +189,26 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Login as C_Login.php
-    participant Usuario as Usuario (Model)
-    participant Auth as AuthSession
-    participant DB as Conexion (DB)
-    
-    JS->>C_Login: fetch("login/login", {POST email hash})
+    participant C_Login as C_Login
+    participant Usuario as Usuario
+    participant AuthSession as AuthSession
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
     C_Login->>Usuario: new Usuario(email, hash)
-    Usuario->>DB: SELECT WHERE email=? AND hash=?
-    DB-->>Usuario: usuario encontrado / null
-    Usuario-->>C_Login: usuario encontrado / null
-
-    alt Usuario no encontrado
-        C_Login-->>JS: {success false message "Credenciales incorrectas"}
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query WHERE email
+    Conexion-->>Db_base: usuario / null
+    Db_base-->>Usuario: usuario
+    Usuario-->>C_Login: usuario / null
+    
+    alt No encontrado
+        C_Login-->>C_Login: Error credenciales
     end
     
-    alt Usuario encontrado
-        C_Login->>Auth: crearSesion(usuario)
-        Auth->>Auth: session_start()
-        Auth->>Auth: session.id = usuario.id
-        Auth->>Auth: session.rol = usuario.rol
-        
-        C_Login-->>JS: {success true usuario {...}}
+    alt Encontrado
+        C_Login->>AuthSession: new AuthSession()
+        C_Login-->>C_Login: Exito
     end
 ```
 
@@ -142,23 +217,10 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Login as C_Login.php
-    participant Auth as AuthSession
+    participant C_Login as C_Login
+    participant AuthSession as AuthSession
     
-    JS->>C_Login: fetch("login/logout")
+    C_Login->>AuthSession: session_destroy()
     
-    C_Login->>Auth: destruirSesion()
-    Auth->>Auth: session_destroy()
-    Auth->>Auth: session = []
-    
-    C_Login-->>JS: {success: true}
-```
-    JS->>C_Login: fetch("login/logout")
-    
-    C_Login->>Auth: destruirSesion()
-    Auth->>Auth: session_destroy()
-    Auth->>Auth: session = []
-    
-    C_Login-->>JS: {success: true}
+    C_Login-->>C_Login: Exito
 ```

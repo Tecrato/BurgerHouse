@@ -152,11 +152,26 @@ sequenceDiagram
     autonumber
     participant C_Orden as C_Orden
     participant AuthSession as AuthSession
+    participant Usuario as Usuario
+    participant Rol as Rol
     participant Orden as Orden
     participant Db_base as Db_base
     participant Conexion as Conexion
     
     C_Orden->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
+    
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
     
     C_Orden->>AuthSession: has_permission("ordenes", "consultar")
     AuthSession-->>C_Orden: true/false
@@ -182,10 +197,26 @@ sequenceDiagram
     autonumber
     participant C_Orden as C_Orden
     participant AuthSession as AuthSession
+    participant Usuario as Usuario
+    participant Rol as Rol
     participant Orden as Orden
-    participant Db_base as Conexion
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
     C_Orden->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
+    
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
     
     alt active = 0 (soft-delete)
         C_Orden->>AuthSession: has_permission("ordenes", "eliminar")
@@ -222,6 +253,8 @@ sequenceDiagram
     autonumber
     participant C_Orden as C_Orden
     participant AuthSession as AuthSession
+    participant Usuario as Usuario
+    participant Rol as Rol
     participant Orden as Orden
     participant Receta as Receta
     participant Detalle_receta as Detalle_receta
@@ -232,6 +265,19 @@ sequenceDiagram
     participant Conexion as Conexion
     
     C_Orden->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
+    
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
     
     C_Orden->>AuthSession: has_permission("ordenes", "agregar")
     AuthSession-->>C_Orden: true/false

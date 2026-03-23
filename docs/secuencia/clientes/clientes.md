@@ -1,33 +1,49 @@
-# Módulo Clientes - Diagrama de Secuencia
+# Modulo Clientes - Diagrama de Secuencia
 
 ## Agregar Cliente
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Clientes as C_Clientes.php
-    participant Cliente as Cliente (Model)
-    participant DB as Conexion (DB)
+    participant C_Clientes as C_Clientes
+    participant AuthSession as AuthSession
+    participant Cliente as Cliente
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Clientes: fetch("clientes/add", {POST formData})
+    C_Clientes->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    alt Validación de permisos
-        C_Clientes->>C_Clientes: has_permission('clientes', 'agregar')
-        alt Sin permiso
-            C_Clientes-->>JS: Error 403
-        end
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Clientes->>AuthSession: has_permission("clientes", "agregar")
+    AuthSession-->>C_Clientes: true/false
+    
+    alt Sin permiso
+        C_Clientes-->>C_Clientes: Error 403
     end
     
-    C_Clientes->>Cliente: new Cliente(nombre, apellido, documento, telefono)
-    Note right of Cliente: Constructor recibe<br/>todos los parámetros
-    
+    C_Clientes->>Cliente: new Cliente(parametros)
     C_Clientes->>Cliente: agregar()
-    Cliente->>DB: INSERT INTO clientes (...)
-    DB-->>Cliente: lastInsertId
+    Cliente->>Db_base: agregar()
+    Db_base->>Conexion: INSERT INTO clientes
+    Conexion-->>Db_base: lastInsertId
+    Db_base-->>Cliente: lastInsertId
     Cliente-->>C_Clientes: lastInsertId
     
-    C_Clientes-->>JS: {success true last_id id}
+    C_Clientes-->>C_Clientes: Exito
 ```
 
 ## Consultar Clientes
@@ -35,46 +51,69 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Clientes as C_Clientes.php
-    participant Cliente as Cliente (Model)
-    participant DB as Conexion (DB)
+    participant C_Clientes as C_Clientes
+    participant AuthSession as AuthSession
+    participant Cliente as Cliente
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Clientes: fetch("clientes/get_all", {POST page limit search})
+    C_Clientes->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Clientes->>C_Clientes: has_permission('clientes', 'consultar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
     
-    C_Clientes->>Cliente: new Cliente(search)
-    Cliente->>DB: Query SELECT WHERE nombre LIKE '%...%'
-    DB-->>Cliente: Array de clientes
-    Cliente-->>C_Clientes: Array de clientes
+    C_Clientes->>AuthSession: has_permission("clientes", "consultar")
+    AuthSession-->>C_Clientes: true/false
     
-    C_Clientes-->>JS: {data: [...], recordsFiltered: n}
+    alt Sin permiso
+        C_Clientes-->>C_Clientes: Error 403
+    end
+    
+    C_Clientes->>Cliente: new Cliente(filtros)
+    Cliente->>Db_base: search()
+    Db_base->>Conexion: SELECT with JOIN
+    Conexion-->>Db_base: array de clientes
+    Db_base-->>Cliente: array de clientes
+    Cliente-->>C_Clientes: array de clientes
+    
+    C_Clientes-->>C_Clientes: JSON (data, total)
 ```
 
-## Buscar Cliente por Cédula (Login)
+## Buscar Cliente por Cedula
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Login as C_Login.php
-    participant Cliente as Cliente (Model)
-    participant DB as Conexion (DB)
-    
-    JS->>C_Login: fetch("login/cedula", {POST cedula})
+    participant C_Login as C_Login
+    participant Cliente as Cliente
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
     C_Login->>Cliente: new Cliente(documento)
-    Cliente->>DB: Query SELECT WHERE documento=?
-    DB-->>Cliente: cliente encontrado / []
-    Cliente-->>C_Login: cliente encontrado / []
+    Cliente->>Db_base: search()
+    Db_base->>Conexion: Query WHERE documento
+    Conexion-->>Db_base: cliente / null
+    Db_base-->>Cliente: cliente
+    Cliente-->>C_Login: cliente / null
     
-    alt Cliente encontrado
-        C_Login-->>JS: {success true message primer_nombre primer_apellido nacionalidad cedula}
+    alt No encontrado
+        C_Login-->>C_Login: Error no registrado
     end
     
-    alt Cliente NO encontrado
-        C_Login-->>JS: {success false message "Cliente no registrado"}
+    alt Encontrado
+        C_Login-->>C_Login: Exito
     end
 ```
 
@@ -83,51 +122,98 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Clientes as C_Clientes.php
-    participant Cliente as Cliente (Model)
-    participant DB as Conexion (DB)
+    participant C_Clientes as C_Clientes
+    participant AuthSession as AuthSession
+    participant Cliente as Cliente
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Clientes: fetch("clientes/update", {POST id datos})
+    C_Clientes->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    alt Soft-delete
-        C_Clientes->>C_Clientes: has_permission('clientes', 'eliminar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    alt active = 0 (soft-delete)
+        C_Clientes->>AuthSession: has_permission("clientes", "eliminar")
     end
     
-    alt Restaurar
-        C_Clientes->>C_Clientes: has_permission('Papelera', 'restaurar')
+    alt active = 1 (restaurar)
+        C_Clientes->>AuthSession: has_permission("Papelera", "restaurar")
     end
     
-    alt Edición normal
-        C_Clientes->>C_Clientes: has_permission('clientes', 'editar')
+    alt Edicion normal
+        C_Clientes->>AuthSession: has_permission("clientes", "editar")
     end
     
-    C_Clientes->>Cliente: new Cliente(id, ...)
-    Cliente->>DB: UPDATE clientes SET...
-    DB-->>Cliente: {success: true}
-    Cliente-->>C_Clientes: {success: true}
+    AuthSession-->>C_Clientes: true/false
     
-    C_Clientes-->>JS: {success: true}
+    alt Sin permiso
+        C_Clientes-->>C_Clientes: Error 403
+    end
+    
+    C_Clientes->>Cliente: new Cliente(id, datos)
+    Cliente->>Db_base: actualizar()
+    Db_base->>Conexion: UPDATE
+    Conexion-->>Db_base: success
+    Db_base-->>Cliente: success
+    Cliente-->>C_Clientes: success
+    
+    C_Clientes-->>C_Clientes: JSON (success)
 ```
 
-## Eliminar Cliente (Soft-delete)
+## Eliminar Cliente
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Clientes as C_Clientes.php
-    participant Cliente as Cliente (Model)
-    participant DB as Conexion (DB)
+    participant C_Clientes as C_Clientes
+    participant AuthSession as AuthSession
+    participant Cliente as Cliente
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Clientes: fetch("clientes/update", {POST id active})
+    C_Clientes->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Clientes->>C_Clientes: has_permission('clientes', 'eliminar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Clientes->>AuthSession: has_permission("clientes", "eliminar")
+    AuthSession-->>C_Clientes: true/false
+    
+    alt Sin permiso
+        C_Clientes-->>C_Clientes: Error 403
+    end
     
     C_Clientes->>Cliente: new Cliente(id, active)
-    Cliente->>DB: UPDATE clientes SET active=0 WHERE id=?
-    DB-->>Cliente: {success: true}
-    Cliente-->>C_Clientes: {success: true}
+    Cliente->>Db_base: actualizar()
+    Db_base->>Conexion: UPDATE
+    Conexion-->>Db_base: success
+    Db_base-->>Cliente: success
+    Cliente-->>C_Clientes: success
     
-    C_Clientes-->>JS: {success: true}
+    C_Clientes-->>C_Clientes: JSON (success)
 ```

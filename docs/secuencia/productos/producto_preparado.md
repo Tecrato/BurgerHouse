@@ -1,37 +1,49 @@
-# Módulo Productos Preparados - Diagrama de Secuencia
+# Modulo Productos Preparados - Diagrama de Secuencia
 
 ## Agregar Producto Preparado
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Producto_preparado as C_Producto_preparado.php
-    participant ProductoPreparado as ProductoPreparado (Model)
-    participant DB as Conexion (DB)
+    participant C_Producto_preparado as C_Producto_preparado
+    participant AuthSession as AuthSession
+    participant ProductoPreparado as ProductoPreparado
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Producto_preparado: fetch("producto_preparado/add", {POST formData})
+    C_Producto_preparado->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    alt Validación de permisos
-        C_Producto_preparado->>C_Producto_preparado: has_permission('producto_preparado', 'agregar')
-        alt Sin permiso
-            C_Producto_preparado-->>JS: Error 403
-        end
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Producto_preparado->>AuthSession: has_permission("producto_preparado", "agregar")
+    AuthSession-->>C_Producto_preparado: true/false
+    
+    alt Sin permiso
+        C_Producto_preparado-->>C_Producto_preparado: Error 403
     end
     
-    C_Producto_preparado->>ProductoPreparado: new ProductoPreparado(...formData)
-    Note right of ProductoPreparado: Constructor recibe<br/>nombre, precio, categoria,<br/>tipo, imagen, etc.
-    
+    C_Producto_preparado->>ProductoPreparado: new ProductoPreparado(parametros)
     C_Producto_preparado->>ProductoPreparado: agregar()
-    ProductoPreparado->>DB: INSERT INTO productos_preparados (...)
-    DB-->>ProductoPreparado: lastInsertId
+    ProductoPreparado->>Db_base: agregar()
+    Db_base->>Conexion: INSERT INTO productos_preparados
+    Conexion-->>Db_base: lastInsertId
+    Db_base-->>ProductoPreparado: lastInsertId
     ProductoPreparado-->>C_Producto_preparado: lastInsertId
     
-    alt Si hay imagen
-        C_Producto_preparado->>C_Producto_preparado: move_uploaded_file(imagen)
-    end
-    
-    C_Producto_preparado-->>JS: {success true last_id id}
+    C_Producto_preparado-->>C_Producto_preparado: Exito
 ```
 
 ## Consultar Productos Preparados
@@ -39,22 +51,44 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Producto_preparado as C_Producto_preparado.php
-    participant ProductoPreparado as ProductoPreparado (Model)
-    participant DB as Conexion (DB)
+    participant C_Producto_preparado as C_Producto_preparado
+    participant AuthSession as AuthSession
+    participant ProductoPreparado as ProductoPreparado
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Producto_preparado: fetch("producto_preparado/get_all", {POST, page, limit})
+    C_Producto_preparado->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Producto_preparado->>C_Producto_preparado: has_permission('producto_preparado', 'consultar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Producto_preparado->>AuthSession: has_permission("producto_preparado", "consultar")
+    AuthSession-->>C_Producto_preparado: true/false
+    
+    alt Sin permiso
+        C_Producto_preparado-->>C_Producto_preparado: Error 403
+    end
     
     C_Producto_preparado->>ProductoPreparado: new ProductoPreparado(filtros)
-    ProductoPreparado->>DB: Query SELECT con JOIN categorias
-    Note right of ProductoPreparado: INNER JOIN categorias_productos<br/>ON categorias.id = producto.id_categoria
-    DB-->>ProductoPreparado: Array de productos
-    ProductoPreparado-->>C_Producto_preparado: Array de productos
+    ProductoPreparado->>Db_base: search()
+    Db_base->>Conexion: SELECT with JOIN
+    Conexion-->>Db_base: array de productos
+    Db_base-->>ProductoPreparado: array de productos
+    ProductoPreparado-->>C_Producto_preparado: array de productos
     
-    C_Producto_preparado-->>JS: {data: [...], recordsFiltered: n}
+    C_Producto_preparado-->>C_Producto_preparado: JSON (data, total)
 ```
 
 ## Actualizar Producto Preparado
@@ -62,51 +96,89 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Producto_preparado as C_Producto_preparado.php
-    participant ProductoPreparado as ProductoPreparado (Model)
-    participant DB as Conexion (DB)
+    participant C_Producto_preparado as C_Producto_preparado
+    participant AuthSession as AuthSession
+    participant ProductoPreparado as ProductoPreparado
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Producto_preparado: fetch("producto_preparado/update", {POST})
+    C_Producto_preparado->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    alt Sin nueva imagen
-        C_Producto_preparado->>C_Producto_preparado: $_POST['imagen'] = null
-        Note right of C_Producto_preparado: Db_base ignora el campo
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Producto_preparado->>AuthSession: has_permission("producto_preparado", "editar")
+    AuthSession-->>C_Producto_preparado: true/false
+    
+    alt Sin permiso
+        C_Producto_preparado-->>C_Producto_preparado: Error 403
     end
     
-    alt Con nueva imagen
-        C_Producto_preparado->>C_Producto_preparado: move_uploaded_file()
-    end
+    C_Producto_preparado->>ProductoPreparado: new ProductoPreparado(parametros)
+    ProductoPreparado->>Db_base: actualizar()
+    Db_base->>Conexion: UPDATE
+    Conexion-->>Db_base: success
+    Db_base-->>ProductoPreparado: success
+    ProductoPreparado-->>C_Producto_preparado: success
     
-    C_Producto_preparado->>ProductoPreparado: new ProductoPreparado(...formData)
-    ProductoPreparado->>DB: UPDATE productos_preparados SET...
-    DB-->>ProductoPreparado: {success: true}
-    ProductoPreparado-->>C_Producto_preparado: {success: true}
-    
-    C_Producto_preparado-->>JS: {success: true}
+    C_Producto_preparado-->>C_Producto_preparado: JSON (success)
 ```
 
-## Agregar Varios Productos (add_many)
+## Agregar Varios Productos
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Producto_preparado as C_Producto_preparado.php
-    participant ProductoPreparado as ProductoPreparado (Model)
-    participant DB as Conexion (DB)
+    participant C_Producto_preparado as C_Producto_preparado
+    participant AuthSession as AuthSession
+    participant ProductoPreparado as ProductoPreparado
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Producto_preparado: fetch("producto_preparado/add_many", {POST lista [...]})
+    C_Producto_preparado->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Producto_preparado->>C_Producto_preparado: has_permission('producto_preparado', 'agregar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
     
-    loop Por cada producto en lista
-        C_Producto_preparado->>ProductoPreparado: new ProductoPreparado(...item)
-        ProductoPreparado->>DB: agregar()
-        DB-->>ProductoPreparado: lastInsertId
-        ProductoPreparado-->>C_Producto_preparado: lastInsertId
-        C_Producto_preparado->>C_Producto_preparado: Agregar ID a array resultado
+    C_Producto_preparado->>AuthSession: has_permission("producto_preparado", "agregar")
+    AuthSession-->>C_Producto_preparado: true/false
+    
+    alt Sin permiso
+        C_Producto_preparado-->>C_Producto_preparado: Error 403
     end
     
-    C_Producto_preparado-->>JS: {success true last_ids [1,2,3]}
+    loop Por cada producto
+        C_Producto_preparado->>ProductoPreparado: new ProductoPreparado(item)
+        ProductoPreparado->>Db_base: agregar()
+        Db_base->>Conexion: INSERT
+        Conexion-->>Db_base: lastInsertId
+        Db_base-->>ProductoPreparado: lastInsertId
+        ProductoPreparado-->>C_Producto_preparado: lastInsertId
+    end
+    
+    C_Producto_preparado-->>C_Producto_preparado: Exito
 ```

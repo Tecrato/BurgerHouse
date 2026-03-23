@@ -5,33 +5,54 @@
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Receta as C_Receta.php
-    participant Receta as Receta (Model)
-    participant Detalle_receta as Detalle_receta (Model)
-    participant DB as Conexion (DB)
+    participant C_Receta as C_Receta
+    participant AuthSession as AuthSession
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Receta as Receta
+    participant Detalle_receta as Detalle_receta
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Receta: fetch("receta/add", {POST id_producto})
+    C_Receta->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    alt Validación de permisos
-        C_Receta->>C_Receta: has_permission('recetas', 'agregar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Receta->>AuthSession: has_permission("recetas", "agregar")
+    AuthSession-->>C_Receta: true/false
+    
+    alt Sin permiso
+        C_Receta-->>C_Receta: Error 403
     end
     
     C_Receta->>Receta: new Receta(id_producto)
-    
     C_Receta->>Receta: agregar()
-    Receta->>DB: INSERT INTO recetas (id_producto)
-    DB-->>Receta: id_receta
+    Receta->>Db_base: agregar()
+    Db_base->>Conexion: INSERT INTO recetas
+    Conexion-->>Db_base: lastInsertId
+    Db_base-->>Receta: lastInsertId
     Receta-->>C_Receta: id_receta
     
-    loop Por cada ingrediente (materia prima)
+    loop Por cada ingrediente
         C_Receta->>Detalle_receta: new Detalle_receta(id_receta, id_materia_prima, cantidad)
-        Detalle_receta->>DB: INSERT INTO detalles_receta
-        DB-->>Detalle_receta: lastInsertId
+        Detalle_receta->>Db_base: agregar()
+        Db_base->>Conexion: INSERT INTO detalles_receta
+        Conexion-->>Db_base: lastInsertId
         Detalle_receta-->>C_Receta: lastInsertId
     end
     
-    C_Receta-->>JS: {success true last_id id_receta}
+    C_Receta-->>C_Receta: JSON (success, id_receta)
 ```
 
 ## Consultar Recetas
@@ -39,47 +60,85 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Receta as C_Receta.php
-    participant Receta as Receta (Model)
-    participant DB as Conexion (DB)
+    participant C_Receta as C_Receta
+    participant AuthSession as AuthSession
+    participant Receta as Receta
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Receta: fetch("receta/get_all", {POST page limit})
+    C_Receta->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Receta->>C_Receta: has_permission('recetas', 'consultar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Receta->>AuthSession: has_permission("recetas", "consultar")
+    AuthSession-->>C_Receta: true/false
+    
+    alt Sin permiso
+        C_Receta-->>C_Receta: Error 403
+    end
     
     C_Receta->>Receta: new Receta(filtros)
+    Receta->>Db_base: search()
+    Db_base->>Conexion: SELECT with JOIN
+    Conexion-->>Db_base: array de recetas
+    Db_base-->>Receta: array de recetas
+    Receta-->>C_Receta: array de recetas
     
-    Note right of Receta: INNER JOIN productos_preparados
-    Receta->>DB: Query SELECT
-    Note right of Receta: Devuelve: id, id_producto,<br/>nombre_producto, tipo
-    DB-->>Receta: Array de recetas
-    Receta-->>C_Receta: Array de recetas
-    
-    C_Receta-->>JS: {data: [...], recordsFiltered: n}
+    C_Receta-->>C_Receta: JSON (data, recordsFiltered)
 ```
 
-## Consultar Detalles de Receta (Ingredientes)
+## Consultar Detalles de Receta
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Detalle_receta as C_Detalle_receta.php
-    participant Detalle_receta as Detalle_receta (Model)
-    participant DB as Conexion (DB)
+    participant C_Detalle_receta as C_Detalle_receta
+    participant AuthSession as AuthSession
+    participant Detalle_receta as Detalle_receta
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Detalle_receta: fetch("detalle_receta/get_all", {POST id_receta})
+    C_Detalle_receta->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
+    
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Detalle_receta->>AuthSession: has_permission("recetas", "consultar")
+    AuthSession-->>C_Detalle_receta: true/false
+    
+    alt Sin permiso
+        C_Detalle_receta-->>C_Detalle_receta: Error 403
+    end
     
     C_Detalle_receta->>Detalle_receta: new Detalle_receta(id_receta)
+    Detalle_receta->>Db_base: search()
+    Db_base->>Conexion: SELECT with JOIN
+    Conexion-->>Db_base: array de ingredientes
+    Db_base-->>Detalle_receta: array de ingredientes
+    Detalle_receta-->>C_Detalle_receta: array de ingredientes
     
-    Note right of Detalle_receta: INNER JOIN recetas<br/>INNER JOIN productos_preparados<br/>INNER JOIN materia_prima<br/>INNER JOIN unidades
-    Detalle_receta->>DB: Query SELECT con JOINS
-    Note right of Detalle_receta: Devuelve: ingrediente, cantidad,<br/>unidad (alias)
-    DB-->>Detalle_receta: Array de ingredientes
-    Detalle_receta-->>C_Detalle_receta: Array de ingredientes
-    
-    C_Detalle_receta-->>JS: {data: [...]}
+    C_Detalle_receta-->>C_Detalle_receta: JSON (data)
 ```
 
 ## Actualizar Receta
@@ -87,16 +146,41 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Receta as C_Receta.php
-    participant Receta as Receta (Model)
-    participant Detalle_receta as Detalle_receta (Model)
-    participant DB as Conexion (DB)
+    participant C_Receta as C_Receta
+    participant AuthSession as AuthSession
+    participant Detalle_receta as Detalle_receta
+    participant Db_base as Db_base
+    participant Conexion as Conexion
+    
+    C_Receta->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
+    
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Receta->>AuthSession: has_permission("recetas", "editar")
+    AuthSession-->>C_Receta: true/false
+    
+    alt Sin permiso
+        C_Receta-->>C_Receta: Error 403
+    end
     
     alt Agregar nuevos ingredientes
         loop Por cada ingrediente nuevo
             C_Receta->>Detalle_receta: new Detalle_receta(...)
-            Detalle_receta->>DB: INSERT INTO detalles_receta
+            Detalle_receta->>Db_base: agregar()
+            Db_base->>Conexion: INSERT INTO detalles_receta
+            Conexion-->>Db_base: lastInsertId
+            Detalle_receta-->>C_Receta: lastInsertId
         end
     end
     
@@ -104,18 +188,24 @@ sequenceDiagram
         C_Receta->>C_Receta: Comparar ingredientes actuales vs nuevos
         loop Por cada ingrediente a remover
             C_Receta->>Detalle_receta: new Detalle_receta(id)
-            Detalle_receta->>DB: DELETE FROM detalles_receta
+            Detalle_receta->>Db_base: borrar()
+            Db_base->>Conexion: DELETE FROM detalles_receta
+            Conexion-->>Db_base: success
+            Detalle_receta-->>C_Receta: success
         end
     end
     
     alt Actualizar cantidades
         loop Por cada ingrediente modificado
             C_Receta->>Detalle_receta: new Detalle_receta(id, cantidad)
-            Detalle_receta->>DB: UPDATE detalles_receta SET cantidad=?
+            Detalle_receta->>Db_base: actualizar()
+            Db_base->>Conexion: UPDATE detalles_receta
+            Conexion-->>Db_base: success
+            Detalle_receta-->>C_Receta: success
         end
     end
     
-    C_Receta-->>JS: {success: true}
+    C_Receta-->>C_Receta: JSON (success)
 ```
 
 ## Eliminar Receta
@@ -123,25 +213,46 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Receta as C_Receta.php
-    participant Receta as Receta (Model)
-    participant Detalle_receta as Detalle_receta (Model)
-    participant DB as Conexion (DB)
+    participant C_Receta as C_Receta
+    participant AuthSession as AuthSession
+    participant Receta as Receta
+    participant Detalle_receta as Detalle_receta
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Receta: fetch("receta/delete", {POST id})
+    C_Receta->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Receta->>C_Receta: has_permission('recetas', 'eliminar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
     
-    alt Primero eliminar detalles
-        C_Receta->>Detalle_receta: new Detalle_receta(id)
-        Detalle_receta->>DB: DELETE FROM detalles_receta WHERE id_receta=?
+    C_Receta->>AuthSession: has_permission("recetas", "eliminar")
+    AuthSession-->>C_Receta: true/false
+    
+    alt Sin permiso
+        C_Receta-->>C_Receta: Error 403
     end
     
-    C_Receta->>Receta: new Receta(id)
-    Receta->>DB: DELETE FROM recetas WHERE id=?
-    DB-->>Receta: true/false
-    Receta-->>C_Receta: true/false
+    C_Receta->>Detalle_receta: new Detalle_receta(id_receta)
+    Detalle_receta->>Db_base: borrar()
+    Db_base->>Conexion: DELETE FROM detalles_receta
+    Conexion-->>Db_base: success
+    Detalle_receta-->>C_Receta: success
     
-    C_Receta-->>JS: {success: true/false}
+    C_Receta->>Receta: new Receta(id)
+    Receta->>Db_base: borrar()
+    Db_base->>Conexion: DELETE FROM recetas
+    Conexion-->>Db_base: success
+    Receta-->>C_Receta: success
+    
+    C_Receta-->>C_Receta: JSON (success)
 ```

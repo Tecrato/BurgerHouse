@@ -1,25 +1,48 @@
-# Módulo Permisos - Diagrama de Secuencia
+# Modulo Permisos - Diagrama de Secuencia
 
-## Consultar Módulos
+## Consultar Modulos
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Permisos as C_Permisos.php
-    participant Modulo as Modulo (Model)
-    participant DB as Conexion (DB)
+    participant C_Permisos as C_Permisos
+    participant AuthSession as AuthSession
+    participant Modulo as Modulo
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Permisos: fetch("permisos/get_modulos", {POST})
+    C_Permisos->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Permisos->>C_Permisos: has_permission('permisos', 'consultar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Permisos->>AuthSession: has_permission("permisos", "consultar")
+    AuthSession-->>C_Permisos: true/false
+    
+    alt Sin permiso
+        C_Permisos-->>C_Permisos: Error 403
+    end
     
     C_Permisos->>Modulo: new Modulo()
-    Modulo->>DB: Query SELECT * FROM modulos
-    DB-->>Modulo: Array de módulos
-    Modulo-->>C_Permisos: Array de módulos
+    Modulo->>Db_base: search()
+    Db_base->>Conexion: SELECT modulos
+    Conexion-->>Db_base: array de modulos
+    Db_base-->>Modulo: array de modulos
+    Modulo-->>C_Permisos: array de modulos
     
-    C_Permisos-->>JS: {data [...] recordsFiltered n}
+    C_Permisos-->>C_Permisos: JSON (data, total)
 ```
 
 ## Consultar Permisos Disponibles
@@ -27,54 +50,90 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Permisos as C_Permisos.php
-    participant Permiso as Permiso (Model)
-    participant DB as Conexion (DB)
+    participant C_Permisos as C_Permisos
+    participant AuthSession as AuthSession
+    participant Permiso as Permiso
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Permisos: fetch("permisos/get_permisos_by_rol_modulo", {POST id_rol id_modulo})
+    C_Permisos->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Permisos->>C_Permisos: has_permission('permisos', 'consultar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Permisos->>AuthSession: has_permission("permisos", "consultar")
+    AuthSession-->>C_Permisos: true/false
+    
+    alt Sin permiso
+        C_Permisos-->>C_Permisos: Error 403
+    end
     
     C_Permisos->>Permiso: new Permiso()
-    Permiso->>DB: Query SELECT * FROM permisos
-    DB-->>Permiso: Array de permisos
-    Permiso-->>C_Permisos: Array de permisos
+    Permiso->>Db_base: search()
+    Db_base->>Conexion: SELECT permisos
+    Conexion-->>Db_base: array de permisos
+    Db_base-->>Permiso: array de permisos
+    Permiso-->>C_Permisos: array de permisos
     
-    C_Permisos->>C_Permisos: Verificar cuáles tiene asignados el rol
-    C_Permisos-->>JS: {permisos [...] asignados [ids]}
+    C_Permisos-->>C_Permisos: JSON (permisos, asignados)
 ```
 
-## Toggle Permiso (Asignar/Quitar)
+## Toggle Permiso
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Permisos as C_Permisos.php
-    participant Rol_modulo_permiso as Rol_modulo_permiso (Model)
-    participant DB as Conexion (DB)
+    participant C_Permisos as C_Permisos
+    participant AuthSession as AuthSession
+    participant Rol_modulo_permiso as Rol_modulo_permiso
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Permisos: fetch("permisos/toggle_permiso", {POST id_rol id_modulo id_permiso})
+    C_Permisos->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Permisos->>C_Permisos: has_permission('permisos', 'editar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
     
-    C_Permisos->>Rol_modulo_permiso: new Rol_modulo_permiso(id_rol, id_modulo, id_permiso)
-    Rol_modulo_permiso->>DB: toggle()
+    C_Permisos->>AuthSession: has_permission("permisos", "editar")
+    AuthSession-->>C_Permisos: true/false
     
-    alt Relación ya existe
-        Rol_modulo_permiso->>DB: DELETE FROM roles_modulos_permisos
-        DB-->>Rol_modulo_permiso: {success true action 'removed'}
-        Rol_modulo_permiso-->>C_Permisos: {success true action 'removed'}
+    alt Sin permiso
+        C_Permisos-->>C_Permisos: Error 403
     end
     
-    alt Relación NO existe
-        Rol_modulo_permiso->>DB: INSERT INTO roles_modulos_permisos
-        DB-->>Rol_modulo_permiso: {success true action 'added' last_id}
-        Rol_modulo_permiso-->>C_Permisos: {success true action 'added' last_id}
-    end
+    C_Permisos->>Rol_modulo_permiso: new Rol_modulo_permiso(parametros)
+    C_Permisos->>Rol_modulo_permiso: toggle()
+    Rol_modulo_permiso->>Db_base: toggle()
+    Db_base->>Conexion: INSERT/DELETE
+    Conexion-->>Db_base: ok
+    Db_base-->>Rol_modulo_permiso: ok
+    Rol_modulo_permiso-->>C_Permisos: ok
     
-    C_Permisos-->>JS: {success true action 'added'/'removed'}
+    C_Permisos-->>C_Permisos: JSON (success, action)
 ```
 
 ## Obtener Permisos de un Rol
@@ -82,22 +141,41 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Permisos as C_Permisos.php
-    participant Rol as Rol (Model)
-    participant DB as Conexion (DB)
+    participant C_Permisos as C_Permisos
+    participant AuthSession as AuthSession
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Permisos: fetch("permisos/get_by_rol", {POST id_rol})
+    C_Permisos->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Permisos->>C_Permisos: has_permission('permisos', 'consultar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Permisos->>AuthSession: has_permission("permisos", "consultar")
+    AuthSession-->>C_Permisos: true/false
+    
+    alt Sin permiso
+        C_Permisos-->>C_Permisos: Error 403
+    end
     
     C_Permisos->>Rol: new Rol(id_rol)
-    Rol->>DB: obtener_permisos()
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: array grouped
+    Db_base-->>Rol: array grouped
+    Rol-->>C_Permisos: array grouped
     
-    Note right of Rol: SELECT rol, modulo, GROUP_CONCAT(permisos)<br/>FROM roles_modulos_permisos<br/>INNER JOIN modulos, permisos<br/>GROUP BY modulo
-    
-    DB-->>Rol: Array grouped by módulo
-    Rol-->>C_Permisos: Array grouped by módulo
-    
-    C_Permisos-->>JS: {data: {Administrador: ['agregar','editar',...], ...}}
+    C_Permisos-->>C_Permisos: JSON (data)
 ```

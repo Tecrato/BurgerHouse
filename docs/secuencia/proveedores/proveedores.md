@@ -5,25 +5,45 @@
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Proveedor as C_Proveedor.php
-    participant Proveedor as Proveedor (Model)
-    participant DB as Conexion (DB)
+    participant C_Proveedor as C_Proveedor
+    participant AuthSession as AuthSession
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Proveedor as Proveedor
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Proveedor: fetch("proveedor/add", {POST formData})
+    C_Proveedor->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    alt Validación de permisos
-        C_Proveedor->>C_Proveedor: has_permission('proveedores', 'agregar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Proveedor->>AuthSession: has_permission("proveedores", "agregar")
+    AuthSession-->>C_Proveedor: true/false
+    
+    alt Sin permiso
+        C_Proveedor-->>C_Proveedor: Error 403
     end
     
-    C_Proveedor->>Proveedor: new Proveedor(nombre, razon_social, documento, n_telefono1, n_telefono2, direccion)
-    
+    C_Proveedor->>Proveedor: new Proveedor(nombre, razon_social, documento, telefono1, telefono2, direccion)
     C_Proveedor->>Proveedor: agregar()
-    Proveedor->>DB: INSERT INTO proveedores (...)
-    DB-->>Proveedor: lastInsertId
-    Proveedor-->>C_Proveedor: lastInsertId
+    Proveedor->>Db_base: agregar()
+    Db_base->>Conexion: INSERT INTO proveedores
+    Conexion-->>Db_base: lastInsertId
+    Db_base-->>Proveedor: lastInsertId
+    Proveedor-->>C_Proveedor: id
     
-    C_Proveedor-->>JS: {success true last_id id}
+    C_Proveedor-->>C_Proveedor: JSON (success, id)
 ```
 
 ## Consultar Proveedores
@@ -31,21 +51,42 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Proveedor as C_Proveedor.php
-    participant Proveedor as Proveedor (Model)
-    participant DB as Conexion (DB)
+    participant C_Proveedor as C_Proveedor
+    participant AuthSession as AuthSession
+    participant Proveedor as Proveedor
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Proveedor: fetch("proveedor/get_all", {POST page limit search})
+    C_Proveedor->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Proveedor->>C_Proveedor: has_permission('proveedores', 'consultar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Proveedor->>AuthSession: has_permission("proveedores", "consultar")
+    AuthSession-->>C_Proveedor: true/false
+    
+    alt Sin permiso
+        C_Proveedor-->>C_Proveedor: Error 403
+    end
     
     C_Proveedor->>Proveedor: new Proveedor(search)
-    Proveedor->>DB: Query SELECT WHERE razon_social LIKE '%...%'
-    DB-->>Proveedor: Array de proveedores
-    Proveedor-->>C_Proveedor: Array de proveedores
+    Proveedor->>Db_base: search()
+    Db_base->>Conexion: SELECT WHERE razon_social LIKE
+    Conexion-->>Db_base: array de proveedores
+    Db_base-->>Proveedor: array de proveedores
+    Proveedor-->>C_Proveedor: array de proveedores
     
-    C_Proveedor-->>JS: {data: [...], recordsFiltered: n}
+    C_Proveedor-->>C_Proveedor: JSON (data, recordsFiltered)
 ```
 
 ## Actualizar Proveedor
@@ -53,27 +94,42 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Proveedor as C_Proveedor.php
-    participant Proveedor as Proveedor (Model)
-    participant DB as Conexion (DB)
+    participant C_Proveedor as C_Proveedor
+    participant AuthSession as AuthSession
+    participant Proveedor as Proveedor
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Proveedor: fetch("proveedor/update", {POST id datos})
+    C_Proveedor->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
+    
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Proveedor->>AuthSession: has_permission("proveedores", "editar")
+    AuthSession-->>C_Proveedor: true/false
     
     alt Sin permiso
-        C_Proveedor->>C_Proveedor: has_permission('proveedores', 'eliminar')
+        C_Proveedor-->>C_Proveedor: Error 403
     end
     
-    alt Normal
-        C_Proveedor->>C_Proveedor: has_permission('proveedores', 'editar')
-    end
+    C_Proveedor->>Proveedor: new Proveedor(id, datos)
+    Proveedor->>Db_base: actualizar()
+    Db_base->>Conexion: UPDATE proveedores
+    Conexion-->>Db_base: success
+    Db_base-->>Proveedor: success
+    Proveedor-->>C_Proveedor: success
     
-    C_Proveedor->>Proveedor: new Proveedor(id, ...)
-    Proveedor->>DB: UPDATE proveedores SET...
-    DB-->>Proveedor: {success: true}
-    Proveedor-->>C_Proveedor: {success: true}
-    
-    C_Proveedor-->>JS: {success: true}
+    C_Proveedor-->>C_Proveedor: JSON (success)
 ```
 
 ## Eliminar Proveedor (Soft-delete)
@@ -81,19 +137,40 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Proveedor as C_Proveedor.php
-    participant Proveedor as Proveedor (Model)
-    participant DB as Conexion (DB)
+    participant C_Proveedor as C_Proveedor
+    participant AuthSession as AuthSession
+    participant Proveedor as Proveedor
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Proveedor: fetch("proveedor/update", {POST id active 0})
+    C_Proveedor->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Proveedor->>C_Proveedor: has_permission('proveedores', 'eliminar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Proveedor->>AuthSession: has_permission("proveedores", "eliminar")
+    AuthSession-->>C_Proveedor: true/false
+    
+    alt Sin permiso
+        C_Proveedor-->>C_Proveedor: Error 403
+    end
     
     C_Proveedor->>Proveedor: new Proveedor(id, active)
-    Proveedor->>DB: UPDATE proveedores SET active=0 WHERE id=?
-    DB-->>Proveedor: {success: true}
-    Proveedor-->>C_Proveedor: {success: true}
+    Proveedor->>Db_base: actualizar()
+    Db_base->>Conexion: UPDATE proveedores SET active=0
+    Conexion-->>Db_base: success
+    Db_base-->>Proveedor: success
+    Proveedor-->>C_Proveedor: success
     
-    C_Proveedor-->>JS: {success: true}
+    C_Proveedor-->>C_Proveedor: JSON (success)
 ```

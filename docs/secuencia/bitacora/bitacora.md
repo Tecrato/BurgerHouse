@@ -1,87 +1,136 @@
-# Módulo Bitácora - Diagrama de Secuencia
+# Modulo Bitacora - Diagrama de Secuencia
 
-## Registrar Acción en Bitácora
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Sistema as Sistema (Backend)
-    participant C_Accion as Controlador.php
-    participant Bitacora as Bitacora (Model)
-    participant DB as Conexion (DB)
-    
-    Note over Sistema: Cualquier acción CRUD<br/>(agregar, editar, eliminar)
-    
-    Sistema->>Bitacora: nuevaBitacora(tabla, accion, descripcion)
-    
-    Bitacora->>Bitacora: new Bitacora(id_usuario, tabla, accion, descripcion, fecha)
-    
-    Bitacora->>DB: INSERT INTO bitacora (...)
-    DB-->>Bitacora: lastInsertId
-    Bitacora-->>Sistema: lastInsertId
-```
-
-## Consultar Bitácora
+## Consultar Bitacora
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Bitacora as C_Bitacora.php
-    participant Bitacora as Bitacora (Model)
-    participant DB as Conexion (DB)
+    participant C_Bitacora as C_Bitacora
+    participant AuthSession as AuthSession
+    participant Bitacora as Bitacora
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Bitacora: fetch("bitacora/get_all", {POST page limit filtros})
+    C_Bitacora->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
     
-    C_Bitacora->>C_Bitacora: has_permission('bitacora', 'consultar')
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Bitacora->>AuthSession: has_permission("bitacora", "consultar")
+    AuthSession-->>C_Bitacora: true/false
+    
+    alt Sin permiso
+        C_Bitacora-->>C_Bitacora: Error 403
+    end
     
     C_Bitacora->>Bitacora: new Bitacora(filtros)
+    Bitacora->>Db_base: search()
+    Db_base->>Conexion: SELECT with JOIN
+    Conexion-->>Db_base: array de bitacora
+    Db_base-->>Bitacora: array de bitacora
+    Bitacora-->>C_Bitacora: array de bitacora
     
-    Note right of Bitacora: INNER JOIN usuario<br/>ON usuario.id = bitacora.id_usuario
-    Bitacora->>DB: Query SELECT
-    Note right of Bitacora: Devuelve: fecha, tabla,<br/>accion, descripcion,<br/>nombre_usuario
-    DB-->>Bitacora: Array de registros
-    Bitacora-->>C_Bitacora: Array de registros
-    
-    C_Bitacora-->>JS: {data: [...], recordsFiltered: n}
+    C_Bitacora-->>C_Bitacora: JSON (data, total)
 ```
 
-## Filtrar Bitácora por Usuario
+## Filtrar por Usuario
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Bitacora as C_Bitacora.php
-    participant Bitacora as Bitacora (Model)
-    participant DB as Conexion (DB)
+    participant C_Bitacora as C_Bitacora
+    participant AuthSession as AuthSession
+    participant Bitacora as Bitacora
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Bitacora: fetch("bitacora/get_all", {POST id_usuario})
+    C_Bitacora->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
+    
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Bitacora->>AuthSession: has_permission("bitacora", "consultar")
+    AuthSession-->>C_Bitacora: true/false
+    
+    alt Sin permiso
+        C_Bitacora-->>C_Bitacora: Error 403
+    end
     
     C_Bitacora->>Bitacora: new Bitacora(id_usuario)
-    Bitacora->>DB: Query SELECT WHERE id_usuario = ?
-    DB-->>Bitacora: Array filtrado
-    Bitacora-->>C_Bitacora: Array filtrado
+    Bitacora->>Db_base: search()
+    Db_base->>Conexion: Query WHERE id_usuario
+    Conexion-->>Db_base: array filtrado
+    Db_base-->>Bitacora: array filtrado
+    Bitacora-->>C_Bitacora: array filtrado
     
-    C_Bitacora-->>JS: {data: [...]}
+    C_Bitacora-->>C_Bitacora: JSON (data)
 ```
 
-## Filtrar Bitácora por Tabla
+## Filtrar por Tabla
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant JS as JavaScript (Frontend)
-    participant C_Bitacora as C_Bitacora.php
-    participant Bitacora as Bitacora (Model)
-    participant DB as Conexion (DB)
+    participant C_Bitacora as C_Bitacora
+    participant AuthSession as AuthSession
+    participant Bitacora as Bitacora
+    participant Usuario as Usuario
+    participant Rol as Rol
+    participant Db_base as Db_base
+    participant Conexion as Conexion
     
-    JS->>C_Bitacora: fetch("bitacora/get_all", {POST tabla})
+    C_Bitacora->>AuthSession: new AuthSession()
+    AuthSession->>Usuario: new Usuario(id_session)
+    Usuario->>Db_base: search()
+    Db_base->>Conexion: Query usuario
+    Conexion-->>Db_base: datos usuario
+    Db_base-->>Usuario: datos usuario
+    Usuario-->>AuthSession: usuario
+    
+    AuthSession->>Rol: new Rol(id_rol)
+    Rol->>Db_base: obtener_permisos()
+    Db_base->>Conexion: Query permisos
+    Conexion-->>Db_base: lista permisos
+    Db_base-->>Rol: lista permisos
+    Rol-->>AuthSession: permisos
+    
+    C_Bitacora->>AuthSession: has_permission("bitacora", "consultar")
+    AuthSession-->>C_Bitacora: true/false
+    
+    alt Sin permiso
+        C_Bitacora-->>C_Bitacora: Error 403
+    end
     
     C_Bitacora->>Bitacora: new Bitacora(tabla)
-    Bitacora->>DB: Query SELECT WHERE tabla = 'ordenes'
-    DB-->>Bitacora: Array filtrado
-    Bitacora-->>C_Bitacora: Array filtrado
+    Bitacora->>Db_base: search()
+    Db_base->>Conexion: Query WHERE tabla
+    Conexion-->>Db_base: array filtrado
+    Db_base-->>Bitacora: array filtrado
+    Bitacora-->>C_Bitacora: array filtrado
     
-    C_Bitacora-->>JS: {data: [...]}
+    C_Bitacora-->>C_Bitacora: JSON (data)
 ```
