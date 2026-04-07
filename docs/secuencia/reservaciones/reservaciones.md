@@ -16,52 +16,94 @@ sequenceDiagram
     participant Conexion as Conexion
     
     C_Reservacion->>AuthSession: new AuthSession()
+    activate AuthSession
     AuthSession->>Usuario: new Usuario(id_session)
+    activate Usuario
     Usuario->>Db_base: search()
+    activate Db_base
     Db_base->>Conexion: Query usuario
+    activate Conexion
     Conexion-->>Db_base: datos usuario
     Db_base-->>Usuario: datos usuario
+    deactivate Conexion
     Usuario-->>AuthSession: usuario
+    deactivate Usuario
+    deactivate Db_base
     
     AuthSession->>Rol: new Rol(id_rol)
+    activate Rol
     Rol->>Db_base: obtener_permisos()
+    activate Db_base
     Db_base->>Conexion: Query permisos
+    activate Conexion
     Conexion-->>Db_base: lista permisos
     Db_base-->>Rol: lista permisos
+    deactivate Conexion
     Rol-->>AuthSession: permisos
+    deactivate Rol
+    deactivate Db_base
     
     C_Reservacion->>AuthSession: has_permission("reservaciones", "agregar")
     AuthSession-->>C_Reservacion: true/false
+    deactivate AuthSession
     
     alt Sin permiso
         C_Reservacion-->>C_Reservacion: Error 403
     end
     
     C_Reservacion->>Orden: new Orden(datos_orden)
+    activate Orden
+    Orden->>Db_base: add_variables([a.id_cliente => ..., a.total => ...])
+    activate Db_base
+    Db_base-->>Db_base: preg_match validation
+    Db_base-->>Orden: validated
+    Orden-->>C_Reservacion: return
     C_Reservacion->>Orden: agregar()
     Orden->>Db_base: agregar()
     Db_base->>Conexion: INSERT INTO orden
+    activate Conexion
     Conexion-->>Db_base: lastInsertId
     Db_base-->>Orden: lastInsertId
     Orden-->>C_Reservacion: id_orden
     
     C_Reservacion->>Reservacion: new Reservacion(id_orden, id_paquete, fecha_inicio, fecha_final, descripcion)
+    activate Reservacion
+    Reservacion->>Db_base: add_variables([a.fecha_inicio => ..., a.fecha_final => ...])
+    activate Db_base
+    Db_base-->>Db_base: preg_match validation
+    Db_base-->>Reservacion: validated
+    Reservacion-->>C_Reservacion: return
     C_Reservacion->>Reservacion: agregar()
     Reservacion->>Db_base: agregar()
     Db_base->>Conexion: INSERT INTO reservaciones
+    activate Conexion
     Conexion-->>Db_base: lastInsertId
     Db_base-->>Reservacion: lastInsertId
     Reservacion-->>C_Reservacion: id_reservacion
     
     loop Por cada mesa en paquete
         C_Reservacion->>Paquetes_mesa: new Paquetes_mesa(id_paquete, id_mesa)
+        activate Paquetes_mesa
+        Paquetes_mesa->>Db_base: add_variables([a.id_paquete => ..., a.id_mesa => ...])
+        activate Db_base
+        Db_base-->>Db_base: preg_match validation
+        Db_base-->>Paquetes_mesa: validated
+        Paquetes_mesa-->>C_Reservacion: return
         Paquetes_mesa->>Db_base: agregar()
         Db_base->>Conexion: INSERT INTO paquetes_mesas
+        activate Conexion
         Conexion-->>Db_base: lastInsertId
         Paquetes_mesa-->>C_Reservacion: lastInsertId
+        deactivate Paquetes_mesa
+        deactivate Conexion
+        deactivate Db_base
     end
     
     C_Reservacion-->>C_Reservacion: JSON (success, id_reservacion)
+    deactivate Reservacion
+    deactivate Orden
+    deactivate Conexion
+    deactivate Db_base
 ```
 
 ## Consultar Reservaciones
@@ -76,33 +118,53 @@ sequenceDiagram
     participant Conexion as Conexion
     
     C_Reservacion->>AuthSession: new AuthSession()
+    activate AuthSession
     AuthSession->>Usuario: new Usuario(id_session)
+    activate Usuario
     Usuario->>Db_base: search()
+    activate Db_base
     Db_base->>Conexion: Query usuario
+    activate Conexion
     Conexion-->>Db_base: datos usuario
     Db_base-->>Usuario: datos usuario
+    deactivate Conexion
     Usuario-->>AuthSession: usuario
+    deactivate Usuario
+    deactivate Db_base
     
     AuthSession->>Rol: new Rol(id_rol)
+    activate Rol
     Rol->>Db_base: obtener_permisos()
+    activate Db_base
     Db_base->>Conexion: Query permisos
+    activate Conexion
     Conexion-->>Db_base: lista permisos
     Db_base-->>Rol: lista permisos
+    deactivate Conexion
     Rol-->>AuthSession: permisos
+    deactivate Rol
+    deactivate Db_base
     
     C_Reservacion->>AuthSession: has_permission("reservaciones", "consultar")
     AuthSession-->>C_Reservacion: true/false
+    deactivate AuthSession
     
     alt Sin permiso
         C_Reservacion-->>C_Reservacion: Error 403
     end
     
     C_Reservacion->>Reservacion: new Reservacion(filtros)
+    activate Reservacion
     Reservacion->>Db_base: search()
+    activate Db_base
     Db_base->>Conexion: SELECT with JOIN
+    activate Conexion
     Conexion-->>Db_base: array de reservaciones
     Db_base-->>Reservacion: array de reservaciones
     Reservacion-->>C_Reservacion: array de reservaciones
+    deactivate Reservacion
+    deactivate Conexion
+    deactivate Db_base
     
     C_Reservacion-->>C_Reservacion: JSON (data, recordsFiltered)
 ```
@@ -120,40 +182,72 @@ sequenceDiagram
     participant Conexion as Conexion
     
     C_Reservacion->>AuthSession: new AuthSession()
+    activate AuthSession
     AuthSession->>Usuario: new Usuario(id_session)
+    activate Usuario
     Usuario->>Db_base: search()
+    activate Db_base
     Db_base->>Conexion: Query usuario
+    activate Conexion
     Conexion-->>Db_base: datos usuario
     Db_base-->>Usuario: datos usuario
+    deactivate Conexion
     Usuario-->>AuthSession: usuario
+    deactivate Usuario
+    deactivate Db_base
     
     AuthSession->>Rol: new Rol(id_rol)
+    activate Rol
     Rol->>Db_base: obtener_permisos()
+    activate Db_base
     Db_base->>Conexion: Query permisos
+    activate Conexion
     Conexion-->>Db_base: lista permisos
     Db_base-->>Rol: lista permisos
+    deactivate Conexion
     Rol-->>AuthSession: permisos
+    deactivate Rol
+    deactivate Db_base
     
     C_Reservacion->>AuthSession: has_permission("reservaciones", "editar")
     AuthSession-->>C_Reservacion: true/false
+    deactivate AuthSession
     
     alt Sin permiso
         C_Reservacion-->>C_Reservacion: Error 403
     end
     
     C_Reservacion->>Reservacion: new Reservacion(id, status)
+    activate Reservacion
+    Reservacion->>Db_base: add_variables([a.status => ...])
+    activate Db_base
+    Db_base-->>Db_base: preg_match validation
+    Db_base-->>Reservacion: validated
+    Reservacion-->>C_Reservacion: return
     Reservacion->>Db_base: actualizar()
     Db_base->>Conexion: UPDATE reservaciones SET status='finalizada'
+    activate Conexion
     Conexion-->>Db_base: success
     Db_base-->>Reservacion: success
     Reservacion-->>C_Reservacion: success
     
     C_Reservacion->>Orden: new Orden(id_orden, status)
+    activate Orden
+    Orden->>Db_base: add_variables([a.status => ...])
+    activate Db_base
+    Db_base-->>Db_base: preg_match validation
+    Db_base-->>Orden: validated
+    Orden-->>C_Reservacion: return
     Orden->>Db_base: actualizar()
     Db_base->>Conexion: UPDATE orden SET status='pagado'
+    activate Conexion
     Conexion-->>Db_base: success
     Db_base-->>Orden: success
     Orden-->>C_Reservacion: success
+    deactivate Reservacion
+    deactivate Orden
+    deactivate Conexion
+    deactivate Db_base
     
     C_Reservacion-->>C_Reservacion: JSON (success)
 ```
@@ -170,34 +264,58 @@ sequenceDiagram
     participant Conexion as Conexion
     
     C_Reservacion->>AuthSession: new AuthSession()
+    activate AuthSession
     AuthSession->>Usuario: new Usuario(id_session)
+    activate Usuario
     Usuario->>Db_base: search()
+    activate Db_base
     Db_base->>Conexion: Query usuario
+    activate Conexion
     Conexion-->>Db_base: datos usuario
     Db_base-->>Usuario: datos usuario
+    deactivate Conexion
     Usuario-->>AuthSession: usuario
+    deactivate Usuario
+    deactivate Db_base
     
     AuthSession->>Rol: new Rol(id_rol)
+    activate Rol
     Rol->>Db_base: obtener_permisos()
+    activate Db_base
     Db_base->>Conexion: Query permisos
+    activate Conexion
     Conexion-->>Db_base: lista permisos
     Db_base-->>Rol: lista permisos
+    deactivate Conexion
     Rol-->>AuthSession: permisos
+    deactivate Rol
+    deactivate Db_base
     
     C_Reservacion->>AuthSession: has_permission("reservaciones", "agregar")
     AuthSession-->>C_Reservacion: true/false
+    deactivate AuthSession
     
     alt Sin permiso
         C_Reservacion-->>C_Reservacion: Error 403
     end
     
     C_Reservacion->>Reservacion: new Reservacion(fecha_bloqueo, status)
+    activate Reservacion
+    Reservacion->>Db_base: add_variables([a.fecha_inicio => ..., a.status => ...])
+    activate Db_base
+    Db_base-->>Db_base: preg_match validation
+    Db_base-->>Reservacion: validated
+    Reservacion-->>C_Reservacion: return
     C_Reservacion->>Reservacion: agregar()
     Reservacion->>Db_base: agregar()
     Db_base->>Conexion: INSERT INTO reservaciones
+    activate Conexion
     Conexion-->>Db_base: lastInsertId
     Db_base-->>Reservacion: lastInsertId
     Reservacion-->>C_Reservacion: id_reservacion
+    deactivate Reservacion
+    deactivate Conexion
+    deactivate Db_base
     
     C_Reservacion-->>C_Reservacion: JSON (success, id_reservacion)
 ```

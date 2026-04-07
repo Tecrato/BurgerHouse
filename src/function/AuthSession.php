@@ -41,7 +41,7 @@ class AuthSession
     {
         return $this->usuario && $this->usuario['rol'] === 'Super Admin';
     }
-    public function has_permission($modulo, $permiso)
+    public function has_permission($modulo, $permiso) : bool
     {
         $modulo = strtolower($modulo);
         $permiso = strtolower($permiso);
@@ -57,5 +57,6 @@ class AuthSession
                 return in_array($permiso, $permisosArray, true);
             }
         }
+        return false;
     }
 }

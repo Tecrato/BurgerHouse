@@ -14,34 +14,58 @@ sequenceDiagram
     participant Conexion as Conexion
     
     C_PP->>AuthSession: new AuthSession()
+    activate AuthSession
     AuthSession->>Usuario: new Usuario(id_session)
+    activate Usuario
     Usuario->>Db_base: search()
+    activate Db_base
     Db_base->>Conexion: Query usuario
+    activate Conexion
     Conexion-->>Db_base: datos usuario
     Db_base-->>Usuario: datos usuario
+    deactivate Conexion
     Usuario-->>AuthSession: usuario
+    deactivate Usuario
+    deactivate Db_base
     
     AuthSession->>Rol: new Rol(id_rol)
+    activate Rol
     Rol->>Db_base: obtener_permisos()
+    activate Db_base
     Db_base->>Conexion: Query permisos
+    activate Conexion
     Conexion-->>Db_base: lista permisos
     Db_base-->>Rol: lista permisos
+    deactivate Conexion
     Rol-->>AuthSession: permisos
+    deactivate Rol
+    deactivate Db_base
     
     C_PP->>AuthSession: has_permission("producto_procesado", "agregar")
     AuthSession-->>C_PP: true/false
+    deactivate AuthSession
     
     alt Sin permiso
         C_PP-->>C_PP: Error 403
     end
     
     C_PP->>ProductoProcesado: new ProductoProcesado(parametros)
+    activate ProductoProcesado
+    ProductoProcesado->>Db_base: add_variables([a.nombre => ..., a.stock => ..., a.precio => ...])
+    activate Db_base
+    Db_base-->>Db_base: preg_match validation
+    Db_base-->>ProductoProcesado: validated
+    ProductoProcesado-->>C_PP: return
     C_PP->>ProductoProcesado: agregar()
     ProductoProcesado->>Db_base: agregar()
     Db_base->>Conexion: INSERT INTO productos_procesados
+    activate Conexion
     Conexion-->>Db_base: lastInsertId
     Db_base-->>ProductoProcesado: lastInsertId
     ProductoProcesado-->>C_PP: lastInsertId
+    deactivate ProductoProcesado
+    deactivate Conexion
+    deactivate Db_base
     
     C_PP-->>C_PP: Exito
 ```
@@ -60,34 +84,58 @@ sequenceDiagram
     participant Conexion as Conexion
     
     C_Entrada_PP->>AuthSession: new AuthSession()
+    activate AuthSession
     AuthSession->>Usuario: new Usuario(id_session)
+    activate Usuario
     Usuario->>Db_base: search()
+    activate Db_base
     Db_base->>Conexion: Query usuario
+    activate Conexion
     Conexion-->>Db_base: datos usuario
     Db_base-->>Usuario: datos usuario
+    deactivate Conexion
     Usuario-->>AuthSession: usuario
+    deactivate Usuario
+    deactivate Db_base
     
     AuthSession->>Rol: new Rol(id_rol)
+    activate Rol
     Rol->>Db_base: obtener_permisos()
+    activate Db_base
     Db_base->>Conexion: Query permisos
+    activate Conexion
     Conexion-->>Db_base: lista permisos
     Db_base-->>Rol: lista permisos
+    deactivate Conexion
     Rol-->>AuthSession: permisos
+    deactivate Rol
+    deactivate Db_base
     
     C_Entrada_PP->>AuthSession: has_permission("producto_procesado", "agregar")
     AuthSession-->>C_Entrada_PP: true/false
+    deactivate AuthSession
     
     alt Sin permiso
         C_Entrada_PP-->>C_Entrada_PP: Error 403
     end
     
     C_Entrada_PP->>Entrada_PP: new Entrada_producto_procesado(parametros)
+    activate Entrada_PP
+    Entrada_PP->>Db_base: add_variables([a.cantidad => ..., a.id_producto => ...])
+    activate Db_base
+    Db_base-->>Db_base: preg_match validation
+    Db_base-->>Entrada_PP: validated
+    Entrada_PP-->>C_Entrada_PP: return
     C_Entrada_PP->>Entrada_PP: agregar()
     Entrada_PP->>Db_base: agregar()
     Db_base->>Conexion: INSERT INTO entradas_producto_procesado
+    activate Conexion
     Conexion-->>Db_base: lastInsertId
     Db_base-->>Entrada_PP: lastInsertId
     Entrada_PP-->>C_Entrada_PP: lastInsertId
+    deactivate Entrada_PP
+    deactivate Conexion
+    deactivate Db_base
     
     C_Entrada_PP-->>C_Entrada_PP: Exito
 ```
@@ -106,33 +154,53 @@ sequenceDiagram
     participant Conexion as Conexion
     
     C_Entrada_PP->>AuthSession: new AuthSession()
+    activate AuthSession
     AuthSession->>Usuario: new Usuario(id_session)
+    activate Usuario
     Usuario->>Db_base: search()
+    activate Db_base
     Db_base->>Conexion: Query usuario
+    activate Conexion
     Conexion-->>Db_base: datos usuario
     Db_base-->>Usuario: datos usuario
+    deactivate Conexion
     Usuario-->>AuthSession: usuario
+    deactivate Usuario
+    deactivate Db_base
     
     AuthSession->>Rol: new Rol(id_rol)
+    activate Rol
     Rol->>Db_base: obtener_permisos()
+    activate Db_base
     Db_base->>Conexion: Query permisos
+    activate Conexion
     Conexion-->>Db_base: lista permisos
     Db_base-->>Rol: lista permisos
+    deactivate Conexion
     Rol-->>AuthSession: permisos
+    deactivate Rol
+    deactivate Db_base
     
     C_Entrada_PP->>AuthSession: has_permission("producto_procesado", "consultar")
     AuthSession-->>C_Entrada_PP: true/false
+    deactivate AuthSession
     
     alt Sin permiso
         C_Entrada_PP-->>C_Entrada_PP: Error 403
     end
     
     C_Entrada_PP->>Entrada_PP: new Entrada_producto_procesado(filtros)
+    activate Entrada_PP
     Entrada_PP->>Db_base: search()
+    activate Db_base
     Db_base->>Conexion: SELECT with JOIN
+    activate Conexion
     Conexion-->>Db_base: array de entradas
     Db_base-->>Entrada_PP: array de entradas
     Entrada_PP-->>C_Entrada_PP: array de entradas
+    deactivate Entrada_PP
+    deactivate Conexion
+    deactivate Db_base
     
     C_Entrada_PP-->>C_Entrada_PP: JSON (data, total)
 ```
@@ -151,34 +219,58 @@ sequenceDiagram
     participant Conexion as Conexion
     
     C_Pago_PP->>AuthSession: new AuthSession()
+    activate AuthSession
     AuthSession->>Usuario: new Usuario(id_session)
+    activate Usuario
     Usuario->>Db_base: search()
+    activate Db_base
     Db_base->>Conexion: Query usuario
+    activate Conexion
     Conexion-->>Db_base: datos usuario
     Db_base-->>Usuario: datos usuario
+    deactivate Conexion
     Usuario-->>AuthSession: usuario
+    deactivate Usuario
+    deactivate Db_base
     
     AuthSession->>Rol: new Rol(id_rol)
+    activate Rol
     Rol->>Db_base: obtener_permisos()
+    activate Db_base
     Db_base->>Conexion: Query permisos
+    activate Conexion
     Conexion-->>Db_base: lista permisos
     Db_base-->>Rol: lista permisos
+    deactivate Conexion
     Rol-->>AuthSession: permisos
+    deactivate Rol
+    deactivate Db_base
     
     C_Pago_PP->>AuthSession: has_permission("producto_procesado", "agregar")
     AuthSession-->>C_Pago_PP: true/false
+    deactivate AuthSession
     
     alt Sin permiso
         C_Pago_PP-->>C_Pago_PP: Error 403
     end
     
     C_Pago_PP->>Pago_PP: new Pago_entrada_producto_procesado(parametros)
+    activate Pago_PP
+    Pago_PP->>Db_base: add_variables([a.monto => ..., a.id_entrada => ...])
+    activate Db_base
+    Db_base-->>Db_base: preg_match validation
+    Db_base-->>Pago_PP: validated
+    Pago_PP-->>C_Pago_PP: return
     C_Pago_PP->>Pago_PP: agregar()
     Pago_PP->>Db_base: agregar()
     Db_base->>Conexion: INSERT INTO pagos_entrada_producto_procesado
+    activate Conexion
     Conexion-->>Db_base: lastInsertId
     Db_base-->>Pago_PP: lastInsertId
     Pago_PP-->>C_Pago_PP: lastInsertId
+    deactivate Pago_PP
+    deactivate Conexion
+    deactivate Db_base
     
     C_Pago_PP-->>C_Pago_PP: Exito
 ```

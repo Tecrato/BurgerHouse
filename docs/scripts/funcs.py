@@ -5,6 +5,7 @@ Funciones comunes para generadores de diagramas Mermaid
 import re
 import requests
 import json
+import time
 
 
 def extract_mermaid_sections(md_content, diagram_types=None):
@@ -172,5 +173,6 @@ def process_md_files(source_dir, output_dir, diagram_types=None):
                 count += 1
             else:
                 errors += 1
+            time.sleep(.5)
     
     return count, errors, skipped

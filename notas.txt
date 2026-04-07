@@ -12,6 +12,3 @@ php vendor\bin\phpunit
 # Cambios:
  - en validar token del cambio de contraseña debe pedir tambien el correo
  - que el dolar se guarde en la db en configuraciones, por si no hay internet.
-
- - modulo permisos
- - Crear las validaciones en Validaciones.js

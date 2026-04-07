@@ -8,7 +8,6 @@ use Shtch\Burgerhouse\models\Detalle_receta;
 use Shtch\Burgerhouse\models\ProductoProcesado;
 use Shtch\Burgerhouse\models\Detalle_entrada_materia_prima;
 use Shtch\Burgerhouse\models\Entrada_producto_procesado;
-use Shtch\Burgerhouse\models\Materia_prima;
 use Kunnu\Dropbox\DropboxApp;
 use Kunnu\Dropbox\Dropbox;
 
