@@ -74,7 +74,7 @@
         'order_by' => $columna_orden,
         'order_type' => $orden_direccion
     ]);
-
+    
     if (!isset($url[0]) || $url[0] == '') {
         $url = [
             0 => "home"
@@ -84,6 +84,22 @@
     if (file_exists(__DIR__ . '/../src/controllers/C_' . ucfirst(strtolower($url[0])) . '.php')) {
         require_once __DIR__ . '/../src/controllers/C_' . ucfirst(strtolower($url[0])) . '.php';
     } else {
+        // $files = scandir(__DIR__ . '/../src/controllers/');
+        // foreach ($files as $file) {
+        //     echo $file . '<br>';
+        // }
+        echo __DIR__ . '/../src/controllers/C_' . ucfirst(strtolower($url[0])) . '.php';
+        echo '<br>';
+        echo '------------------';
+        echo '<br>';
+        print_r($url);
+        echo '<br>';
+        echo '------------------';
+        echo '<br>';
+        print_r($_SERVER['REQUEST_URI']);
+        echo '<br>';
+        echo '------------------';
+        echo '<br>';
         make_url_error("La URL solicitada no existe.", 404, ajax: $ajax);
         // require_once __DIR__ . '/../src/controllers/C_Error404.php';
         // $url[0] = 'error404';

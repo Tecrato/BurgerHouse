@@ -158,6 +158,7 @@ loginForm.addEventListener("submit", async (event) => {
       token:captchaToken
     }, null, 'POST');
     console.log(request);
+    console.log(request.data);
     const result = request.json();
 
     if (result.success === true) {

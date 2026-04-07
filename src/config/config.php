@@ -41,7 +41,7 @@ if (is_readable($envPath)) {
 
 
 // URL
-define("__URL__", "http://localhost/BurgerHouse/");
+define("__URL__", "http://localhost/burgerHouse/");
 
 // ERROR DICTIONARY
 define("ERROR_DICT", [
@@ -187,13 +187,13 @@ $GLOBALS['db1'] = [
     'host' => 'localhost',
     'name' => 'burgerhouse',
     'user' => 'root',
-    'pass' => '1234'
+    'pass' => ''
 ];
 $GLOBALS['db2'] = [
     'host' => 'localhost',
     'name' => 'usuarios_burgerhouse',
     'user' => 'root',
-    'pass' => '1234'
+    'pass' => ''
 ];
 $GLOBALS['__mysql_path'] = 'C:/xampp/mysql/bin/';
 ?>

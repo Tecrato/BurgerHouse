@@ -19,6 +19,8 @@
 -- Table structure for table `caja`
 --
 
+use burgerhouse;
+
 DROP TABLE IF EXISTS `caja`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -247,11 +249,16 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `detalles_entradas_materia_prima_AFTER_INSERT` AFTER INSERT ON `detalles_entradas_materia_prima` FOR EACH ROW BEGIN
- -- Actualizar la existencia sumando la cantidad de la nueva entrada
-    UPDATE materia_prima 
-    SET existencia = CAST(existencia AS DECIMAL(10,2)) + NEW.cantidad
-    WHERE id = NEW.id_materia_prima;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `detalles_entradas_materia_prima_AFTER_INSERT` AFTER INSERT ON `detalles_entradas_materia_prima` FOR EACH ROW BEGIN
+
+ -- Actualizar la existencia sumando la cantidad de la nueva entrada
+
+    UPDATE materia_prima 
+
+    SET existencia = CAST(existencia AS DECIMAL(10,2)) + NEW.cantidad
+
+    WHERE id = NEW.id_materia_prima;
+
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -267,30 +274,54 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `detalles_entradas_materia_prima_BEFORE_UPDATE` BEFORE UPDATE ON `detalles_entradas_materia_prima` FOR EACH ROW BEGIN
--- Declarar la variable al principio del bloque, como exige MySQL
-    DECLARE diferencia FLOAT DEFAULT 0;
-
-    -- Lógica Condicional:
-    -- Caso 1: Si se modifica la CANTIDAD de la compra
-    IF NEW.cantidad <> OLD.cantidad THEN
-        SET diferencia = NEW.cantidad - OLD.cantidad;
-        
-        -- Forzar el cálculo de la existencia del lote
-        SET NEW.existencia = OLD.existencia + diferencia;
-        
-    -- Caso 2: Si solo se modifica la EXISTENCIA (y no la cantidad)
-    ELSEIF NEW.existencia <> OLD.existencia THEN
-        SET diferencia = NEW.existencia - OLD.existencia;
-        -- Aquí se respeta el valor de NEW.existencia que puso el usuario.
-    END IF;
-
-    -- Si hubo algún cambio (diferencia no es 0), se actualiza el inventario maestro
-    IF diferencia <> 0 THEN
-        UPDATE materia_prima
-        SET existencia = existencia + diferencia
-        WHERE id = NEW.id_materia_prima;
-    END IF;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `detalles_entradas_materia_prima_BEFORE_UPDATE` BEFORE UPDATE ON `detalles_entradas_materia_prima` FOR EACH ROW BEGIN
+
+-- Declarar la variable al principio del bloque, como exige MySQL
+
+    DECLARE diferencia FLOAT DEFAULT 0;
+
+
+
+    -- Lógica Condicional:
+
+    -- Caso 1: Si se modifica la CANTIDAD de la compra
+
+    IF NEW.cantidad <> OLD.cantidad THEN
+
+        SET diferencia = NEW.cantidad - OLD.cantidad;
+
+        
+
+        -- Forzar el cálculo de la existencia del lote
+
+        SET NEW.existencia = OLD.existencia + diferencia;
+
+        
+
+    -- Caso 2: Si solo se modifica la EXISTENCIA (y no la cantidad)
+
+    ELSEIF NEW.existencia <> OLD.existencia THEN
+
+        SET diferencia = NEW.existencia - OLD.existencia;
+
+        -- Aquí se respeta el valor de NEW.existencia que puso el usuario.
+
+    END IF;
+
+
+
+    -- Si hubo algún cambio (diferencia no es 0), se actualiza el inventario maestro
+
+    IF diferencia <> 0 THEN
+
+        UPDATE materia_prima
+
+        SET existencia = existencia + diferencia
+
+        WHERE id = NEW.id_materia_prima;
+
+    END IF;
+
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -306,91 +337,176 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `detalles_entradas_materia_prima_AFTER_UPDATE` AFTER UPDATE ON `detalles_entradas_materia_prima` FOR EACH ROW BEGIN
- DECLARE done INT DEFAULT FALSE;
-    DECLARE metodo_nombre VARCHAR(25);
-    DECLARE tasa_movimiento FLOAT;
-    DECLARE precio_compra_entrada FLOAT;
-    
-    -- Cursor para múltiples pagos
-    DECLARE pago_cursor CURSOR FOR 
-        SELECT mp.nombre, pemp.tasa, pemp.precio_compra
-        FROM pagos_entrada_materia_prima pemp
-        INNER JOIN metodo_pago mp ON mp.id = pemp.id_metodo_pago
-        WHERE pemp.id_entrada = NEW.id;
-    
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-    
-    -- Si se desactiva la entrada (active cambia de 1 a 0)
-    IF OLD.active = 1 AND NEW.active = 0 THEN
-        -- Restar la cantidad de la existencia total en materia_prima
-        UPDATE materia_prima 
-        SET existencia = existencia - OLD.cantidad 
-        WHERE id = NEW.id_materia_prima;
-        
-        -- Procesar todos los pagos asociados
-        OPEN pago_cursor;
-        read_loop: LOOP
-            FETCH pago_cursor INTO metodo_nombre, tasa_movimiento, precio_compra_entrada;
-            IF done THEN
-                LEAVE read_loop;
-            END IF;
-            
-            -- Determinar la tasa según el método de pago
-            IF metodo_nombre IN ('Pago Movil', 'Transferencia', 'Efectivo') THEN
-                SET tasa_movimiento = tasa_movimiento; -- usar la tasa real
-            ELSE
-                SET tasa_movimiento = 1; -- otros métodos
-            END IF;
-            
-            -- Insertar movimiento positivo para compensar el egreso anterior
-            INSERT INTO movimientos_capital (monto, descripcion, fecha, tasa)
-            VALUES (
-                precio_compra_entrada, 
-                CONCAT('Ingreso por eliminacion de entrada de materia prima nro ', NEW.id),
-                NOW(),
-                tasa_movimiento
-            );
-        END LOOP;
-        CLOSE pago_cursor;
-        
-        -- Reset del flag para el siguiente bloque
-        SET done = FALSE;
-    END IF;
-    
-    -- Si se reactiva la entrada (active cambia de 0 a 1)
-    IF OLD.active = 0 AND NEW.active = 1 THEN
-        -- Sumar la cantidad a la existencia total en materia_prima
-        UPDATE materia_prima 
-        SET existencia = existencia + NEW.cantidad 
-        WHERE id = NEW.id_materia_prima;
-        
-        -- Procesar todos los pagos asociados para revertir compensación
-        OPEN pago_cursor;
-        read_loop2: LOOP
-            FETCH pago_cursor INTO metodo_nombre, tasa_movimiento, precio_compra_entrada;
-            IF done THEN
-                LEAVE read_loop2;
-            END IF;
-            
-            -- Determinar la tasa según el método de pago
-            IF metodo_nombre IN ('Pago Movil', 'Transferencia', 'Efectivo') THEN
-                SET tasa_movimiento = tasa_movimiento; -- usar la tasa real
-            ELSE
-                SET tasa_movimiento = 1; -- otros métodos
-            END IF;
-            
-            -- Insertar movimiento negativo para revertir la compensación
-            INSERT INTO movimientos_capital (monto, descripcion, fecha, tasa)
-            VALUES (
-                -precio_compra_entrada, 
-                CONCAT('Egreso por reactivacion de entrada de materia prima nro ', NEW.id),
-                NOW(),
-                tasa_movimiento
-            );
-        END LOOP;
-        CLOSE pago_cursor;
-    END IF;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `detalles_entradas_materia_prima_AFTER_UPDATE` AFTER UPDATE ON `detalles_entradas_materia_prima` FOR EACH ROW BEGIN
+
+ DECLARE done INT DEFAULT FALSE;
+
+    DECLARE metodo_nombre VARCHAR(25);
+
+    DECLARE tasa_movimiento FLOAT;
+
+    DECLARE precio_compra_entrada FLOAT;
+
+    
+
+    -- Cursor para múltiples pagos
+
+    DECLARE pago_cursor CURSOR FOR 
+
+        SELECT mp.nombre, pemp.tasa, pemp.precio_compra
+
+        FROM pagos_entrada_materia_prima pemp
+
+        INNER JOIN metodo_pago mp ON mp.id = pemp.id_metodo_pago
+
+        WHERE pemp.id_entrada = NEW.id;
+
+    
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    
+
+    -- Si se desactiva la entrada (active cambia de 1 a 0)
+
+    IF OLD.active = 1 AND NEW.active = 0 THEN
+
+        -- Restar la cantidad de la existencia total en materia_prima
+
+        UPDATE materia_prima 
+
+        SET existencia = existencia - OLD.cantidad 
+
+        WHERE id = NEW.id_materia_prima;
+
+        
+
+        -- Procesar todos los pagos asociados
+
+        OPEN pago_cursor;
+
+        read_loop: LOOP
+
+            FETCH pago_cursor INTO metodo_nombre, tasa_movimiento, precio_compra_entrada;
+
+            IF done THEN
+
+                LEAVE read_loop;
+
+            END IF;
+
+            
+
+            -- Determinar la tasa según el método de pago
+
+            IF metodo_nombre IN ('Pago Movil', 'Transferencia', 'Efectivo') THEN
+
+                SET tasa_movimiento = tasa_movimiento; -- usar la tasa real
+
+            ELSE
+
+                SET tasa_movimiento = 1; -- otros métodos
+
+            END IF;
+
+            
+
+            -- Insertar movimiento positivo para compensar el egreso anterior
+
+            INSERT INTO movimientos_capital (monto, descripcion, fecha, tasa)
+
+            VALUES (
+
+                precio_compra_entrada, 
+
+                CONCAT('Ingreso por eliminacion de entrada de materia prima nro ', NEW.id),
+
+                NOW(),
+
+                tasa_movimiento
+
+            );
+
+        END LOOP;
+
+        CLOSE pago_cursor;
+
+        
+
+        -- Reset del flag para el siguiente bloque
+
+        SET done = FALSE;
+
+    END IF;
+
+    
+
+    -- Si se reactiva la entrada (active cambia de 0 a 1)
+
+    IF OLD.active = 0 AND NEW.active = 1 THEN
+
+        -- Sumar la cantidad a la existencia total en materia_prima
+
+        UPDATE materia_prima 
+
+        SET existencia = existencia + NEW.cantidad 
+
+        WHERE id = NEW.id_materia_prima;
+
+        
+
+        -- Procesar todos los pagos asociados para revertir compensación
+
+        OPEN pago_cursor;
+
+        read_loop2: LOOP
+
+            FETCH pago_cursor INTO metodo_nombre, tasa_movimiento, precio_compra_entrada;
+
+            IF done THEN
+
+                LEAVE read_loop2;
+
+            END IF;
+
+            
+
+            -- Determinar la tasa según el método de pago
+
+            IF metodo_nombre IN ('Pago Movil', 'Transferencia', 'Efectivo') THEN
+
+                SET tasa_movimiento = tasa_movimiento; -- usar la tasa real
+
+            ELSE
+
+                SET tasa_movimiento = 1; -- otros métodos
+
+            END IF;
+
+            
+
+            -- Insertar movimiento negativo para revertir la compensación
+
+            INSERT INTO movimientos_capital (monto, descripcion, fecha, tasa)
+
+            VALUES (
+
+                -precio_compra_entrada, 
+
+                CONCAT('Egreso por reactivacion de entrada de materia prima nro ', NEW.id),
+
+                NOW(),
+
+                tasa_movimiento
+
+            );
+
+        END LOOP;
+
+        CLOSE pago_cursor;
+
+    END IF;
+
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -502,11 +618,16 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `entradas_producto_procesado_AFTER_INSERT` AFTER INSERT ON `entradas_producto_procesado` FOR EACH ROW BEGIN
- -- Actualizar la existencia sumando la cantidad de la nueva entrada
-    UPDATE productos_procesados
-    SET existencia = CAST(existencia AS DECIMAL(10,2)) + NEW.cantidad
-    WHERE id = NEW.id_producto;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `entradas_producto_procesado_AFTER_INSERT` AFTER INSERT ON `entradas_producto_procesado` FOR EACH ROW BEGIN
+
+ -- Actualizar la existencia sumando la cantidad de la nueva entrada
+
+    UPDATE productos_procesados
+
+    SET existencia = CAST(existencia AS DECIMAL(10,2)) + NEW.cantidad
+
+    WHERE id = NEW.id_producto;
+
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -522,30 +643,54 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `entradas_producto_procesado_BEFORE_UPDATE` BEFORE UPDATE ON `entradas_producto_procesado` FOR EACH ROW BEGIN
-    -- Declarar la variable al principio del bloque, como exige MySQL
-    DECLARE diferencia FLOAT DEFAULT 0;
-
-    -- Lógica Condicional:
-    -- Caso 1: Si se modifica la CANTIDAD de la compra
-    IF NEW.cantidad <> OLD.cantidad THEN
-        SET diferencia = NEW.cantidad - OLD.cantidad;
-        
-        -- Forzar el cálculo de la existencia del lote
-        SET NEW.existencia = OLD.existencia + diferencia;
-        
-    -- Caso 2: Si solo se modifica la EXISTENCIA (y no la cantidad)
-    ELSEIF NEW.existencia <> OLD.existencia THEN
-        SET diferencia = NEW.existencia - OLD.existencia;
-        -- Aquí se respeta el valor de NEW.existencia que puso el usuario.
-    END IF;
-
-    -- Si hubo algún cambio (diferencia no es 0), se actualiza el inventario maestro
-    IF diferencia <> 0 THEN
-        UPDATE productos_procesados
-        SET existencia = existencia + diferencia
-        WHERE id = NEW.id_producto;
-    END IF;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `entradas_producto_procesado_BEFORE_UPDATE` BEFORE UPDATE ON `entradas_producto_procesado` FOR EACH ROW BEGIN
+
+    -- Declarar la variable al principio del bloque, como exige MySQL
+
+    DECLARE diferencia FLOAT DEFAULT 0;
+
+
+
+    -- Lógica Condicional:
+
+    -- Caso 1: Si se modifica la CANTIDAD de la compra
+
+    IF NEW.cantidad <> OLD.cantidad THEN
+
+        SET diferencia = NEW.cantidad - OLD.cantidad;
+
+        
+
+        -- Forzar el cálculo de la existencia del lote
+
+        SET NEW.existencia = OLD.existencia + diferencia;
+
+        
+
+    -- Caso 2: Si solo se modifica la EXISTENCIA (y no la cantidad)
+
+    ELSEIF NEW.existencia <> OLD.existencia THEN
+
+        SET diferencia = NEW.existencia - OLD.existencia;
+
+        -- Aquí se respeta el valor de NEW.existencia que puso el usuario.
+
+    END IF;
+
+
+
+    -- Si hubo algún cambio (diferencia no es 0), se actualiza el inventario maestro
+
+    IF diferencia <> 0 THEN
+
+        UPDATE productos_procesados
+
+        SET existencia = existencia + diferencia
+
+        WHERE id = NEW.id_producto;
+
+    END IF;
+
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -561,91 +706,176 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `entradas_producto_procesado_AFTER_UPDATE` AFTER UPDATE ON `entradas_producto_procesado` FOR EACH ROW BEGIN
- DECLARE done INT DEFAULT FALSE;
-    DECLARE metodo_nombre VARCHAR(25);
-    DECLARE tasa_movimiento FLOAT;
-    DECLARE precio_compra_entrada FLOAT;
-    
-    -- Cursor para múltiples pagos
-    DECLARE pago_cursor CURSOR FOR 
-        SELECT mp.nombre, pemp.tasa, pemp.precio_compra
-        FROM pagos_entrada_materia_prima pemp
-        INNER JOIN metodo_pago mp ON mp.id = pemp.id_metodo_pago
-        WHERE pemp.id_entrada = NEW.id;
-    
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-    
-    -- Si se desactiva la entrada (active cambia de 1 a 0)
-    IF OLD.active = 1 AND NEW.active = 0 THEN
-        -- Restar la cantidad de la existencia total en materia_prima
-        UPDATE productos_procesados 
-        SET existencia = existencia - OLD.cantidad 
-        WHERE id = NEW.id_producto;
-        
-        -- Procesar todos los pagos asociados
-        OPEN pago_cursor;
-        read_loop: LOOP
-            FETCH pago_cursor INTO metodo_nombre, tasa_movimiento, precio_compra_entrada;
-            IF done THEN
-                LEAVE read_loop;
-            END IF;
-            
-            -- Determinar la tasa según el método de pago
-            IF metodo_nombre IN ('Pago Movil', 'Transferencia', 'Efectivo') THEN
-                SET tasa_movimiento = tasa_movimiento; -- usar la tasa real
-            ELSE
-                SET tasa_movimiento = 1; -- otros métodos
-            END IF;
-            
-            -- Insertar movimiento positivo para compensar el egreso anterior
-            INSERT INTO movimientos_capital (monto, descripcion, fecha, tasa)
-            VALUES (
-                precio_compra_entrada, 
-                CONCAT('Ingreso por eliminacion de entrada de materia prima nro ', NEW.id),
-                NOW(),
-                tasa_movimiento
-            );
-        END LOOP;
-        CLOSE pago_cursor;
-        
-        -- Reset del flag para el siguiente bloque
-        SET done = FALSE;
-    END IF;
-    
-    -- Si se reactiva la entrada (active cambia de 0 a 1)
-    IF OLD.active = 0 AND NEW.active = 1 THEN
-        -- Sumar la cantidad a la existencia total en materia_prima
-        UPDATE productos_procesados 
-        SET existencia = existencia + NEW.cantidad 
-        WHERE id = NEW.id_producto;
-        
-        -- Procesar todos los pagos asociados para revertir compensación
-        OPEN pago_cursor;
-        read_loop2: LOOP
-            FETCH pago_cursor INTO metodo_nombre, tasa_movimiento, precio_compra_entrada;
-            IF done THEN
-                LEAVE read_loop2;
-            END IF;
-            
-            -- Determinar la tasa según el método de pago
-            IF metodo_nombre IN ('Pago Movil', 'Transferencia', 'Efectivo') THEN
-                SET tasa_movimiento = tasa_movimiento; -- usar la tasa real
-            ELSE
-                SET tasa_movimiento = 1; -- otros métodos
-            END IF;
-            
-            -- Insertar movimiento negativo para revertir la compensación
-            INSERT INTO movimientos_capital (monto, descripcion, fecha, tasa)
-            VALUES (
-                -precio_compra_entrada, 
-                CONCAT('Egreso por reactivacion de entrada de materia prima nro ', NEW.id),
-                NOW(),
-                tasa_movimiento
-            );
-        END LOOP;
-        CLOSE pago_cursor;
-    END IF;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `entradas_producto_procesado_AFTER_UPDATE` AFTER UPDATE ON `entradas_producto_procesado` FOR EACH ROW BEGIN
+
+ DECLARE done INT DEFAULT FALSE;
+
+    DECLARE metodo_nombre VARCHAR(25);
+
+    DECLARE tasa_movimiento FLOAT;
+
+    DECLARE precio_compra_entrada FLOAT;
+
+    
+
+    -- Cursor para múltiples pagos
+
+    DECLARE pago_cursor CURSOR FOR 
+
+        SELECT mp.nombre, pemp.tasa, pemp.precio_compra
+
+        FROM pagos_entrada_materia_prima pemp
+
+        INNER JOIN metodo_pago mp ON mp.id = pemp.id_metodo_pago
+
+        WHERE pemp.id_entrada = NEW.id;
+
+    
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    
+
+    -- Si se desactiva la entrada (active cambia de 1 a 0)
+
+    IF OLD.active = 1 AND NEW.active = 0 THEN
+
+        -- Restar la cantidad de la existencia total en materia_prima
+
+        UPDATE productos_procesados 
+
+        SET existencia = existencia - OLD.cantidad 
+
+        WHERE id = NEW.id_producto;
+
+        
+
+        -- Procesar todos los pagos asociados
+
+        OPEN pago_cursor;
+
+        read_loop: LOOP
+
+            FETCH pago_cursor INTO metodo_nombre, tasa_movimiento, precio_compra_entrada;
+
+            IF done THEN
+
+                LEAVE read_loop;
+
+            END IF;
+
+            
+
+            -- Determinar la tasa según el método de pago
+
+            IF metodo_nombre IN ('Pago Movil', 'Transferencia', 'Efectivo') THEN
+
+                SET tasa_movimiento = tasa_movimiento; -- usar la tasa real
+
+            ELSE
+
+                SET tasa_movimiento = 1; -- otros métodos
+
+            END IF;
+
+            
+
+            -- Insertar movimiento positivo para compensar el egreso anterior
+
+            INSERT INTO movimientos_capital (monto, descripcion, fecha, tasa)
+
+            VALUES (
+
+                precio_compra_entrada, 
+
+                CONCAT('Ingreso por eliminacion de entrada de materia prima nro ', NEW.id),
+
+                NOW(),
+
+                tasa_movimiento
+
+            );
+
+        END LOOP;
+
+        CLOSE pago_cursor;
+
+        
+
+        -- Reset del flag para el siguiente bloque
+
+        SET done = FALSE;
+
+    END IF;
+
+    
+
+    -- Si se reactiva la entrada (active cambia de 0 a 1)
+
+    IF OLD.active = 0 AND NEW.active = 1 THEN
+
+        -- Sumar la cantidad a la existencia total en materia_prima
+
+        UPDATE productos_procesados 
+
+        SET existencia = existencia + NEW.cantidad 
+
+        WHERE id = NEW.id_producto;
+
+        
+
+        -- Procesar todos los pagos asociados para revertir compensación
+
+        OPEN pago_cursor;
+
+        read_loop2: LOOP
+
+            FETCH pago_cursor INTO metodo_nombre, tasa_movimiento, precio_compra_entrada;
+
+            IF done THEN
+
+                LEAVE read_loop2;
+
+            END IF;
+
+            
+
+            -- Determinar la tasa según el método de pago
+
+            IF metodo_nombre IN ('Pago Movil', 'Transferencia', 'Efectivo') THEN
+
+                SET tasa_movimiento = tasa_movimiento; -- usar la tasa real
+
+            ELSE
+
+                SET tasa_movimiento = 1; -- otros métodos
+
+            END IF;
+
+            
+
+            -- Insertar movimiento negativo para revertir la compensación
+
+            INSERT INTO movimientos_capital (monto, descripcion, fecha, tasa)
+
+            VALUES (
+
+                -precio_compra_entrada, 
+
+                CONCAT('Egreso por reactivacion de entrada de materia prima nro ', NEW.id),
+
+                NOW(),
+
+                tasa_movimiento
+
+            );
+
+        END LOOP;
+
+        CLOSE pago_cursor;
+
+    END IF;
+
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -778,8 +1008,10 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `movimientos_capital_AFTER_INSERT` AFTER INSERT ON `movimientos_capital` FOR EACH ROW BEGIN
-UPDATE capital SET monto = monto + NEW.monto WHERE id = 1;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `movimientos_capital_AFTER_INSERT` AFTER INSERT ON `movimientos_capital` FOR EACH ROW BEGIN
+
+UPDATE capital SET monto = monto + NEW.monto WHERE id = 1;
+
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -946,31 +1178,56 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `pagos_AFTER_INSERT` AFTER INSERT ON `pagos` FOR EACH ROW BEGIN
-	 DECLARE metodo VARCHAR(25);
-    DECLARE tasa_movimiento FLOAT;
-
-    -- Obtener nombre del método de pago
-    SELECT nombre 
-    INTO metodo
-    FROM metodo_pago
-    WHERE id = NEW.id_metodo_pago;
-
-    -- Determinar la tasa según el método de pago
-    IF metodo IN ('Transferencia', 'Pago Movil', 'Efectivo') THEN
-        SET tasa_movimiento = NEW.tasa;
-    ELSE
-        SET tasa_movimiento = 1;
-    END IF;
-
-    -- Insertar en movimientos_capital
-    INSERT INTO movimientos_capital (monto, descripcion, fecha, tasa)
-    VALUES (
-        NEW.monto, 
-        CONCAT('Ingreso por ', metodo), 
-        NOW(),
-        tasa_movimiento
-    );
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `pagos_AFTER_INSERT` AFTER INSERT ON `pagos` FOR EACH ROW BEGIN
+
+	 DECLARE metodo VARCHAR(25);
+
+    DECLARE tasa_movimiento FLOAT;
+
+
+
+    -- Obtener nombre del método de pago
+
+    SELECT nombre 
+
+    INTO metodo
+
+    FROM metodo_pago
+
+    WHERE id = NEW.id_metodo_pago;
+
+
+
+    -- Determinar la tasa según el método de pago
+
+    IF metodo IN ('Transferencia', 'Pago Movil', 'Efectivo') THEN
+
+        SET tasa_movimiento = NEW.tasa;
+
+    ELSE
+
+        SET tasa_movimiento = 1;
+
+    END IF;
+
+
+
+    -- Insertar en movimientos_capital
+
+    INSERT INTO movimientos_capital (monto, descripcion, fecha, tasa)
+
+    VALUES (
+
+        NEW.monto, 
+
+        CONCAT('Ingreso por ', metodo), 
+
+        NOW(),
+
+        tasa_movimiento
+
+    );
+
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1020,34 +1277,62 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `pagos_entrada_materia_prima_AFTER_INSERT` AFTER INSERT ON `pagos_entrada_materia_prima` FOR EACH ROW BEGIN
-DECLARE metodo_nombre VARCHAR(25);
-    DECLARE tasa_movimiento FLOAT;
-    DECLARE monto_egreso FLOAT;
-    
-    -- Obtener el nombre del método de pago
-    SELECT nombre INTO metodo_nombre 
-    FROM metodo_pago 
-    WHERE id = NEW.id_metodo_pago;
-    
-    -- Determinar la tasa según el método de pago
-    IF metodo_nombre IN ('Pago Movil', 'Transferencia', 'Efectivo') THEN
-        SET tasa_movimiento = NEW.tasa;
-    ELSE
-        SET tasa_movimiento = 1;
-    END IF;
-    
-    -- Calcular el monto del egreso (negativo porque es un gasto)
-    SET monto_egreso = -NEW.precio_compra;
-    
-    -- Insertar el movimiento de capital
-    INSERT INTO movimientos_capital (monto, descripcion, fecha, tasa)
-    VALUES (
-        monto_egreso, 
-        CONCAT('Egreso por entrada de materia prima nro ', NEW.id_entrada),
-        NEW.fecha,
-        tasa_movimiento
-    );
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `pagos_entrada_materia_prima_AFTER_INSERT` AFTER INSERT ON `pagos_entrada_materia_prima` FOR EACH ROW BEGIN
+
+DECLARE metodo_nombre VARCHAR(25);
+
+    DECLARE tasa_movimiento FLOAT;
+
+    DECLARE monto_egreso FLOAT;
+
+    
+
+    -- Obtener el nombre del método de pago
+
+    SELECT nombre INTO metodo_nombre 
+
+    FROM metodo_pago 
+
+    WHERE id = NEW.id_metodo_pago;
+
+    
+
+    -- Determinar la tasa según el método de pago
+
+    IF metodo_nombre IN ('Pago Movil', 'Transferencia', 'Efectivo') THEN
+
+        SET tasa_movimiento = NEW.tasa;
+
+    ELSE
+
+        SET tasa_movimiento = 1;
+
+    END IF;
+
+    
+
+    -- Calcular el monto del egreso (negativo porque es un gasto)
+
+    SET monto_egreso = -NEW.precio_compra;
+
+    
+
+    -- Insertar el movimiento de capital
+
+    INSERT INTO movimientos_capital (monto, descripcion, fecha, tasa)
+
+    VALUES (
+
+        monto_egreso, 
+
+        CONCAT('Egreso por entrada de materia prima nro ', NEW.id_entrada),
+
+        NEW.fecha,
+
+        tasa_movimiento
+
+    );
+
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1097,34 +1382,62 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `pagos_entrada_producto_procesado_AFTER_INSERT` AFTER INSERT ON `pagos_entrada_producto_procesado` FOR EACH ROW BEGIN
-DECLARE metodo_nombre VARCHAR(25);
-    DECLARE tasa_movimiento FLOAT;
-    DECLARE monto_egreso FLOAT;
-    
-    -- Obtener el nombre del método de pago
-    SELECT nombre INTO metodo_nombre 
-    FROM metodo_pago 
-    WHERE id = NEW.id_metodo_pago;
-    
-    -- Determinar la tasa según el método de pago
-    IF metodo_nombre IN ('Pago Movil', 'Transferencia', 'Efectivo') THEN
-        SET tasa_movimiento = NEW.tasa;
-    ELSE
-        SET tasa_movimiento = 1;
-    END IF;
-    
-    -- Calcular el monto del egreso (negativo porque es un gasto)
-    SET monto_egreso = -NEW.precio_compra;
-    
-    -- Insertar el movimiento de capital
-    INSERT INTO movimientos_capital (monto, descripcion, fecha, tasa)
-    VALUES (
-        monto_egreso, 
-        CONCAT('Egreso por entrada de materia prima nro ', NEW.id_entrada),
-        NEW.fecha,
-        tasa_movimiento
-    );
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `pagos_entrada_producto_procesado_AFTER_INSERT` AFTER INSERT ON `pagos_entrada_producto_procesado` FOR EACH ROW BEGIN
+
+DECLARE metodo_nombre VARCHAR(25);
+
+    DECLARE tasa_movimiento FLOAT;
+
+    DECLARE monto_egreso FLOAT;
+
+    
+
+    -- Obtener el nombre del método de pago
+
+    SELECT nombre INTO metodo_nombre 
+
+    FROM metodo_pago 
+
+    WHERE id = NEW.id_metodo_pago;
+
+    
+
+    -- Determinar la tasa según el método de pago
+
+    IF metodo_nombre IN ('Pago Movil', 'Transferencia', 'Efectivo') THEN
+
+        SET tasa_movimiento = NEW.tasa;
+
+    ELSE
+
+        SET tasa_movimiento = 1;
+
+    END IF;
+
+    
+
+    -- Calcular el monto del egreso (negativo porque es un gasto)
+
+    SET monto_egreso = -NEW.precio_compra;
+
+    
+
+    -- Insertar el movimiento de capital
+
+    INSERT INTO movimientos_capital (monto, descripcion, fecha, tasa)
+
+    VALUES (
+
+        monto_egreso, 
+
+        CONCAT('Egreso por entrada de materia prima nro ', NEW.id_entrada),
+
+        NEW.fecha,
+
+        tasa_movimiento
+
+    );
+
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1580,53 +1893,100 @@ SET character_set_client = @saved_cs_client;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `Caja`(IN idCaja INT)
-BEGIN
-    SELECT 
-        mp.id AS id_metodo_pago,
-        mp.nombre AS metodo_pago,
-        CONCAT(c.nombre, ' ', c.apellido) AS cliente,
-        pc.monto,
-        pc.tasa,
-        pc.fecha,
-        pc.nro_orden,
-        pc.tipo_pago
-    FROM metodo_pago mp
-    LEFT JOIN (
-        -- Pagos de ventas
-        SELECT 
-            p.id_metodo_pago,
-            p.monto,
-            p.tasa,
-            p.fecha,
-            o.id_cliente,
-            o.nro_orden,
-            'venta' AS tipo_pago
-        FROM pagos p
-        INNER JOIN pago_venta pv ON pv.id_pago = p.id
-        INNER JOIN ventas v ON v.id = pv.id_venta
-        INNER JOIN orden o ON o.id = v.id_orden
-        WHERE v.id_caja = idCaja
-
-        UNION ALL
-
-        -- Pagos de reservaciones
-        SELECT 
-            p.id_metodo_pago,
-            p.monto,
-            p.tasa,
-            p.fecha,
-            o.id_cliente,
-            o.nro_orden,
-            'reserva' AS tipo_pago
-        FROM pagos p
-        INNER JOIN pago_reserva pr ON pr.id_pago = p.id
-        INNER JOIN reservaciones r ON r.id = pr.id_reserva
-        LEFT JOIN orden o ON o.id = r.id_orden
-        WHERE r.id_caja = idCaja
-    ) AS pc ON pc.id_metodo_pago = mp.id
-    LEFT JOIN clientes c ON pc.id_cliente = c.id
-    WHERE mp.active = 1
-    ORDER BY mp.id, cliente;
+BEGIN
+
+    SELECT 
+
+        mp.id AS id_metodo_pago,
+
+        mp.nombre AS metodo_pago,
+
+        CONCAT(c.nombre, ' ', c.apellido) AS cliente,
+
+        pc.monto,
+
+        pc.tasa,
+
+        pc.fecha,
+
+        pc.nro_orden,
+
+        pc.tipo_pago
+
+    FROM metodo_pago mp
+
+    LEFT JOIN (
+
+        -- Pagos de ventas
+
+        SELECT 
+
+            p.id_metodo_pago,
+
+            p.monto,
+
+            p.tasa,
+
+            p.fecha,
+
+            o.id_cliente,
+
+            o.nro_orden,
+
+            'venta' AS tipo_pago
+
+        FROM pagos p
+
+        INNER JOIN pago_venta pv ON pv.id_pago = p.id
+
+        INNER JOIN ventas v ON v.id = pv.id_venta
+
+        INNER JOIN orden o ON o.id = v.id_orden
+
+        WHERE v.id_caja = idCaja
+
+
+
+        UNION ALL
+
+
+
+        -- Pagos de reservaciones
+
+        SELECT 
+
+            p.id_metodo_pago,
+
+            p.monto,
+
+            p.tasa,
+
+            p.fecha,
+
+            o.id_cliente,
+
+            o.nro_orden,
+
+            'reserva' AS tipo_pago
+
+        FROM pagos p
+
+        INNER JOIN pago_reserva pr ON pr.id_pago = p.id
+
+        INNER JOIN reservaciones r ON r.id = pr.id_reserva
+
+        LEFT JOIN orden o ON o.id = r.id_orden
+
+        WHERE r.id_caja = idCaja
+
+    ) AS pc ON pc.id_metodo_pago = mp.id
+
+    LEFT JOIN clientes c ON pc.id_cliente = c.id
+
+    WHERE mp.active = 1
+
+    ORDER BY mp.id, cliente;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1644,89 +2004,172 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `CerrarCaja`(IN cajaId INT)
-BEGIN
-    DECLARE inicial_bs FLOAT DEFAULT 0;
-    DECLARE inicial_dolar FLOAT DEFAULT 0;
-    DECLARE total_bs FLOAT DEFAULT 0;
-    DECLARE total_dolar FLOAT DEFAULT 0;
-    DECLARE tasa_promedio_dolar FLOAT DEFAULT 0;
-
-    -- Montos iniciales
-    SELECT monto_inicial_bs, monto_inicial_dolar
-    INTO inicial_bs, inicial_dolar
-    FROM caja
-    WHERE id = cajaId;
-
-    -- Total pagos en Bs (de ventas y reservaciones)
-    SELECT IFNULL(SUM(p.monto), 0)
-    INTO total_bs
-    FROM pagos p
-    JOIN metodo_pago m ON m.id = p.id_metodo_pago
-    WHERE m.nombre NOT IN ('Zelle', 'Binance', 'Divisa')
-      AND p.id IN (
-        -- pagos asociados a ventas
-        SELECT pv.id_pago
-        FROM pago_venta pv
-        JOIN ventas v ON v.id = pv.id_venta
-        WHERE v.id_caja = cajaId
-
-        UNION ALL
-
-        -- pagos asociados a reservaciones
-        SELECT pr.id_pago
-        FROM pago_reserva pr
-        JOIN reservaciones r ON r.id = pr.id_reserva
-        WHERE r.id_caja = cajaId
-    );
-
-    -- Total pagos en dólares (ventas y reservaciones)
-    SELECT IFNULL(SUM(p.monto), 0)
-    INTO total_dolar
-    FROM pagos p
-    JOIN metodo_pago m ON m.id = p.id_metodo_pago
-    WHERE m.nombre IN ('Zelle', 'Binance', 'Divisa')
-      AND p.id IN (
-        SELECT pv.id_pago
-        FROM pago_venta pv
-        JOIN ventas v ON v.id = pv.id_venta
-        WHERE v.id_caja = cajaId
-
-        UNION ALL
-
-        SELECT pr.id_pago
-        FROM pago_reserva pr
-        JOIN reservaciones r ON r.id = pr.id_reserva
-        WHERE r.id_caja = cajaId
-    );
-
-    -- Tasa promedio dólar para pagos en Bs
-    SELECT IFNULL(AVG(p.tasa), 0)
-    INTO tasa_promedio_dolar
-    FROM pagos p
-    JOIN metodo_pago m ON m.id = p.id_metodo_pago
-    WHERE m.nombre NOT IN ('Zelle', 'Binance', 'Divisa')
-      AND p.id IN (
-        SELECT pv.id_pago
-        FROM pago_venta pv
-        JOIN ventas v ON v.id = pv.id_venta
-        WHERE v.id_caja = cajaId
-
-        UNION ALL
-
-        SELECT pr.id_pago
-        FROM pago_reserva pr
-        JOIN reservaciones r ON r.id = pr.id_reserva
-        WHERE r.id_caja = cajaId
-    );
-
-    -- Actualizar caja con totales
-    UPDATE caja
-    SET 
-        monto_final_bs = inicial_bs + total_bs,
-        monto_final_dolar = inicial_dolar + total_dolar,
-        fecha_cierre = NOW(),
-        estado = 0
-    WHERE id = cajaId;
+BEGIN
+
+    DECLARE inicial_bs FLOAT DEFAULT 0;
+
+    DECLARE inicial_dolar FLOAT DEFAULT 0;
+
+    DECLARE total_bs FLOAT DEFAULT 0;
+
+    DECLARE total_dolar FLOAT DEFAULT 0;
+
+    DECLARE tasa_promedio_dolar FLOAT DEFAULT 0;
+
+
+
+    -- Montos iniciales
+
+    SELECT monto_inicial_bs, monto_inicial_dolar
+
+    INTO inicial_bs, inicial_dolar
+
+    FROM caja
+
+    WHERE id = cajaId;
+
+
+
+    -- Total pagos en Bs (de ventas y reservaciones)
+
+    SELECT IFNULL(SUM(p.monto), 0)
+
+    INTO total_bs
+
+    FROM pagos p
+
+    JOIN metodo_pago m ON m.id = p.id_metodo_pago
+
+    WHERE m.nombre NOT IN ('Zelle', 'Binance', 'Divisa')
+
+      AND p.id IN (
+
+        -- pagos asociados a ventas
+
+        SELECT pv.id_pago
+
+        FROM pago_venta pv
+
+        JOIN ventas v ON v.id = pv.id_venta
+
+        WHERE v.id_caja = cajaId
+
+
+
+        UNION ALL
+
+
+
+        -- pagos asociados a reservaciones
+
+        SELECT pr.id_pago
+
+        FROM pago_reserva pr
+
+        JOIN reservaciones r ON r.id = pr.id_reserva
+
+        WHERE r.id_caja = cajaId
+
+    );
+
+
+
+    -- Total pagos en dólares (ventas y reservaciones)
+
+    SELECT IFNULL(SUM(p.monto), 0)
+
+    INTO total_dolar
+
+    FROM pagos p
+
+    JOIN metodo_pago m ON m.id = p.id_metodo_pago
+
+    WHERE m.nombre IN ('Zelle', 'Binance', 'Divisa')
+
+      AND p.id IN (
+
+        SELECT pv.id_pago
+
+        FROM pago_venta pv
+
+        JOIN ventas v ON v.id = pv.id_venta
+
+        WHERE v.id_caja = cajaId
+
+
+
+        UNION ALL
+
+
+
+        SELECT pr.id_pago
+
+        FROM pago_reserva pr
+
+        JOIN reservaciones r ON r.id = pr.id_reserva
+
+        WHERE r.id_caja = cajaId
+
+    );
+
+
+
+    -- Tasa promedio dólar para pagos en Bs
+
+    SELECT IFNULL(AVG(p.tasa), 0)
+
+    INTO tasa_promedio_dolar
+
+    FROM pagos p
+
+    JOIN metodo_pago m ON m.id = p.id_metodo_pago
+
+    WHERE m.nombre NOT IN ('Zelle', 'Binance', 'Divisa')
+
+      AND p.id IN (
+
+        SELECT pv.id_pago
+
+        FROM pago_venta pv
+
+        JOIN ventas v ON v.id = pv.id_venta
+
+        WHERE v.id_caja = cajaId
+
+
+
+        UNION ALL
+
+
+
+        SELECT pr.id_pago
+
+        FROM pago_reserva pr
+
+        JOIN reservaciones r ON r.id = pr.id_reserva
+
+        WHERE r.id_caja = cajaId
+
+    );
+
+
+
+    -- Actualizar caja con totales
+
+    UPDATE caja
+
+    SET 
+
+        monto_final_bs = inicial_bs + total_bs,
+
+        monto_final_dolar = inicial_dolar + total_dolar,
+
+        fecha_cierre = NOW(),
+
+        estado = 0
+
+    WHERE id = cajaId;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1744,43 +2187,80 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `gastoClienteAnual`(IN p_anio INT)
-BEGIN
-    
-    WITH meses AS (
-        SELECT 1 AS mes_numero, 'Enero' AS nombre UNION
-        SELECT 2, 'Febrero' UNION
-        SELECT 3, 'Marzo' UNION
-        SELECT 4, 'Abril' UNION
-        SELECT 5, 'Mayo' UNION
-        SELECT 6, 'Junio' UNION
-        SELECT 7, 'Julio' UNION
-        SELECT 8, 'Agosto' UNION
-        SELECT 9, 'Septiembre' UNION
-        SELECT 10, 'Octubre' UNION
-        SELECT 11, 'Noviembre' UNION
-        SELECT 12, 'Diciembre'
-    ),
-
-    
-    ventas_por_mes AS (
-        SELECT 
-            MONTH(fecha) AS mes_numero,
-            SUM(monto_final) AS total_mes,
-            COUNT(DISTINCT DATE(fecha)) AS dias_con_ventas,
-            SUM(monto_final) / COUNT(DISTINCT DATE(fecha)) AS promedio_diario
-        FROM ventas
-        WHERE YEAR(fecha) = p_anio
-        GROUP BY MONTH(fecha)
-    )
-
-    SELECT
-        m.nombre AS mes,
-        m.mes_numero,
-        ROUND(COALESCE(v.total_mes, 0), 2) AS total_mes,
-        ROUND(COALESCE(v.promedio_diario, 0), 2) AS promedio_diario
-    FROM meses m
-    LEFT JOIN ventas_por_mes v ON m.mes_numero = v.mes_numero
-    ORDER BY m.mes_numero;
+BEGIN
+
+    
+
+    WITH meses AS (
+
+        SELECT 1 AS mes_numero, 'Enero' AS nombre UNION
+
+        SELECT 2, 'Febrero' UNION
+
+        SELECT 3, 'Marzo' UNION
+
+        SELECT 4, 'Abril' UNION
+
+        SELECT 5, 'Mayo' UNION
+
+        SELECT 6, 'Junio' UNION
+
+        SELECT 7, 'Julio' UNION
+
+        SELECT 8, 'Agosto' UNION
+
+        SELECT 9, 'Septiembre' UNION
+
+        SELECT 10, 'Octubre' UNION
+
+        SELECT 11, 'Noviembre' UNION
+
+        SELECT 12, 'Diciembre'
+
+    ),
+
+
+
+    
+
+    ventas_por_mes AS (
+
+        SELECT 
+
+            MONTH(fecha) AS mes_numero,
+
+            SUM(monto_final) AS total_mes,
+
+            COUNT(DISTINCT DATE(fecha)) AS dias_con_ventas,
+
+            SUM(monto_final) / COUNT(DISTINCT DATE(fecha)) AS promedio_diario
+
+        FROM ventas
+
+        WHERE YEAR(fecha) = p_anio
+
+        GROUP BY MONTH(fecha)
+
+    )
+
+
+
+    SELECT
+
+        m.nombre AS mes,
+
+        m.mes_numero,
+
+        ROUND(COALESCE(v.total_mes, 0), 2) AS total_mes,
+
+        ROUND(COALESCE(v.promedio_diario, 0), 2) AS promedio_diario
+
+    FROM meses m
+
+    LEFT JOIN ventas_por_mes v ON m.mes_numero = v.mes_numero
+
+    ORDER BY m.mes_numero;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1798,41 +2278,76 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `gastoClienteMes`(IN p_anio INT, IN p_mes INT)
-BEGIN
- DECLARE fecha_inicio DATE;
-    DECLARE fecha_fin DATE;
-
-    
-    SET lc_time_names = 'es_ES';
-
-    
-    SET fecha_inicio = DATE(CONCAT(p_anio, '-', LPAD(p_mes, 2, '0'), '-01'));
-    SET fecha_fin = LAST_DAY(fecha_inicio);
-
-    
-    DROP TEMPORARY TABLE IF EXISTS fechas_mes;
-    CREATE TEMPORARY TABLE fechas_mes (
-        fecha DATE,
-        semana_iso INT
-    );
-
-    
-    WHILE fecha_inicio <= fecha_fin DO
-        INSERT INTO fechas_mes (fecha, semana_iso)
-        VALUES (fecha_inicio, WEEK(fecha_inicio, 3));
-        SET fecha_inicio = DATE_ADD(fecha_inicio, INTERVAL 1 DAY);
-    END WHILE;
-
-    
-    SELECT 
-        semana_iso AS semana,
-        MIN(f.fecha) AS inicio_semana,
-        MAX(f.fecha) AS fin_semana,
-        ROUND(SUM(IFNULL(v.monto_final, 0)), 2) AS total_semana
-    FROM fechas_mes f
-    LEFT JOIN ventas v ON DATE(v.fecha) = f.fecha
-    GROUP BY semana_iso
-    ORDER BY semana_iso;
+BEGIN
+
+ DECLARE fecha_inicio DATE;
+
+    DECLARE fecha_fin DATE;
+
+
+
+    
+
+    SET lc_time_names = 'es_ES';
+
+
+
+    
+
+    SET fecha_inicio = DATE(CONCAT(p_anio, '-', LPAD(p_mes, 2, '0'), '-01'));
+
+    SET fecha_fin = LAST_DAY(fecha_inicio);
+
+
+
+    
+
+    DROP TEMPORARY TABLE IF EXISTS fechas_mes;
+
+    CREATE TEMPORARY TABLE fechas_mes (
+
+        fecha DATE,
+
+        semana_iso INT
+
+    );
+
+
+
+    
+
+    WHILE fecha_inicio <= fecha_fin DO
+
+        INSERT INTO fechas_mes (fecha, semana_iso)
+
+        VALUES (fecha_inicio, WEEK(fecha_inicio, 3));
+
+        SET fecha_inicio = DATE_ADD(fecha_inicio, INTERVAL 1 DAY);
+
+    END WHILE;
+
+
+
+    
+
+    SELECT 
+
+        semana_iso AS semana,
+
+        MIN(f.fecha) AS inicio_semana,
+
+        MAX(f.fecha) AS fin_semana,
+
+        ROUND(SUM(IFNULL(v.monto_final, 0)), 2) AS total_semana
+
+    FROM fechas_mes f
+
+    LEFT JOIN ventas v ON DATE(v.fecha) = f.fecha
+
+    GROUP BY semana_iso
+
+    ORDER BY semana_iso;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1849,60 +2364,113 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `GastoClienteSemana`(
-    IN p_anio INT,
-    IN p_semana INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GastoClienteSemana`(
+
+    IN p_anio INT,
+
+    IN p_semana INT
+
 )
-BEGIN
-    DECLARE target_yearweek INT;
-
-    
-    SET target_yearweek = p_anio * 100 + p_semana;
-
-    WITH 
-    RECURSIVE calendario AS (
-        SELECT DATE(CONCAT(p_anio,'-01-01')) AS fecha
-        UNION ALL
-        SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
-        FROM calendario
-        WHERE fecha < DATE(CONCAT(p_anio,'-12-31'))
-    ),
-    semana_iso AS (
-        SELECT fecha
-        FROM calendario
-        WHERE YEARWEEK(fecha,1) = target_yearweek
-    ),
-    dias_nombres AS (
-        SELECT 1 AS dia_orden, 'Lunes'    AS dia_nombre UNION ALL
-        SELECT 2, 'Martes'    UNION ALL
-        SELECT 3, 'Miércoles' UNION ALL
-        SELECT 4, 'Jueves'    UNION ALL
-        SELECT 5, 'Viernes'   UNION ALL
-        SELECT 6, 'Sábado'    UNION ALL
-        SELECT 7, 'Domingo'
-    ),
-    dias_semana AS (
-        SELECT
-          si.fecha,
-          WEEKDAY(si.fecha) + 1      AS dia_orden,
-          dn.dia_nombre
-        FROM semana_iso si
-        JOIN dias_nombres dn ON dn.dia_orden = WEEKDAY(si.fecha) + 1
-    )
-
-    SELECT
-        ds.dia_nombre               AS dia,
-        DATE_FORMAT(ds.fecha, '%Y-%m-%d') AS fecha,
-        ROUND(SUM(IFNULL(v.monto_final, 0)), 2)   AS total_dia
-    FROM dias_semana ds
-    LEFT JOIN ventas v
-      ON DATE(v.fecha) = ds.fecha
-    GROUP BY
-        ds.dia_orden,
-        ds.dia_nombre,
-        ds.fecha
-    ORDER BY
-        ds.dia_orden;
+BEGIN
+
+    DECLARE target_yearweek INT;
+
+
+
+    
+
+    SET target_yearweek = p_anio * 100 + p_semana;
+
+
+
+    WITH 
+
+    RECURSIVE calendario AS (
+
+        SELECT DATE(CONCAT(p_anio,'-01-01')) AS fecha
+
+        UNION ALL
+
+        SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
+
+        FROM calendario
+
+        WHERE fecha < DATE(CONCAT(p_anio,'-12-31'))
+
+    ),
+
+    semana_iso AS (
+
+        SELECT fecha
+
+        FROM calendario
+
+        WHERE YEARWEEK(fecha,1) = target_yearweek
+
+    ),
+
+    dias_nombres AS (
+
+        SELECT 1 AS dia_orden, 'Lunes'    AS dia_nombre UNION ALL
+
+        SELECT 2, 'Martes'    UNION ALL
+
+        SELECT 3, 'Miércoles' UNION ALL
+
+        SELECT 4, 'Jueves'    UNION ALL
+
+        SELECT 5, 'Viernes'   UNION ALL
+
+        SELECT 6, 'Sábado'    UNION ALL
+
+        SELECT 7, 'Domingo'
+
+    ),
+
+    dias_semana AS (
+
+        SELECT
+
+          si.fecha,
+
+          WEEKDAY(si.fecha) + 1      AS dia_orden,
+
+          dn.dia_nombre
+
+        FROM semana_iso si
+
+        JOIN dias_nombres dn ON dn.dia_orden = WEEKDAY(si.fecha) + 1
+
+    )
+
+
+
+    SELECT
+
+        ds.dia_nombre               AS dia,
+
+        DATE_FORMAT(ds.fecha, '%Y-%m-%d') AS fecha,
+
+        ROUND(SUM(IFNULL(v.monto_final, 0)), 2)   AS total_dia
+
+    FROM dias_semana ds
+
+    LEFT JOIN ventas v
+
+      ON DATE(v.fecha) = ds.fecha
+
+    GROUP BY
+
+        ds.dia_orden,
+
+        ds.dia_nombre,
+
+        ds.fecha
+
+    ORDER BY
+
+        ds.dia_orden;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1919,107 +2487,207 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `porcentaje_reservaciones_anio`(
-    IN p_anio INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `porcentaje_reservaciones_anio`(
+
+    IN p_anio INT
+
 )
-BEGIN
-    DECLARE total_reservaciones INT;
-
-    -- Calcular el total de reservaciones para el año especificado
-    SELECT COUNT(*) INTO total_reservaciones
-    FROM reservaciones r
-    WHERE YEAR(r.fecha_inicio) = p_anio;
-
-    -- Calcular reservaciones por cada hora
-    SELECT 
-        '5 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    WHERE YEAR(r.fecha_inicio) = p_anio
-    AND HOUR(r.fecha_inicio) = 17
-
-    UNION ALL
-
-    SELECT 
-        '6 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    WHERE YEAR(r.fecha_inicio) = p_anio
-    AND HOUR(r.fecha_inicio) = 18
-
-    UNION ALL
-
-    SELECT 
-        '7 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    WHERE YEAR(r.fecha_inicio) = p_anio
-    AND HOUR(r.fecha_inicio) = 19
-
-    UNION ALL
-
-    SELECT 
-        '8 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    WHERE YEAR(r.fecha_inicio) = p_anio
-    AND HOUR(r.fecha_inicio) = 20
-
-    UNION ALL
-
-    SELECT 
-        '9 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    WHERE YEAR(r.fecha_inicio) = p_anio
-    AND HOUR(r.fecha_inicio) = 21
-
-    UNION ALL
-
-    SELECT 
-        '10 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    WHERE YEAR(r.fecha_inicio) = p_anio
-    AND HOUR(r.fecha_inicio) = 22
-
-    UNION ALL
-
-    SELECT 
-        '11 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    WHERE YEAR(r.fecha_inicio) = p_anio
-    AND HOUR(r.fecha_inicio) = 23;
-
+BEGIN
+
+    DECLARE total_reservaciones INT;
+
+
+
+    -- Calcular el total de reservaciones para el año especificado
+
+    SELECT COUNT(*) INTO total_reservaciones
+
+    FROM reservaciones r
+
+    WHERE YEAR(r.fecha_inicio) = p_anio;
+
+
+
+    -- Calcular reservaciones por cada hora
+
+    SELECT 
+
+        '5 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    WHERE YEAR(r.fecha_inicio) = p_anio
+
+    AND HOUR(r.fecha_inicio) = 17
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '6 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    WHERE YEAR(r.fecha_inicio) = p_anio
+
+    AND HOUR(r.fecha_inicio) = 18
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '7 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    WHERE YEAR(r.fecha_inicio) = p_anio
+
+    AND HOUR(r.fecha_inicio) = 19
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '8 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    WHERE YEAR(r.fecha_inicio) = p_anio
+
+    AND HOUR(r.fecha_inicio) = 20
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '9 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    WHERE YEAR(r.fecha_inicio) = p_anio
+
+    AND HOUR(r.fecha_inicio) = 21
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '10 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    WHERE YEAR(r.fecha_inicio) = p_anio
+
+    AND HOUR(r.fecha_inicio) = 22
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '11 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    WHERE YEAR(r.fecha_inicio) = p_anio
+
+    AND HOUR(r.fecha_inicio) = 23;
+
+
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2036,116 +2704,225 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `porcentaje_reservaciones_mes`(
-    IN p_mes INT,
-    IN p_anio INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `porcentaje_reservaciones_mes`(
+
+    IN p_mes INT,
+
+    IN p_anio INT
+
 )
-BEGIN
-    DECLARE total_reservaciones INT;
-
-    -- Calcular el total de reservaciones para el mes y año especificados
-    SELECT COUNT(*) INTO total_reservaciones
-    FROM reservaciones r
-    WHERE MONTH(r.fecha_inicio) = p_mes
-    AND YEAR(r.fecha_inicio) = p_anio;
-
-    -- Calcular reservaciones por cada hora
-    SELECT 
-        '5 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    WHERE MONTH(r.fecha_inicio) = p_mes
-    AND YEAR(r.fecha_inicio) = p_anio
-    AND HOUR(r.fecha_inicio) = 17
-
-    UNION ALL
-
-    SELECT 
-        '6 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    WHERE MONTH(r.fecha_inicio) = p_mes
-    AND YEAR(r.fecha_inicio) = p_anio
-    AND HOUR(r.fecha_inicio) = 18
-
-    UNION ALL
-
-    SELECT 
-        '7 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    WHERE MONTH(r.fecha_inicio) = p_mes
-    AND YEAR(r.fecha_inicio) = p_anio
-    AND HOUR(r.fecha_inicio) = 19
-
-    UNION ALL
-
-    SELECT 
-        '8 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    WHERE MONTH(r.fecha_inicio) = p_mes
-    AND YEAR(r.fecha_inicio) = p_anio
-    AND HOUR(r.fecha_inicio) = 20
-
-    UNION ALL
-
-    SELECT 
-        '9 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    WHERE MONTH(r.fecha_inicio) = p_mes
-    AND YEAR(r.fecha_inicio) = p_anio
-    AND HOUR(r.fecha_inicio) = 21
-
-    UNION ALL
-
-    SELECT 
-        '10 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    WHERE MONTH(r.fecha_inicio) = p_mes
-    AND YEAR(r.fecha_inicio) = p_anio
-    AND HOUR(r.fecha_inicio) = 22
-
-    UNION ALL
-
-    SELECT 
-        '11 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    WHERE MONTH(r.fecha_inicio) = p_mes
-    AND YEAR(r.fecha_inicio) = p_anio
-    AND HOUR(r.fecha_inicio) = 23;
-
+BEGIN
+
+    DECLARE total_reservaciones INT;
+
+
+
+    -- Calcular el total de reservaciones para el mes y año especificados
+
+    SELECT COUNT(*) INTO total_reservaciones
+
+    FROM reservaciones r
+
+    WHERE MONTH(r.fecha_inicio) = p_mes
+
+    AND YEAR(r.fecha_inicio) = p_anio;
+
+
+
+    -- Calcular reservaciones por cada hora
+
+    SELECT 
+
+        '5 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    WHERE MONTH(r.fecha_inicio) = p_mes
+
+    AND YEAR(r.fecha_inicio) = p_anio
+
+    AND HOUR(r.fecha_inicio) = 17
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '6 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    WHERE MONTH(r.fecha_inicio) = p_mes
+
+    AND YEAR(r.fecha_inicio) = p_anio
+
+    AND HOUR(r.fecha_inicio) = 18
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '7 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    WHERE MONTH(r.fecha_inicio) = p_mes
+
+    AND YEAR(r.fecha_inicio) = p_anio
+
+    AND HOUR(r.fecha_inicio) = 19
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '8 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    WHERE MONTH(r.fecha_inicio) = p_mes
+
+    AND YEAR(r.fecha_inicio) = p_anio
+
+    AND HOUR(r.fecha_inicio) = 20
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '9 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    WHERE MONTH(r.fecha_inicio) = p_mes
+
+    AND YEAR(r.fecha_inicio) = p_anio
+
+    AND HOUR(r.fecha_inicio) = 21
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '10 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    WHERE MONTH(r.fecha_inicio) = p_mes
+
+    AND YEAR(r.fecha_inicio) = p_anio
+
+    AND HOUR(r.fecha_inicio) = 22
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '11 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    WHERE MONTH(r.fecha_inicio) = p_mes
+
+    AND YEAR(r.fecha_inicio) = p_anio
+
+    AND HOUR(r.fecha_inicio) = 23;
+
+
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2162,225 +2939,443 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `porcentaje_reservaciones_semana`(
-    IN p_semana INT,
-    IN p_anio INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `porcentaje_reservaciones_semana`(
+
+    IN p_semana INT,
+
+    IN p_anio INT
+
 )
-BEGIN
-    DECLARE total_reservaciones INT;
-
-    -- Calcular el total de reservaciones para la semana y año especificados
-    SELECT COUNT(*) INTO total_reservaciones
-    FROM (
-        WITH 
-        RECURSIVE calendario AS (
-            SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
-            UNION ALL
-            SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
-            FROM calendario
-            WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
-        )
-        SELECT fecha
-        FROM calendario
-        WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
-    ) AS semana_iso
-    JOIN reservaciones r ON DATE(r.fecha_inicio) = semana_iso.fecha;
-
-    -- Calcular reservaciones por cada hora
-    SELECT 
-        '5 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    JOIN (
-        SELECT fecha
-        FROM (
-            WITH 
-            RECURSIVE calendario AS (
-                SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
-                UNION ALL
-                SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
-                FROM calendario
-                WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
-            )
-            SELECT fecha
-            FROM calendario
-            WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
-        ) AS semana_iso
-    ) AS si ON DATE(r.fecha_inicio) = si.fecha
-    WHERE HOUR(r.fecha_inicio) = 17
-
-    UNION ALL
-
-    SELECT 
-        '6 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    JOIN (
-        SELECT fecha
-        FROM (
-            WITH 
-            RECURSIVE calendario AS (
-                SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
-                UNION ALL
-                SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
-                FROM calendario
-                WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
-            )
-            SELECT fecha
-            FROM calendario
-            WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
-        ) AS semana_iso
-    ) AS si ON DATE(r.fecha_inicio) = si.fecha
-    WHERE HOUR(r.fecha_inicio) = 18
-
-    UNION ALL
-
-    SELECT 
-        '7 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    JOIN (
-        SELECT fecha
-        FROM (
-            WITH 
-            RECURSIVE calendario AS (
-                SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
-                UNION ALL
-                SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
-                FROM calendario
-                WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
-            )
-            SELECT fecha
-            FROM calendario
-            WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
-        ) AS semana_iso
-    ) AS si ON DATE(r.fecha_inicio) = si.fecha
-    WHERE HOUR(r.fecha_inicio) = 19
-
-    UNION ALL
-
-    SELECT 
-        '8 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    JOIN (
-        SELECT fecha
-        FROM (
-            WITH 
-            RECURSIVE calendario AS (
-                SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
-                UNION ALL
-                SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
-                FROM calendario
-                WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
-            )
-            SELECT fecha
-            FROM calendario
-            WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
-        ) AS semana_iso
-    ) AS si ON DATE(r.fecha_inicio) = si.fecha
-    WHERE HOUR(r.fecha_inicio) = 20
-
-    UNION ALL
-
-    SELECT 
-        '9 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    JOIN (
-        SELECT fecha
-        FROM (
-            WITH 
-            RECURSIVE calendario AS (
-                SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
-                UNION ALL
-                SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
-                FROM calendario
-                WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
-            )
-            SELECT fecha
-            FROM calendario
-            WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
-        ) AS semana_iso
-    ) AS si ON DATE(r.fecha_inicio) = si.fecha
-    WHERE HOUR(r.fecha_inicio) = 21
-
-    UNION ALL
-
-    SELECT 
-        '10 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    JOIN (
-        SELECT fecha
-        FROM (
-            WITH 
-            RECURSIVE calendario AS (
-                SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
-                UNION ALL
-                SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
-                FROM calendario
-                WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
-            )
-            SELECT fecha
-            FROM calendario
-            WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
-        ) AS semana_iso
-    ) AS si ON DATE(r.fecha_inicio) = si.fecha
-    WHERE HOUR(r.fecha_inicio) = 22
-
-    UNION ALL
-
-    SELECT 
-        '11 PM' AS hora,
-        COUNT(*) AS cantidad,
-        CASE 
-            WHEN total_reservaciones = 0 THEN 0 
-            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
-        END AS porcentaje
-    FROM reservaciones r
-    JOIN (
-        SELECT fecha
-        FROM (
-            WITH 
-            RECURSIVE calendario AS (
-                SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
-                UNION ALL
-                SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
-                FROM calendario
-                WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
-            )
-            SELECT fecha
-            FROM calendario
-            WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
-        ) AS semana_iso
-    ) AS si ON DATE(r.fecha_inicio) = si.fecha
-    WHERE HOUR(r.fecha_inicio) = 23;
-
+BEGIN
+
+    DECLARE total_reservaciones INT;
+
+
+
+    -- Calcular el total de reservaciones para la semana y año especificados
+
+    SELECT COUNT(*) INTO total_reservaciones
+
+    FROM (
+
+        WITH 
+
+        RECURSIVE calendario AS (
+
+            SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
+
+            UNION ALL
+
+            SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
+
+            FROM calendario
+
+            WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
+
+        )
+
+        SELECT fecha
+
+        FROM calendario
+
+        WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
+
+    ) AS semana_iso
+
+    JOIN reservaciones r ON DATE(r.fecha_inicio) = semana_iso.fecha;
+
+
+
+    -- Calcular reservaciones por cada hora
+
+    SELECT 
+
+        '5 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    JOIN (
+
+        SELECT fecha
+
+        FROM (
+
+            WITH 
+
+            RECURSIVE calendario AS (
+
+                SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
+
+                UNION ALL
+
+                SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
+
+                FROM calendario
+
+                WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
+
+            )
+
+            SELECT fecha
+
+            FROM calendario
+
+            WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
+
+        ) AS semana_iso
+
+    ) AS si ON DATE(r.fecha_inicio) = si.fecha
+
+    WHERE HOUR(r.fecha_inicio) = 17
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '6 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    JOIN (
+
+        SELECT fecha
+
+        FROM (
+
+            WITH 
+
+            RECURSIVE calendario AS (
+
+                SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
+
+                UNION ALL
+
+                SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
+
+                FROM calendario
+
+                WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
+
+            )
+
+            SELECT fecha
+
+            FROM calendario
+
+            WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
+
+        ) AS semana_iso
+
+    ) AS si ON DATE(r.fecha_inicio) = si.fecha
+
+    WHERE HOUR(r.fecha_inicio) = 18
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '7 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    JOIN (
+
+        SELECT fecha
+
+        FROM (
+
+            WITH 
+
+            RECURSIVE calendario AS (
+
+                SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
+
+                UNION ALL
+
+                SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
+
+                FROM calendario
+
+                WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
+
+            )
+
+            SELECT fecha
+
+            FROM calendario
+
+            WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
+
+        ) AS semana_iso
+
+    ) AS si ON DATE(r.fecha_inicio) = si.fecha
+
+    WHERE HOUR(r.fecha_inicio) = 19
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '8 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    JOIN (
+
+        SELECT fecha
+
+        FROM (
+
+            WITH 
+
+            RECURSIVE calendario AS (
+
+                SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
+
+                UNION ALL
+
+                SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
+
+                FROM calendario
+
+                WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
+
+            )
+
+            SELECT fecha
+
+            FROM calendario
+
+            WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
+
+        ) AS semana_iso
+
+    ) AS si ON DATE(r.fecha_inicio) = si.fecha
+
+    WHERE HOUR(r.fecha_inicio) = 20
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '9 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    JOIN (
+
+        SELECT fecha
+
+        FROM (
+
+            WITH 
+
+            RECURSIVE calendario AS (
+
+                SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
+
+                UNION ALL
+
+                SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
+
+                FROM calendario
+
+                WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
+
+            )
+
+            SELECT fecha
+
+            FROM calendario
+
+            WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
+
+        ) AS semana_iso
+
+    ) AS si ON DATE(r.fecha_inicio) = si.fecha
+
+    WHERE HOUR(r.fecha_inicio) = 21
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '10 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    JOIN (
+
+        SELECT fecha
+
+        FROM (
+
+            WITH 
+
+            RECURSIVE calendario AS (
+
+                SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
+
+                UNION ALL
+
+                SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
+
+                FROM calendario
+
+                WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
+
+            )
+
+            SELECT fecha
+
+            FROM calendario
+
+            WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
+
+        ) AS semana_iso
+
+    ) AS si ON DATE(r.fecha_inicio) = si.fecha
+
+    WHERE HOUR(r.fecha_inicio) = 22
+
+
+
+    UNION ALL
+
+
+
+    SELECT 
+
+        '11 PM' AS hora,
+
+        COUNT(*) AS cantidad,
+
+        CASE 
+
+            WHEN total_reservaciones = 0 THEN 0 
+
+            ELSE ROUND((COUNT(*) / total_reservaciones) * 100, 2) 
+
+        END AS porcentaje
+
+    FROM reservaciones r
+
+    JOIN (
+
+        SELECT fecha
+
+        FROM (
+
+            WITH 
+
+            RECURSIVE calendario AS (
+
+                SELECT DATE(CONCAT(p_anio, '-01-01')) AS fecha
+
+                UNION ALL
+
+                SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
+
+                FROM calendario
+
+                WHERE fecha < DATE(CONCAT(p_anio, '-12-31'))
+
+            )
+
+            SELECT fecha
+
+            FROM calendario
+
+            WHERE YEARWEEK(fecha, 1) = (p_anio * 100 + p_semana)
+
+        ) AS semana_iso
+
+    ) AS si ON DATE(r.fecha_inicio) = si.fecha
+
+    WHERE HOUR(r.fecha_inicio) = 23;
+
+
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2398,70 +3393,134 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `productosMasVendidoAnio`(IN p_anio INT)
-BEGIN
-
-    WITH meses AS (
-        SELECT 1 AS mes_num, 'Enero' AS mes_nombre UNION ALL
-        SELECT 2, 'Febrero' UNION ALL
-        SELECT 3, 'Marzo' UNION ALL
-        SELECT 4, 'Abril' UNION ALL
-        SELECT 5, 'Mayo' UNION ALL
-        SELECT 6, 'Junio' UNION ALL
-        SELECT 7, 'Julio' UNION ALL
-        SELECT 8, 'Agosto' UNION ALL
-        SELECT 9, 'Septiembre' UNION ALL
-        SELECT 10, 'Octubre' UNION ALL
-        SELECT 11, 'Noviembre' UNION ALL
-        SELECT 12, 'Diciembre'
-    ),
-
-    
-    ventas_mensuales AS (
-        SELECT
-            MONTH(o.fecha)                     AS mes,
-            p.id                               AS producto_id,
-            p.nombre                           AS producto_nombre,
-            SUM(od.cantidad)                   AS total_cantidad,
-            SUM(od.cantidad * p.precio)        AS total_monto
-        FROM producto_preparado_detalle_orden od
-        JOIN productos_preparados p ON p.id = od.id_producto
-        JOIN `orden` o              ON o.id = od.id_orden
-        WHERE YEAR(o.fecha) = p_anio
-          AND p.tipo = 'producto'
-        GROUP BY mes, p.id, p.nombre
-    ),
-
-    
-    ranking AS (
-        SELECT
-            vm.*,
-            ROW_NUMBER() OVER (
-                PARTITION BY vm.mes
-                ORDER BY vm.total_cantidad DESC
-            ) AS rn
-        FROM ventas_mensuales vm
-    ),
-
-    top_ventas AS (
-        SELECT
-            mes,
-            producto_nombre,
-            total_cantidad,
-            ROUND(total_monto, 2) AS total_monto
-        FROM ranking
-        WHERE rn <= 3
-    )
-
-    
-    SELECT
-        m.mes_num                        AS numero_mes,
-        m.mes_nombre                    AS nombre_mes,
-        COALESCE(tv.producto_nombre, 'Sin ventas') AS producto,
-        COALESCE(tv.total_cantidad, 0) AS unidades_vendidas,
-        COALESCE(tv.total_monto, 0.00) AS monto_generado
-    FROM meses m
-    LEFT JOIN top_ventas tv ON tv.mes = m.mes_num
-    ORDER BY m.mes_num, unidades_vendidas DESC;
+BEGIN
+
+
+
+    WITH meses AS (
+
+        SELECT 1 AS mes_num, 'Enero' AS mes_nombre UNION ALL
+
+        SELECT 2, 'Febrero' UNION ALL
+
+        SELECT 3, 'Marzo' UNION ALL
+
+        SELECT 4, 'Abril' UNION ALL
+
+        SELECT 5, 'Mayo' UNION ALL
+
+        SELECT 6, 'Junio' UNION ALL
+
+        SELECT 7, 'Julio' UNION ALL
+
+        SELECT 8, 'Agosto' UNION ALL
+
+        SELECT 9, 'Septiembre' UNION ALL
+
+        SELECT 10, 'Octubre' UNION ALL
+
+        SELECT 11, 'Noviembre' UNION ALL
+
+        SELECT 12, 'Diciembre'
+
+    ),
+
+
+
+    
+
+    ventas_mensuales AS (
+
+        SELECT
+
+            MONTH(o.fecha)                     AS mes,
+
+            p.id                               AS producto_id,
+
+            p.nombre                           AS producto_nombre,
+
+            SUM(od.cantidad)                   AS total_cantidad,
+
+            SUM(od.cantidad * p.precio)        AS total_monto
+
+        FROM producto_preparado_detalle_orden od
+
+        JOIN productos_preparados p ON p.id = od.id_producto
+
+        JOIN `orden` o              ON o.id = od.id_orden
+
+        WHERE YEAR(o.fecha) = p_anio
+
+          AND p.tipo = 'producto'
+
+        GROUP BY mes, p.id, p.nombre
+
+    ),
+
+
+
+    
+
+    ranking AS (
+
+        SELECT
+
+            vm.*,
+
+            ROW_NUMBER() OVER (
+
+                PARTITION BY vm.mes
+
+                ORDER BY vm.total_cantidad DESC
+
+            ) AS rn
+
+        FROM ventas_mensuales vm
+
+    ),
+
+
+
+    top_ventas AS (
+
+        SELECT
+
+            mes,
+
+            producto_nombre,
+
+            total_cantidad,
+
+            ROUND(total_monto, 2) AS total_monto
+
+        FROM ranking
+
+        WHERE rn <= 3
+
+    )
+
+
+
+    
+
+    SELECT
+
+        m.mes_num                        AS numero_mes,
+
+        m.mes_nombre                    AS nombre_mes,
+
+        COALESCE(tv.producto_nombre, 'Sin ventas') AS producto,
+
+        COALESCE(tv.total_cantidad, 0) AS unidades_vendidas,
+
+        COALESCE(tv.total_monto, 0.00) AS monto_generado
+
+    FROM meses m
+
+    LEFT JOIN top_ventas tv ON tv.mes = m.mes_num
+
+    ORDER BY m.mes_num, unidades_vendidas DESC;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2479,70 +3538,134 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `productosMasVendidoMes`(IN p_anio INT, IN p_mes INT)
-BEGIN
-SET lc_time_names = 'es_ES';
-
-    
-    WITH RECURSIVE fechas AS (
-        SELECT DATE(CONCAT(p_anio, '-', p_mes, '-01')) AS fecha
-        UNION ALL
-        SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
-        FROM fechas
-        WHERE MONTH(fecha) = p_mes AND YEAR(fecha) = p_anio
-    ),
-    semanas_mes AS (
-        SELECT DISTINCT WEEK(fecha, 1) AS semana
-        FROM fechas
-    ),
-
-    
-    ventas_semanales AS (
-        SELECT
-            WEEK(o.fecha, 1)                  AS semana,
-            p.id                              AS producto_id,
-            p.nombre                          AS producto_nombre,
-            SUM(od.cantidad)                  AS total_cantidad,
-            SUM(od.cantidad * p.precio)       AS total_monto
-        FROM producto_preparado_detalle_orden od
-        JOIN productos_preparados p ON p.id = od.id_producto
-        JOIN `orden` o              ON o.id = od.id_orden
-        WHERE YEAR(o.fecha) = p_anio
-          AND MONTH(o.fecha) = p_mes
-          AND p.tipo = 'producto'
-        GROUP BY semana, p.id, p.nombre
-    ),
-
-    
-    ranking AS (
-        SELECT
-            vs.*,
-            ROW_NUMBER() OVER (
-                PARTITION BY vs.semana
-                ORDER BY vs.total_cantidad DESC
-            ) AS rn
-        FROM ventas_semanales vs
-    ),
-
-    
-    top_ventas AS (
-        SELECT
-            semana,
-            producto_nombre,
-            total_cantidad,
-            ROUND(total_monto, 2) AS total_monto
-        FROM ranking
-        WHERE rn <= 3
-    )
-
-    
-    SELECT
-        sm.semana                      AS semana_del_anio,
-        COALESCE(tv.producto_nombre, 'Sin ventas')  AS producto,
-        COALESCE(tv.total_cantidad, 0)              AS unidades_vendidas,
-        COALESCE(tv.total_monto, 0.00)              AS monto_generado
-    FROM semanas_mes sm
-    LEFT JOIN top_ventas tv ON tv.semana = sm.semana
-    ORDER BY sm.semana, unidades_vendidas DESC;
+BEGIN
+
+SET lc_time_names = 'es_ES';
+
+
+
+    
+
+    WITH RECURSIVE fechas AS (
+
+        SELECT DATE(CONCAT(p_anio, '-', p_mes, '-01')) AS fecha
+
+        UNION ALL
+
+        SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
+
+        FROM fechas
+
+        WHERE MONTH(fecha) = p_mes AND YEAR(fecha) = p_anio
+
+    ),
+
+    semanas_mes AS (
+
+        SELECT DISTINCT WEEK(fecha, 1) AS semana
+
+        FROM fechas
+
+    ),
+
+
+
+    
+
+    ventas_semanales AS (
+
+        SELECT
+
+            WEEK(o.fecha, 1)                  AS semana,
+
+            p.id                              AS producto_id,
+
+            p.nombre                          AS producto_nombre,
+
+            SUM(od.cantidad)                  AS total_cantidad,
+
+            SUM(od.cantidad * p.precio)       AS total_monto
+
+        FROM producto_preparado_detalle_orden od
+
+        JOIN productos_preparados p ON p.id = od.id_producto
+
+        JOIN `orden` o              ON o.id = od.id_orden
+
+        WHERE YEAR(o.fecha) = p_anio
+
+          AND MONTH(o.fecha) = p_mes
+
+          AND p.tipo = 'producto'
+
+        GROUP BY semana, p.id, p.nombre
+
+    ),
+
+
+
+    
+
+    ranking AS (
+
+        SELECT
+
+            vs.*,
+
+            ROW_NUMBER() OVER (
+
+                PARTITION BY vs.semana
+
+                ORDER BY vs.total_cantidad DESC
+
+            ) AS rn
+
+        FROM ventas_semanales vs
+
+    ),
+
+
+
+    
+
+    top_ventas AS (
+
+        SELECT
+
+            semana,
+
+            producto_nombre,
+
+            total_cantidad,
+
+            ROUND(total_monto, 2) AS total_monto
+
+        FROM ranking
+
+        WHERE rn <= 3
+
+    )
+
+
+
+    
+
+    SELECT
+
+        sm.semana                      AS semana_del_anio,
+
+        COALESCE(tv.producto_nombre, 'Sin ventas')  AS producto,
+
+        COALESCE(tv.total_cantidad, 0)              AS unidades_vendidas,
+
+        COALESCE(tv.total_monto, 0.00)              AS monto_generado
+
+    FROM semanas_mes sm
+
+    LEFT JOIN top_ventas tv ON tv.semana = sm.semana
+
+    ORDER BY sm.semana, unidades_vendidas DESC;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2560,65 +3683,124 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `productosMasVendidoSemana`(IN p_anio INT, IN p_semana INT)
-BEGIN
-    
-    SET lc_time_names = 'es_ES';
-
-    
-    WITH dias_semana AS (
-        SELECT 0 AS dia_orden, 'Lunes' AS dia UNION ALL
-        SELECT 1, 'Martes' UNION ALL
-        SELECT 2, 'Miércoles' UNION ALL
-        SELECT 3, 'Jueves' UNION ALL
-        SELECT 4, 'Viernes' UNION ALL
-        SELECT 5, 'Sábado' UNION ALL
-        SELECT 6, 'Domingo'
-    ),
-
-    
-    ventas_semanales AS (
-        SELECT
-            p.id                            AS producto_id,
-            p.nombre                        AS producto_nombre,
-            WEEKDAY(o.fecha)               AS dia_orden,
-            DAYNAME(o.fecha)               AS dia_nombre,
-            SUM(od.cantidad)               AS total_cantidad,
-            SUM(od.cantidad * p.precio)    AS total_monto
-        FROM producto_preparado_detalle_orden od
-        JOIN productos_preparados p ON p.id = od.id_producto
-        JOIN `orden` o              ON o.id = od.id_orden
-        WHERE YEAR(o.fecha) = p_anio
-          AND WEEK(o.fecha, 1) = p_semana
-          AND p.tipo = 'producto'
-        GROUP BY p.id, p.nombre, WEEKDAY(o.fecha), DAYNAME(o.fecha)
-    ),
-
-    
-    ranking AS (
-        SELECT
-            *,
-            ROW_NUMBER() OVER (
-                PARTITION BY dia_orden
-                ORDER BY total_cantidad DESC
-            ) AS rn
-        FROM ventas_semanales
-    ),
-
-    
-    dias_con_ventas AS (
-        SELECT
-            d.dia_orden,
-            d.dia,
-            COALESCE(r.producto_nombre, 'SIN VENTA') AS producto,
-            IFNULL(r.total_cantidad, 0) AS unidades_vendidas,
-            ROUND(IFNULL(r.total_monto, 0), 2) AS monto_generado
-        FROM dias_semana d
-        LEFT JOIN ranking r ON d.dia_orden = r.dia_orden AND r.rn <= 3
-    )
-
-    SELECT *
-    FROM dias_con_ventas
-    ORDER BY dia_orden, unidades_vendidas DESC;
+BEGIN
+
+    
+
+    SET lc_time_names = 'es_ES';
+
+
+
+    
+
+    WITH dias_semana AS (
+
+        SELECT 0 AS dia_orden, 'Lunes' AS dia UNION ALL
+
+        SELECT 1, 'Martes' UNION ALL
+
+        SELECT 2, 'Miércoles' UNION ALL
+
+        SELECT 3, 'Jueves' UNION ALL
+
+        SELECT 4, 'Viernes' UNION ALL
+
+        SELECT 5, 'Sábado' UNION ALL
+
+        SELECT 6, 'Domingo'
+
+    ),
+
+
+
+    
+
+    ventas_semanales AS (
+
+        SELECT
+
+            p.id                            AS producto_id,
+
+            p.nombre                        AS producto_nombre,
+
+            WEEKDAY(o.fecha)               AS dia_orden,
+
+            DAYNAME(o.fecha)               AS dia_nombre,
+
+            SUM(od.cantidad)               AS total_cantidad,
+
+            SUM(od.cantidad * p.precio)    AS total_monto
+
+        FROM producto_preparado_detalle_orden od
+
+        JOIN productos_preparados p ON p.id = od.id_producto
+
+        JOIN `orden` o              ON o.id = od.id_orden
+
+        WHERE YEAR(o.fecha) = p_anio
+
+          AND WEEK(o.fecha, 1) = p_semana
+
+          AND p.tipo = 'producto'
+
+        GROUP BY p.id, p.nombre, WEEKDAY(o.fecha), DAYNAME(o.fecha)
+
+    ),
+
+
+
+    
+
+    ranking AS (
+
+        SELECT
+
+            *,
+
+            ROW_NUMBER() OVER (
+
+                PARTITION BY dia_orden
+
+                ORDER BY total_cantidad DESC
+
+            ) AS rn
+
+        FROM ventas_semanales
+
+    ),
+
+
+
+    
+
+    dias_con_ventas AS (
+
+        SELECT
+
+            d.dia_orden,
+
+            d.dia,
+
+            COALESCE(r.producto_nombre, 'SIN VENTA') AS producto,
+
+            IFNULL(r.total_cantidad, 0) AS unidades_vendidas,
+
+            ROUND(IFNULL(r.total_monto, 0), 2) AS monto_generado
+
+        FROM dias_semana d
+
+        LEFT JOIN ranking r ON d.dia_orden = r.dia_orden AND r.rn <= 3
+
+    )
+
+
+
+    SELECT *
+
+    FROM dias_con_ventas
+
+    ORDER BY dia_orden, unidades_vendidas DESC;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2636,70 +3818,134 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `productosMenosVendidoAnio`(IN p_anio INT)
-BEGIN
-
-    WITH meses AS (
-        SELECT 1 AS mes_num, 'Enero' AS mes_nombre UNION ALL
-        SELECT 2, 'Febrero' UNION ALL
-        SELECT 3, 'Marzo' UNION ALL
-        SELECT 4, 'Abril' UNION ALL
-        SELECT 5, 'Mayo' UNION ALL
-        SELECT 6, 'Junio' UNION ALL
-        SELECT 7, 'Julio' UNION ALL
-        SELECT 8, 'Agosto' UNION ALL
-        SELECT 9, 'Septiembre' UNION ALL
-        SELECT 10, 'Octubre' UNION ALL
-        SELECT 11, 'Noviembre' UNION ALL
-        SELECT 12, 'Diciembre'
-    ),
-
-    
-    ventas_mensuales AS (
-        SELECT
-            MONTH(o.fecha)                     AS mes,
-            p.id                               AS producto_id,
-            p.nombre                           AS producto_nombre,
-            SUM(od.cantidad)                   AS total_cantidad,
-            SUM(od.cantidad * p.precio)        AS total_monto
-        FROM producto_preparado_detalle_orden od
-        JOIN productos_preparados p ON p.id = od.id_producto
-        JOIN `orden` o              ON o.id = od.id_orden
-        WHERE YEAR(o.fecha) = p_anio
-          AND p.tipo = 'producto'
-        GROUP BY mes, p.id, p.nombre
-    ),
-
-    
-    ranking AS (
-        SELECT
-            vm.*,
-            ROW_NUMBER() OVER (
-                PARTITION BY vm.mes
-                ORDER BY vm.total_cantidad ASC
-            ) AS rn
-        FROM ventas_mensuales vm
-    ),
-
-    top_ventas AS (
-        SELECT
-            mes,
-            producto_nombre,
-            total_cantidad,
-            ROUND(total_monto, 2) AS total_monto
-        FROM ranking
-        WHERE rn <= 3
-    )
-
-    
-    SELECT
-        m.mes_num                        AS numero_mes,
-        m.mes_nombre                    AS nombre_mes,
-        COALESCE(tv.producto_nombre, 'Sin ventas') AS producto,
-        COALESCE(tv.total_cantidad, 0) AS unidades_vendidas,
-        COALESCE(tv.total_monto, 0.00) AS monto_generado
-    FROM meses m
-    LEFT JOIN top_ventas tv ON tv.mes = m.mes_num
-    ORDER BY m.mes_num, unidades_vendidas ASC;
+BEGIN
+
+
+
+    WITH meses AS (
+
+        SELECT 1 AS mes_num, 'Enero' AS mes_nombre UNION ALL
+
+        SELECT 2, 'Febrero' UNION ALL
+
+        SELECT 3, 'Marzo' UNION ALL
+
+        SELECT 4, 'Abril' UNION ALL
+
+        SELECT 5, 'Mayo' UNION ALL
+
+        SELECT 6, 'Junio' UNION ALL
+
+        SELECT 7, 'Julio' UNION ALL
+
+        SELECT 8, 'Agosto' UNION ALL
+
+        SELECT 9, 'Septiembre' UNION ALL
+
+        SELECT 10, 'Octubre' UNION ALL
+
+        SELECT 11, 'Noviembre' UNION ALL
+
+        SELECT 12, 'Diciembre'
+
+    ),
+
+
+
+    
+
+    ventas_mensuales AS (
+
+        SELECT
+
+            MONTH(o.fecha)                     AS mes,
+
+            p.id                               AS producto_id,
+
+            p.nombre                           AS producto_nombre,
+
+            SUM(od.cantidad)                   AS total_cantidad,
+
+            SUM(od.cantidad * p.precio)        AS total_monto
+
+        FROM producto_preparado_detalle_orden od
+
+        JOIN productos_preparados p ON p.id = od.id_producto
+
+        JOIN `orden` o              ON o.id = od.id_orden
+
+        WHERE YEAR(o.fecha) = p_anio
+
+          AND p.tipo = 'producto'
+
+        GROUP BY mes, p.id, p.nombre
+
+    ),
+
+
+
+    
+
+    ranking AS (
+
+        SELECT
+
+            vm.*,
+
+            ROW_NUMBER() OVER (
+
+                PARTITION BY vm.mes
+
+                ORDER BY vm.total_cantidad ASC
+
+            ) AS rn
+
+        FROM ventas_mensuales vm
+
+    ),
+
+
+
+    top_ventas AS (
+
+        SELECT
+
+            mes,
+
+            producto_nombre,
+
+            total_cantidad,
+
+            ROUND(total_monto, 2) AS total_monto
+
+        FROM ranking
+
+        WHERE rn <= 3
+
+    )
+
+
+
+    
+
+    SELECT
+
+        m.mes_num                        AS numero_mes,
+
+        m.mes_nombre                    AS nombre_mes,
+
+        COALESCE(tv.producto_nombre, 'Sin ventas') AS producto,
+
+        COALESCE(tv.total_cantidad, 0) AS unidades_vendidas,
+
+        COALESCE(tv.total_monto, 0.00) AS monto_generado
+
+    FROM meses m
+
+    LEFT JOIN top_ventas tv ON tv.mes = m.mes_num
+
+    ORDER BY m.mes_num, unidades_vendidas ASC;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2717,70 +3963,134 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `productosMenosVendidoMes`(IN p_anio INT, IN p_mes INT)
-BEGIN
-SET lc_time_names = 'es_ES';
-
-    
-    WITH RECURSIVE fechas AS (
-        SELECT DATE(CONCAT(p_anio, '-', p_mes, '-01')) AS fecha
-        UNION ALL
-        SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
-        FROM fechas
-        WHERE MONTH(fecha) = p_mes AND YEAR(fecha) = p_anio
-    ),
-    semanas_mes AS (
-        SELECT DISTINCT WEEK(fecha, 1) AS semana
-        FROM fechas
-    ),
-
-    
-    ventas_semanales AS (
-        SELECT
-            WEEK(o.fecha, 1)                  AS semana,
-            p.id                              AS producto_id,
-            p.nombre                          AS producto_nombre,
-            SUM(od.cantidad)                  AS total_cantidad,
-            SUM(od.cantidad * p.precio)       AS total_monto
-        FROM producto_preparado_detalle_orden od
-        JOIN productos_preparados p ON p.id = od.id_producto
-        JOIN `orden` o              ON o.id = od.id_orden
-        WHERE YEAR(o.fecha) = p_anio
-          AND MONTH(o.fecha) = p_mes
-          AND p.tipo = 'producto'
-        GROUP BY semana, p.id, p.nombre
-    ),
-
-    
-    ranking AS (
-        SELECT
-            vs.*,
-            ROW_NUMBER() OVER (
-                PARTITION BY vs.semana
-                ORDER BY vs.total_cantidad ASC
-            ) AS rn
-        FROM ventas_semanales vs
-    ),
-
-    
-    top_ventas AS (
-        SELECT
-            semana,
-            producto_nombre,
-            total_cantidad,
-            ROUND(total_monto, 2) AS total_monto
-        FROM ranking
-        WHERE rn <= 3
-    )
-
-    
-    SELECT
-        sm.semana                      AS semana_del_anio,
-        COALESCE(tv.producto_nombre, 'Sin ventas')  AS producto,
-        COALESCE(tv.total_cantidad, 0)              AS unidades_vendidas,
-        COALESCE(tv.total_monto, 0.00)              AS monto_generado
-    FROM semanas_mes sm
-    LEFT JOIN top_ventas tv ON tv.semana = sm.semana
-    ORDER BY sm.semana, unidades_vendidas ASC;
+BEGIN
+
+SET lc_time_names = 'es_ES';
+
+
+
+    
+
+    WITH RECURSIVE fechas AS (
+
+        SELECT DATE(CONCAT(p_anio, '-', p_mes, '-01')) AS fecha
+
+        UNION ALL
+
+        SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
+
+        FROM fechas
+
+        WHERE MONTH(fecha) = p_mes AND YEAR(fecha) = p_anio
+
+    ),
+
+    semanas_mes AS (
+
+        SELECT DISTINCT WEEK(fecha, 1) AS semana
+
+        FROM fechas
+
+    ),
+
+
+
+    
+
+    ventas_semanales AS (
+
+        SELECT
+
+            WEEK(o.fecha, 1)                  AS semana,
+
+            p.id                              AS producto_id,
+
+            p.nombre                          AS producto_nombre,
+
+            SUM(od.cantidad)                  AS total_cantidad,
+
+            SUM(od.cantidad * p.precio)       AS total_monto
+
+        FROM producto_preparado_detalle_orden od
+
+        JOIN productos_preparados p ON p.id = od.id_producto
+
+        JOIN `orden` o              ON o.id = od.id_orden
+
+        WHERE YEAR(o.fecha) = p_anio
+
+          AND MONTH(o.fecha) = p_mes
+
+          AND p.tipo = 'producto'
+
+        GROUP BY semana, p.id, p.nombre
+
+    ),
+
+
+
+    
+
+    ranking AS (
+
+        SELECT
+
+            vs.*,
+
+            ROW_NUMBER() OVER (
+
+                PARTITION BY vs.semana
+
+                ORDER BY vs.total_cantidad ASC
+
+            ) AS rn
+
+        FROM ventas_semanales vs
+
+    ),
+
+
+
+    
+
+    top_ventas AS (
+
+        SELECT
+
+            semana,
+
+            producto_nombre,
+
+            total_cantidad,
+
+            ROUND(total_monto, 2) AS total_monto
+
+        FROM ranking
+
+        WHERE rn <= 3
+
+    )
+
+
+
+    
+
+    SELECT
+
+        sm.semana                      AS semana_del_anio,
+
+        COALESCE(tv.producto_nombre, 'Sin ventas')  AS producto,
+
+        COALESCE(tv.total_cantidad, 0)              AS unidades_vendidas,
+
+        COALESCE(tv.total_monto, 0.00)              AS monto_generado
+
+    FROM semanas_mes sm
+
+    LEFT JOIN top_ventas tv ON tv.semana = sm.semana
+
+    ORDER BY sm.semana, unidades_vendidas ASC;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2798,65 +4108,124 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `productosMenosVendidoSemana`(IN p_anio INT, IN p_semana INT)
-BEGIN
-    
-    SET lc_time_names = 'es_ES';
-
-    
-    WITH dias_semana AS (
-        SELECT 0 AS dia_orden, 'Lunes' AS dia UNION ALL
-        SELECT 1, 'Martes' UNION ALL
-        SELECT 2, 'Miércoles' UNION ALL
-        SELECT 3, 'Jueves' UNION ALL
-        SELECT 4, 'Viernes' UNION ALL
-        SELECT 5, 'Sábado' UNION ALL
-        SELECT 6, 'Domingo'
-    ),
-
-    
-    ventas_semanales AS (
-        SELECT
-            p.id                            AS producto_id,
-            p.nombre                        AS producto_nombre,
-            WEEKDAY(o.fecha)               AS dia_orden,
-            DAYNAME(o.fecha)               AS dia_nombre,
-            SUM(od.cantidad)               AS total_cantidad,
-            SUM(od.cantidad * p.precio)    AS total_monto
-        FROM producto_preparado_detalle_orden od
-        JOIN productos_preparados p ON p.id = od.id_producto
-        JOIN `orden` o              ON o.id = od.id_orden
-        WHERE YEAR(o.fecha) = p_anio
-          AND WEEK(o.fecha, 1) = p_semana
-          AND p.tipo = 'producto'
-        GROUP BY p.id, p.nombre, WEEKDAY(o.fecha), DAYNAME(o.fecha)
-    ),
-
-    
-    ranking AS (
-        SELECT
-            *,
-            ROW_NUMBER() OVER (
-                PARTITION BY dia_orden
-                ORDER BY total_cantidad DESC
-            ) AS rn
-        FROM ventas_semanales
-    ),
-
-    
-    dias_con_ventas AS (
-        SELECT
-            d.dia_orden,
-            d.dia,
-            COALESCE(r.producto_nombre, 'SIN VENTA') AS producto,
-            IFNULL(r.total_cantidad, 0) AS unidades_vendidas,
-            ROUND(IFNULL(r.total_monto, 0), 2) AS monto_generado
-        FROM dias_semana d
-        LEFT JOIN ranking r ON d.dia_orden = r.dia_orden AND r.rn <= 3
-    )
-
-    SELECT *
-    FROM dias_con_ventas
-    ORDER BY dia_orden, unidades_vendidas ASC;
+BEGIN
+
+    
+
+    SET lc_time_names = 'es_ES';
+
+
+
+    
+
+    WITH dias_semana AS (
+
+        SELECT 0 AS dia_orden, 'Lunes' AS dia UNION ALL
+
+        SELECT 1, 'Martes' UNION ALL
+
+        SELECT 2, 'Miércoles' UNION ALL
+
+        SELECT 3, 'Jueves' UNION ALL
+
+        SELECT 4, 'Viernes' UNION ALL
+
+        SELECT 5, 'Sábado' UNION ALL
+
+        SELECT 6, 'Domingo'
+
+    ),
+
+
+
+    
+
+    ventas_semanales AS (
+
+        SELECT
+
+            p.id                            AS producto_id,
+
+            p.nombre                        AS producto_nombre,
+
+            WEEKDAY(o.fecha)               AS dia_orden,
+
+            DAYNAME(o.fecha)               AS dia_nombre,
+
+            SUM(od.cantidad)               AS total_cantidad,
+
+            SUM(od.cantidad * p.precio)    AS total_monto
+
+        FROM producto_preparado_detalle_orden od
+
+        JOIN productos_preparados p ON p.id = od.id_producto
+
+        JOIN `orden` o              ON o.id = od.id_orden
+
+        WHERE YEAR(o.fecha) = p_anio
+
+          AND WEEK(o.fecha, 1) = p_semana
+
+          AND p.tipo = 'producto'
+
+        GROUP BY p.id, p.nombre, WEEKDAY(o.fecha), DAYNAME(o.fecha)
+
+    ),
+
+
+
+    
+
+    ranking AS (
+
+        SELECT
+
+            *,
+
+            ROW_NUMBER() OVER (
+
+                PARTITION BY dia_orden
+
+                ORDER BY total_cantidad DESC
+
+            ) AS rn
+
+        FROM ventas_semanales
+
+    ),
+
+
+
+    
+
+    dias_con_ventas AS (
+
+        SELECT
+
+            d.dia_orden,
+
+            d.dia,
+
+            COALESCE(r.producto_nombre, 'SIN VENTA') AS producto,
+
+            IFNULL(r.total_cantidad, 0) AS unidades_vendidas,
+
+            ROUND(IFNULL(r.total_monto, 0), 2) AS monto_generado
+
+        FROM dias_semana d
+
+        LEFT JOIN ranking r ON d.dia_orden = r.dia_orden AND r.rn <= 3
+
+    )
+
+
+
+    SELECT *
+
+    FROM dias_con_ventas
+
+    ORDER BY dia_orden, unidades_vendidas ASC;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2874,14 +4243,22 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `ReservasPorMetodoAnual`(IN `p_anio` INT)
-BEGIN
-    
-    SELECT
-        metodo_pedido,
-        COALESCE(COUNT(*),0) AS cantidad_reservas
-    FROM reservaciones
-    WHERE YEAR(fecha_inicio) = p_anio
-    GROUP BY metodo_pedido;
+BEGIN
+
+    
+
+    SELECT
+
+        metodo_pedido,
+
+        COALESCE(COUNT(*),0) AS cantidad_reservas
+
+    FROM reservaciones
+
+    WHERE YEAR(fecha_inicio) = p_anio
+
+    GROUP BY metodo_pedido;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2899,14 +4276,22 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `ReservasPorMetodoMes`(IN `p_anio` INT, IN `p_mes` INT)
-BEGIN
-    
-    SELECT
-        metodo_pedido,
-        COUNT(*) AS cantidad_reservas
-    FROM reservaciones
-    WHERE YEAR(fecha_inicio) = p_anio AND MONTH(fecha_inicio) =p_mes
-    GROUP BY metodo_pedido;
+BEGIN
+
+    
+
+    SELECT
+
+        metodo_pedido,
+
+        COUNT(*) AS cantidad_reservas
+
+    FROM reservaciones
+
+    WHERE YEAR(fecha_inicio) = p_anio AND MONTH(fecha_inicio) =p_mes
+
+    GROUP BY metodo_pedido;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2923,18 +4308,29 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `ReservasPorMetodoSemana`(
-    IN p_anio INT,
-    IN p_semana INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ReservasPorMetodoSemana`(
+
+    IN p_anio INT,
+
+    IN p_semana INT
+
 )
-BEGIN
-    -- Versión adaptada para trabajar por semana y año
-    SELECT
-        metodo_pedido,
-        COUNT(*) AS cantidad_reservas
-    FROM reservaciones
-    WHERE YEARWEEK(fecha_inicio, 1) = (p_anio * 100 + p_semana)
-    GROUP BY metodo_pedido;
+BEGIN
+
+    -- Versión adaptada para trabajar por semana y año
+
+    SELECT
+
+        metodo_pedido,
+
+        COUNT(*) AS cantidad_reservas
+
+    FROM reservaciones
+
+    WHERE YEARWEEK(fecha_inicio, 1) = (p_anio * 100 + p_semana)
+
+    GROUP BY metodo_pedido;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2951,19 +4347,31 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `TotalVentasAnio`(
-    IN p_anio INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `TotalVentasAnio`(
+
+    IN p_anio INT
+
 )
-BEGIN
-    SELECT
-        o.tipo AS tipo_orden,
-        COUNT(DISTINCT o.id) AS total_ordenes,
-        ROUND(SUM(v.monto_final), 2) AS total_recaudado
-    FROM `orden` o
-    JOIN ventas v ON v.id_orden = o.id
-    WHERE YEAR(o.fecha) = p_anio
-    GROUP BY o.tipo
-    ORDER BY total_recaudado DESC;
+BEGIN
+
+    SELECT
+
+        o.tipo AS tipo_orden,
+
+        COUNT(DISTINCT o.id) AS total_ordenes,
+
+        ROUND(SUM(v.monto_final), 2) AS total_recaudado
+
+    FROM `orden` o
+
+    JOIN ventas v ON v.id_orden = o.id
+
+    WHERE YEAR(o.fecha) = p_anio
+
+    GROUP BY o.tipo
+
+    ORDER BY total_recaudado DESC;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2980,21 +4388,35 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `TotalVentasMes`(
-    IN p_anio INT,
-    IN p_mes INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `TotalVentasMes`(
+
+    IN p_anio INT,
+
+    IN p_mes INT
+
 )
-BEGIN
-    SELECT
-        o.tipo AS tipo_orden,
-        COUNT(DISTINCT o.id) AS total_ordenes,
-        ROUND(SUM(v.monto_final), 2) AS total_recaudado
-    FROM `orden` o
-    JOIN ventas v ON v.id_orden = o.id
-    WHERE YEAR(o.fecha) = p_anio
-      AND MONTH(o.fecha) = p_mes
-    GROUP BY o.tipo
-    ORDER BY total_recaudado DESC;
+BEGIN
+
+    SELECT
+
+        o.tipo AS tipo_orden,
+
+        COUNT(DISTINCT o.id) AS total_ordenes,
+
+        ROUND(SUM(v.monto_final), 2) AS total_recaudado
+
+    FROM `orden` o
+
+    JOIN ventas v ON v.id_orden = o.id
+
+    WHERE YEAR(o.fecha) = p_anio
+
+      AND MONTH(o.fecha) = p_mes
+
+    GROUP BY o.tipo
+
+    ORDER BY total_recaudado DESC;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -3011,21 +4433,35 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `TotalVentasSemana`(
-    IN p_anio INT,
-    IN p_semana INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `TotalVentasSemana`(
+
+    IN p_anio INT,
+
+    IN p_semana INT
+
 )
-BEGIN
-    SELECT
-        o.tipo AS tipo_orden,
-        COUNT(DISTINCT o.id) AS total_ordenes,
-        ROUND(SUM(v.monto_final), 2) AS total_recaudado
-    FROM `orden` o
-    JOIN ventas v ON v.id_orden = o.id
-    WHERE YEAR(o.fecha) = p_anio
-      AND WEEK(o.fecha, 1) = p_semana
-    GROUP BY o.tipo
-    ORDER BY total_recaudado DESC;
+BEGIN
+
+    SELECT
+
+        o.tipo AS tipo_orden,
+
+        COUNT(DISTINCT o.id) AS total_ordenes,
+
+        ROUND(SUM(v.monto_final), 2) AS total_recaudado
+
+    FROM `orden` o
+
+    JOIN ventas v ON v.id_orden = o.id
+
+    WHERE YEAR(o.fecha) = p_anio
+
+      AND WEEK(o.fecha, 1) = p_semana
+
+    GROUP BY o.tipo
+
+    ORDER BY total_recaudado DESC;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -3043,50 +4479,94 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `UtilidadNetaAnual`(IN p_anio INT)
-BEGIN
-    
-    WITH meses AS (
-        SELECT 1 AS mes_numero, 'Enero' AS nombre UNION
-        SELECT 2, 'Febrero' UNION
-        SELECT 3, 'Marzo' UNION
-        SELECT 4, 'Abril' UNION
-        SELECT 5, 'Mayo' UNION
-        SELECT 6, 'Junio' UNION
-        SELECT 7, 'Julio' UNION
-        SELECT 8, 'Agosto' UNION
-        SELECT 9, 'Septiembre' UNION
-        SELECT 10, 'Octubre' UNION
-        SELECT 11, 'Noviembre' UNION
-        SELECT 12, 'Diciembre'
-    ),
-    
-    utilidad_por_mes AS (
-        SELECT 
-            MONTH(mc.fecha) AS mes_numero,
-            ROUND(SUM(CASE WHEN mc.monto / mc.tasa > 0 THEN mc.monto / mc.tasa ELSE 0 END), 2) AS ingresos,
-            ROUND(SUM(CASE WHEN mc.monto / mc.tasa > 0 AND mc.descripcion LIKE '%Ingreso por venta%' 
-                           THEN mc.monto / mc.tasa ELSE 0 END), 2) AS ventas,
-            ROUND(SUM(CASE WHEN mc.monto / mc.tasa < 0 THEN mc.monto / mc.tasa ELSE 0 END), 2) AS gastos,
-            ROUND(
-                SUM(CASE WHEN mc.monto / mc.tasa > 0 THEN mc.monto / mc.tasa ELSE 0 END) +
-                SUM(CASE WHEN mc.monto / mc.tasa < 0 THEN mc.monto / mc.tasa ELSE 0 END), 2
-            ) AS utilidad_neta
-        FROM movimientos_capital mc
-        WHERE YEAR(mc.fecha) = p_anio
-        GROUP BY MONTH(mc.fecha)
-    )
-
-    SELECT
-        m.nombre AS mes,
-        m.mes_numero,
-        COALESCE(u.ingresos, 0) AS ingresos,
-        COALESCE(u.ventas, 0) AS ventas,
-        COALESCE(u.gastos, 0) AS gastos,
-        COALESCE(u.utilidad_neta, 0) AS utilidad_neta
-    FROM meses m
-    LEFT JOIN utilidad_por_mes u ON m.mes_numero = u.mes_numero
-    ORDER BY m.mes_numero;
-
+BEGIN
+
+    
+
+    WITH meses AS (
+
+        SELECT 1 AS mes_numero, 'Enero' AS nombre UNION
+
+        SELECT 2, 'Febrero' UNION
+
+        SELECT 3, 'Marzo' UNION
+
+        SELECT 4, 'Abril' UNION
+
+        SELECT 5, 'Mayo' UNION
+
+        SELECT 6, 'Junio' UNION
+
+        SELECT 7, 'Julio' UNION
+
+        SELECT 8, 'Agosto' UNION
+
+        SELECT 9, 'Septiembre' UNION
+
+        SELECT 10, 'Octubre' UNION
+
+        SELECT 11, 'Noviembre' UNION
+
+        SELECT 12, 'Diciembre'
+
+    ),
+
+    
+
+    utilidad_por_mes AS (
+
+        SELECT 
+
+            MONTH(mc.fecha) AS mes_numero,
+
+            ROUND(SUM(CASE WHEN mc.monto / mc.tasa > 0 THEN mc.monto / mc.tasa ELSE 0 END), 2) AS ingresos,
+
+            ROUND(SUM(CASE WHEN mc.monto / mc.tasa > 0 AND mc.descripcion LIKE '%Ingreso por venta%' 
+
+                           THEN mc.monto / mc.tasa ELSE 0 END), 2) AS ventas,
+
+            ROUND(SUM(CASE WHEN mc.monto / mc.tasa < 0 THEN mc.monto / mc.tasa ELSE 0 END), 2) AS gastos,
+
+            ROUND(
+
+                SUM(CASE WHEN mc.monto / mc.tasa > 0 THEN mc.monto / mc.tasa ELSE 0 END) +
+
+                SUM(CASE WHEN mc.monto / mc.tasa < 0 THEN mc.monto / mc.tasa ELSE 0 END), 2
+
+            ) AS utilidad_neta
+
+        FROM movimientos_capital mc
+
+        WHERE YEAR(mc.fecha) = p_anio
+
+        GROUP BY MONTH(mc.fecha)
+
+    )
+
+
+
+    SELECT
+
+        m.nombre AS mes,
+
+        m.mes_numero,
+
+        COALESCE(u.ingresos, 0) AS ingresos,
+
+        COALESCE(u.ventas, 0) AS ventas,
+
+        COALESCE(u.gastos, 0) AS gastos,
+
+        COALESCE(u.utilidad_neta, 0) AS utilidad_neta
+
+    FROM meses m
+
+    LEFT JOIN utilidad_por_mes u ON m.mes_numero = u.mes_numero
+
+    ORDER BY m.mes_numero;
+
+
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -3104,65 +4584,124 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `UtilidadNetaMes`(IN p_anio INT, IN p_mes INT)
-BEGIN
-    
-    WITH RECURSIVE calendario AS (
-        SELECT DATE(CONCAT(p_anio, '-', LPAD(p_mes, 2, '0'), '-01')) AS fecha
-        UNION ALL
-        SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
-        FROM calendario
-        WHERE MONTH(fecha) = p_mes
-          AND fecha < LAST_DAY(CONCAT(p_anio, '-', LPAD(p_mes, 2, '0'), '-01'))
-    ),
-
-    semanas_del_mes AS (
-        SELECT 
-            YEARWEEK(fecha, 1) AS anio_semana,
-            WEEK(fecha, 1)     AS semana,
-            MIN(fecha) OVER (PARTITION BY WEEK(fecha, 1)) AS inicio_semana,
-            MAX(fecha) OVER (PARTITION BY WEEK(fecha, 1)) AS fin_semana,
-            fecha
-        FROM calendario
-    ),
-
-    semanas_agrupadas AS (
-        SELECT DISTINCT 
-            semana,
-            DATE_FORMAT(MIN(fecha), '%Y-%m-%d') AS fecha_inicio,
-            DATE_FORMAT(MAX(fecha), '%Y-%m-%d') AS fecha_fin
-        FROM semanas_del_mes
-        GROUP BY semana
-    )
-
-    SELECT 
-        sa.semana                               AS semana,
-        sa.fecha_inicio                         AS fecha_inicio,
-        sa.fecha_fin                            AS fecha_fin,
-        
-        ROUND(SUM(CASE 
-            WHEN mc.monto / NULLIF(mc.tasa,0) > 0 THEN mc.monto / NULLIF(mc.tasa,0)
-        END), 2) AS ingresos,
-        
-        ROUND(SUM(CASE 
-            WHEN mc.monto / NULLIF(mc.tasa,0) > 0 
-                 AND mc.descripcion LIKE '%Ingreso por venta%' 
-            THEN mc.monto / NULLIF(mc.tasa,0)
-        END), 2) AS ventas,
-        
-        ROUND(SUM(CASE 
-            WHEN mc.monto / NULLIF(mc.tasa,0) < 0 THEN mc.monto / NULLIF(mc.tasa,0)
-        END), 2) AS gastos,
-        
-        ROUND(
-            SUM(CASE WHEN mc.monto / NULLIF(mc.tasa,0) > 0 THEN mc.monto / NULLIF(mc.tasa,0) ELSE 0 END) +
-            SUM(CASE WHEN mc.monto / NULLIF(mc.tasa,0) < 0 THEN mc.monto / NULLIF(mc.tasa,0) ELSE 0 END)
-        , 2) AS utilidad_neta
-
-    FROM semanas_agrupadas sa
-    LEFT JOIN movimientos_capital mc 
-      ON WEEK(mc.fecha, 1) = sa.semana AND YEAR(mc.fecha) = p_anio
-    GROUP BY sa.semana, sa.fecha_inicio, sa.fecha_fin
-    ORDER BY sa.semana;
+BEGIN
+
+    
+
+    WITH RECURSIVE calendario AS (
+
+        SELECT DATE(CONCAT(p_anio, '-', LPAD(p_mes, 2, '0'), '-01')) AS fecha
+
+        UNION ALL
+
+        SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
+
+        FROM calendario
+
+        WHERE MONTH(fecha) = p_mes
+
+          AND fecha < LAST_DAY(CONCAT(p_anio, '-', LPAD(p_mes, 2, '0'), '-01'))
+
+    ),
+
+
+
+    semanas_del_mes AS (
+
+        SELECT 
+
+            YEARWEEK(fecha, 1) AS anio_semana,
+
+            WEEK(fecha, 1)     AS semana,
+
+            MIN(fecha) OVER (PARTITION BY WEEK(fecha, 1)) AS inicio_semana,
+
+            MAX(fecha) OVER (PARTITION BY WEEK(fecha, 1)) AS fin_semana,
+
+            fecha
+
+        FROM calendario
+
+    ),
+
+
+
+    semanas_agrupadas AS (
+
+        SELECT DISTINCT 
+
+            semana,
+
+            DATE_FORMAT(MIN(fecha), '%Y-%m-%d') AS fecha_inicio,
+
+            DATE_FORMAT(MAX(fecha), '%Y-%m-%d') AS fecha_fin
+
+        FROM semanas_del_mes
+
+        GROUP BY semana
+
+    )
+
+
+
+    SELECT 
+
+        sa.semana                               AS semana,
+
+        sa.fecha_inicio                         AS fecha_inicio,
+
+        sa.fecha_fin                            AS fecha_fin,
+
+        
+
+        ROUND(SUM(CASE 
+
+            WHEN mc.monto / NULLIF(mc.tasa,0) > 0 THEN mc.monto / NULLIF(mc.tasa,0)
+
+        END), 2) AS ingresos,
+
+        
+
+        ROUND(SUM(CASE 
+
+            WHEN mc.monto / NULLIF(mc.tasa,0) > 0 
+
+                 AND mc.descripcion LIKE '%Ingreso por venta%' 
+
+            THEN mc.monto / NULLIF(mc.tasa,0)
+
+        END), 2) AS ventas,
+
+        
+
+        ROUND(SUM(CASE 
+
+            WHEN mc.monto / NULLIF(mc.tasa,0) < 0 THEN mc.monto / NULLIF(mc.tasa,0)
+
+        END), 2) AS gastos,
+
+        
+
+        ROUND(
+
+            SUM(CASE WHEN mc.monto / NULLIF(mc.tasa,0) > 0 THEN mc.monto / NULLIF(mc.tasa,0) ELSE 0 END) +
+
+            SUM(CASE WHEN mc.monto / NULLIF(mc.tasa,0) < 0 THEN mc.monto / NULLIF(mc.tasa,0) ELSE 0 END)
+
+        , 2) AS utilidad_neta
+
+
+
+    FROM semanas_agrupadas sa
+
+    LEFT JOIN movimientos_capital mc 
+
+      ON WEEK(mc.fecha, 1) = sa.semana AND YEAR(mc.fecha) = p_anio
+
+    GROUP BY sa.semana, sa.fecha_inicio, sa.fecha_fin
+
+    ORDER BY sa.semana;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -3180,74 +4719,142 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `UtilidadNetaSemana`(IN p_anio INT, IN p_semana INT)
-BEGIN
-    DECLARE target_yearweek INT;
-
-    -- Construir el formato de YEARWEEK
-    SET target_yearweek = p_anio * 100 + p_semana;
-
-    WITH 
-    RECURSIVE calendario AS (
-        SELECT DATE(CONCAT(p_anio,'-01-01')) AS fecha
-        UNION ALL
-        SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
-        FROM calendario
-        WHERE fecha < DATE(CONCAT(p_anio,'-12-31'))
-    ),
-
-    semana_iso AS (
-        SELECT fecha
-        FROM calendario
-        WHERE YEARWEEK(fecha,1) = target_yearweek
-    ),
-
-    dias_nombres AS (
-        SELECT 1 AS dia_orden, 'Lunes'    AS dia_nombre UNION ALL
-        SELECT 2, 'Martes'    UNION ALL
-        SELECT 3, 'Miércoles' UNION ALL
-        SELECT 4, 'Jueves'    UNION ALL
-        SELECT 5, 'Viernes'   UNION ALL
-        SELECT 6, 'Sábado'    UNION ALL
-        SELECT 7, 'Domingo'
-    ),
-
-    dias_semana AS (
-        SELECT
-            si.fecha,
-            WEEKDAY(si.fecha) + 1  AS dia_orden,
-            dn.dia_nombre
-        FROM semana_iso si
-        JOIN dias_nombres dn ON dn.dia_orden = WEEKDAY(si.fecha) + 1
-    )
-
-    SELECT
-        ds.dia_nombre                                AS dia,
-        DATE_FORMAT(ds.fecha, '%Y-%m-%d')            AS fecha,
-        
-        ROUND(SUM(CASE 
-            WHEN mc.monto / NULLIF(mc.tasa,0) > 0 THEN mc.monto / NULLIF(mc.tasa,0)
-        END), 2) AS ingresos,
-        
-        ROUND(SUM(CASE 
-            WHEN mc.monto / NULLIF(mc.tasa,0) > 0 
-                 AND mc.descripcion LIKE '%Ingreso por venta%' 
-            THEN mc.monto / NULLIF(mc.tasa,0)
-        END), 2) AS ventas,
-        
-        ROUND(SUM(CASE 
-            WHEN mc.monto / NULLIF(mc.tasa,0) < 0 THEN mc.monto / NULLIF(mc.tasa,0)
-        END), 2) AS gastos,
-        
-        ROUND(
-            SUM(CASE WHEN mc.monto / NULLIF(mc.tasa,0) > 0 THEN mc.monto / NULLIF(mc.tasa,0) ELSE 0 END) +
-            SUM(CASE WHEN mc.monto / NULLIF(mc.tasa,0) < 0 THEN mc.monto / NULLIF(mc.tasa,0) ELSE 0 END)
-        , 2) AS utilidad_neta
-
-    FROM dias_semana ds
-    LEFT JOIN movimientos_capital mc 
-           ON DATE(mc.fecha) = ds.fecha
-    GROUP BY ds.dia_orden, ds.dia_nombre, ds.fecha
-    ORDER BY ds.dia_orden;
+BEGIN
+
+    DECLARE target_yearweek INT;
+
+
+
+    -- Construir el formato de YEARWEEK
+
+    SET target_yearweek = p_anio * 100 + p_semana;
+
+
+
+    WITH 
+
+    RECURSIVE calendario AS (
+
+        SELECT DATE(CONCAT(p_anio,'-01-01')) AS fecha
+
+        UNION ALL
+
+        SELECT DATE_ADD(fecha, INTERVAL 1 DAY)
+
+        FROM calendario
+
+        WHERE fecha < DATE(CONCAT(p_anio,'-12-31'))
+
+    ),
+
+
+
+    semana_iso AS (
+
+        SELECT fecha
+
+        FROM calendario
+
+        WHERE YEARWEEK(fecha,1) = target_yearweek
+
+    ),
+
+
+
+    dias_nombres AS (
+
+        SELECT 1 AS dia_orden, 'Lunes'    AS dia_nombre UNION ALL
+
+        SELECT 2, 'Martes'    UNION ALL
+
+        SELECT 3, 'Miércoles' UNION ALL
+
+        SELECT 4, 'Jueves'    UNION ALL
+
+        SELECT 5, 'Viernes'   UNION ALL
+
+        SELECT 6, 'Sábado'    UNION ALL
+
+        SELECT 7, 'Domingo'
+
+    ),
+
+
+
+    dias_semana AS (
+
+        SELECT
+
+            si.fecha,
+
+            WEEKDAY(si.fecha) + 1  AS dia_orden,
+
+            dn.dia_nombre
+
+        FROM semana_iso si
+
+        JOIN dias_nombres dn ON dn.dia_orden = WEEKDAY(si.fecha) + 1
+
+    )
+
+
+
+    SELECT
+
+        ds.dia_nombre                                AS dia,
+
+        DATE_FORMAT(ds.fecha, '%Y-%m-%d')            AS fecha,
+
+        
+
+        ROUND(SUM(CASE 
+
+            WHEN mc.monto / NULLIF(mc.tasa,0) > 0 THEN mc.monto / NULLIF(mc.tasa,0)
+
+        END), 2) AS ingresos,
+
+        
+
+        ROUND(SUM(CASE 
+
+            WHEN mc.monto / NULLIF(mc.tasa,0) > 0 
+
+                 AND mc.descripcion LIKE '%Ingreso por venta%' 
+
+            THEN mc.monto / NULLIF(mc.tasa,0)
+
+        END), 2) AS ventas,
+
+        
+
+        ROUND(SUM(CASE 
+
+            WHEN mc.monto / NULLIF(mc.tasa,0) < 0 THEN mc.monto / NULLIF(mc.tasa,0)
+
+        END), 2) AS gastos,
+
+        
+
+        ROUND(
+
+            SUM(CASE WHEN mc.monto / NULLIF(mc.tasa,0) > 0 THEN mc.monto / NULLIF(mc.tasa,0) ELSE 0 END) +
+
+            SUM(CASE WHEN mc.monto / NULLIF(mc.tasa,0) < 0 THEN mc.monto / NULLIF(mc.tasa,0) ELSE 0 END)
+
+        , 2) AS utilidad_neta
+
+
+
+    FROM dias_semana ds
+
+    LEFT JOIN movimientos_capital mc 
+
+           ON DATE(mc.fecha) = ds.fecha
+
+    GROUP BY ds.dia_orden, ds.dia_nombre, ds.fecha
+
+    ORDER BY ds.dia_orden;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;

@@ -6,6 +6,9 @@ la contraseña es: (Tocuyo#123).
 vendor\bin\phpunit tests
 php vendor\bin\phpunit
 
+https://stackoverflow.com/questions/10895163/how-to-find-out-the-mysql-root-password
+
+
 
 ## Por hacer:
 

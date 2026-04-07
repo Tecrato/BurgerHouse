@@ -22,7 +22,7 @@ function make_url_error($message, $code = 400, $ajax = false) {
         exit;
     } 
     elseif ($code >= 400 && $code < 500) {
-        header('Location: ' . __URL__ . 'login');
+        header('Location: login');
         
     }
     exit;
@@ -157,7 +157,7 @@ function parseUrl()
 {
     $uri = $_SERVER['REQUEST_URI'];
     $uri = parse_url($uri, PHP_URL_PATH);
-    $uri = str_replace('/BurgerHouse', '', $uri);
+    $uri = str_replace('/burgerhouse', '', $uri);
     return explode('/', filter_var(trim($uri, '/'), FILTER_SANITIZE_URL));
 }
 
