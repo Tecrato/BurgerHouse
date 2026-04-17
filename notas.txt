@@ -8,6 +8,8 @@ php vendor\bin\phpunit
 
 https://stackoverflow.com/questions/10895163/how-to-find-out-the-mysql-root-password
 
+sudo a2enmod rewrite
+sudo systemctl restart apache2
 
 
 ## Por hacer:
