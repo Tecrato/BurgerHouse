@@ -2,6 +2,11 @@
 use Pusher\Pusher;
 
 function make_url_error($message, $code = 400, $ajax = false) {
+    if (isset($_SESSION['last_error_code'])) {
+        $code = $_SESSION['last_error_code'];
+        unset($_SESSION['last_error_code']);
+    }
+    
     if (
         (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ||
         (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) ||
@@ -159,6 +164,7 @@ function parseUrl()
     $uri = parse_url($uri, PHP_URL_PATH);
     $uri = str_replace('/BurgerHouse', '', $uri);
     $uri = str_replace('/Burgerhouse', '', $uri);
+    $uri = str_replace('/burgerHouse', '', $uri);
     $uri = str_replace('/burgerhouse', '', $uri);
     return explode('/', filter_var(trim($uri, '/'), FILTER_SANITIZE_URL));
 }
