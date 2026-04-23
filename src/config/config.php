@@ -53,6 +53,7 @@ define("ERROR_DICT", [
     403 => "Forbidden: No tienes permiso para acceder a este recurso.",
     404 => "Not Found: El recurso solicitado no se pudo encontrar.",
     405 => "Method Not Allowed: El método HTTP no está permitido para este recurso.",
+    429 => "Too Many Requests: Límite de operaciones por segundo excedido.",
     // 500
     500 => "Internal Server Error: Ocurrió un error en el servidor al procesar la solicitud.",
     501 => "Not Implemented: El servidor no soporta la funcionalidad requerida para procesar la solicitud.",

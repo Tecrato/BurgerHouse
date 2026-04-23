@@ -8,11 +8,17 @@ class AuthSession
 {
     public $usuario;
     public $permisos;
+    private array $last_operations = [];
+    private int $max_operations = 3;
+    private int $seconds_window = 3;
+
     public function __construct()
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
+        $this->last_operations = $_SESSION['last_operations'] ?? [];
+        
         if (!isset($_SESSION['id'])) {
             $this->usuario = null;
             return;
@@ -37,26 +43,44 @@ class AuthSession
             $this->usuario = null;
         }
     }
+
     public function is_admin(): bool
     {
         return $this->usuario && $this->usuario['rol'] === 'Super Admin';
     }
-    public function has_permission($modulo, $permiso) : bool
+
+    public function has_permission($modulo, $permiso, int &$error_code = null) : bool
     {
+        $now = microtime(true);
+
+        $this->last_operations = array_filter($this->last_operations, fn($t) => ($now - $t) <= $this->seconds_window);
+
+        if (count($this->last_operations) >= $this->max_operations) {
+            $_SESSION['last_error_code'] = 429;
+            $error_code = 429;
+            return false;
+        }
+
+        $this->last_operations[] = $now;
+        $_SESSION['last_operations'] = $this->last_operations;
+
         $modulo = strtolower($modulo);
         $permiso = strtolower($permiso);
         if (!$this->usuario) {
             return false;
         }
+
         if ($this->usuario['rol'] === 'Super Admin') {
             return true;
         }
+
         foreach ($this->permisos as $perm) {
             if ($perm['modulo'] === $modulo) {
                 $permisosArray = array_map('trim', explode(',', $perm['permisos']));
                 return in_array($permiso, $permisosArray, true);
             }
         }
+
         return false;
     }
 }
