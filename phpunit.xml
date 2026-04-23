@@ -6,7 +6,7 @@
     executionOrder="default"
 >
     <testsuites>
-        <testsuite name="BurgerHouse Test Suite">
+        <testsuite name="burgerhouse Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>

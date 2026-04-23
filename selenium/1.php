@@ -21,7 +21,7 @@ $driver = RemoteWebDriver::create($serverUrl, $capabilities);
 try {
     // 1. Navegar a una página pública primero (home o login)
     echo "Navegando a página pública para establecer cookie...\n";
-    $driver->get('https://localhost/BurgerHouse');
+    $driver->get('https://localhost/burgerhouse');
     
     // 2. Esperar a que cargue cualquier página (no esperamos título específico)
     echo "Esperando 3 segundos para que cargue...\n";
@@ -69,7 +69,7 @@ try {
     
     // 6. Ahora navegar a adicionales
     echo "Navegando a Adicionales...\n";
-    $driver->get('https://localhost/BurgerHouse/adicionales');
+    $driver->get('https://localhost/burgerhouse/adicionales');
 
     // 7. Esperar a que cargue la página de adicionales
     $driver->wait(10,5000)->until(

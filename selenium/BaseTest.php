@@ -16,7 +16,7 @@ use Facebook\WebDriver\Firefox\FirefoxOptions;
 
 abstract class BaseTest {
     protected $driver;
-    protected $baseUrl = 'https://localhost/BurgerHouse';
+    protected $baseUrl = 'https://localhost/burgerhouse';
     protected $sessionId = 'pfvju7ktjo2otal9aod36qog3d';
     protected $screenshotPath = __DIR__ . '/../selenium/screenshots/';
     protected $currentTest = '';

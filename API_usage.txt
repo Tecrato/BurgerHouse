@@ -1,4 +1,4 @@
-http://localhost/BurgerHouse/unidades/get_all/ # la url base para obtener informacion
+http://localhost/burgerhouse/unidades/get_all/ # la url base para obtener informacion
 
 tambien se le pueden pasar parametros por POST que determinan los filtros.
 ademas de incluir los parametros de limitacion y ordenamiento en la url
@@ -24,7 +24,7 @@ resultado esperado:
 Ejemplo de limitacion y ordenamiento:
 
 
-http://localhost/BurgerHouse/unidades/get_all/0/9/nombre/ASC
+http://localhost/burgerhouse/unidades/get_all/0/9/nombre/ASC
 
 Donde:
 0(n): numero de pagina

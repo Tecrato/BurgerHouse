@@ -157,6 +157,8 @@ function parseUrl()
 {
     $uri = $_SERVER['REQUEST_URI'];
     $uri = parse_url($uri, PHP_URL_PATH);
+    $uri = str_replace('/BurgerHouse', '', $uri);
+    $uri = str_replace('/Burgerhouse', '', $uri);
     $uri = str_replace('/burgerhouse', '', $uri);
     return explode('/', filter_var(trim($uri, '/'), FILTER_SANITIZE_URL));
 }
